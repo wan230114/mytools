@@ -1,0 +1,2 @@
+#/ifs/TJPROJ3/Plant/chenjun/software/python3.5/bin/python3 /TJPROJ2/RESEQ/Project_Crop/Users/xingpengwei/pooltongji.py /TJPROJ2/RESEQ/Project_Crop/Users/xingpengwei/tongji/hezuo.txt /TJPROJ2/RESEQ/Project_Crop/Users/xingpengwei/tongji/hezuo
+/ifs/TJPROJ3/Plant/chenjun/software/python3.5/bin/python3 /TJPROJ2/RESEQ/Project_Crop/Users/xingpengwei/pooltongji.py /TJPROJ2/RESEQ/Project_Crop/Users/xingpengwei/tongji/shangye.txt /TJPROJ2/RESEQ/Project_Crop/Users/xingpengwei/tongji/shangye

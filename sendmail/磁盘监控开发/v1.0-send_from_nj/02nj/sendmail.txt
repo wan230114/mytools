@@ -1,0 +1,8 @@
+天津：
+/TJNAS01/PAG/Plant/ 	  1.47394T
+/TJPROJ1/DENOVO/  	  1.6327T
+/ifs/TJPROJ3/Plant/ 	  0.932014T
+南京：
+/NJPROJ1/PAG/Plant/ 	  2.5129T
+/NJPROJ2/Plant/     	  0.873275T
+/NJPROJ3/Plant/     	  2.50759T

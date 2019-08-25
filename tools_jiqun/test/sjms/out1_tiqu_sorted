@@ -1,0 +1,60 @@
+job_begin
+	name evm
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
+	cmd_begin
+		mkdir 07.evm;
+		cat 04.pasa/*assemblies.fasta.transdecoder.genome.gff3 05.abinito/structure/*/*.gff3 > 07.evm/abinitio.gff3;
+		cat 06.homolog/*/*.gff3 > 07.evm/homo.gff3;
+		cp  00.data/weights.txt 07.evm/;
+		ln -s `pwd`/02.RNA/tophat/transcripts.gff3 07.evm/transcripts.gff3;
+		perl /ifs/TJPROJ3/Plant/Pipeline/annotation/pipeline_v2.0/bin/pipeline_EVM_v2.pl
+			-outdir 07.evm
+			-g 07.evm/abinitio.gff3
+			-p 07.evm/homo.gff3
+			-t 07.evm/transcripts.gff3
+			-w 07.evm/weights.txt
+			01.repeat/RepeatStat/genome.mask.fasta;
+		sh 07.evm/shell_dir/step0_filtout_scf.sh;
+		sh 07.evm/shell_dir/step1_cr_dir_tree.sh;
+		sh 07.evm/shell_dir/step2_evm.sh;
+		sh 07.evm/shell_dir/step3_recombine.sh;
+		sh 07.evm/shell_dir/step4_convert.sh;
+		sh 07.evm/shell_dir/step5_getresult.sh;
+	cmd_end
+job_end
+job_begin
+	name pasa2
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=1.3g,p=0
+	cmd_begin
+	/ifs/TJPROJ3/Plant/Pipeline/annotation/pipeline_v2.0/bin/pipeline_pasa.pl 
+	--round 2 
+	--trinity_seq 04.pasa/trinity.out.Trinity.fasta 
+	--genome_seq 00.data/genome.fa  
+	--sql_name genome 
+	--mysqllib 04.pasa/mysql_bin/data/ 
+	--evm 07.evm/result/evm.gff3
+	--outdir 08.pasa 
+	cmd_end
+job_end
+job_begin
+	name PASA4training
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=5g,p=0
+	cmd sh 05.abinito/training/PASA4training/run.sh
+job_end
+job_begin
+	name training_snap
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=5g,p=0
+	cmd sh 05.abinito/training/SNAP/snap.sh
+job_end
+job_begin
+	name training_glimmHMM
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=5g,p=0
+	cmd sh 05.abinito/training/GlimmerHMM/glimmHMM.sh
+job_end
+
+order pasa2 after evm
+
+order training_snap after PASA4training
+order training_glimmHMM after PASA4training
+
+log_dir log

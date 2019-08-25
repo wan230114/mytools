@@ -1,0 +1,4 @@
+path_tool = /ifs/TJPROJ3/Plant/chenjun/mytools/tools_tonglu
+path_mytools = /ifs/TJPROJ3/Plant/chenjun/mytools
+path_perl = /PUBLIC/software/public/System/Perl-5.18.2/bin
+path_qsub = /PUBLIC/software/DENOVO/bio/annotation/pipeline_v2.0/scripts

@@ -1,0 +1,50 @@
+输入的参数为： Namespace(alone=False, f1=['test1', '1'], f2=['test2', '1'], fo='test.result', keep=False, sep=' ', showlost=False)
+WARNING: a2 在file2中无对应行已跳过
+WARNING: a4 在file2中无对应行已跳过
+替换完成 --> test.result
+输入的参数为： Namespace(alone=False, f1=['test1', '1'], f2=['test2', '1'], fo='test.result1', keep=False, sep=',', showlost=False)
+WARNING: a2 在file2中无对应行已跳过
+WARNING: a4 在file2中无对应行已跳过
+替换完成 --> test.result1
+输入的参数为： Namespace(alone=False, f1=['test1', '1'], f2=['test2', '1'], fo='test.result2', keep=False, sep=',', showlost=True)
+替换完成 --> test.result2
+输入的参数为： Namespace(alone=False, f1=['test1', '1'], f2=['test2', '1'], fo='test.result3', keep=True, sep=',', showlost=False)
+替换完成 --> test.result3
+
+------------show files------------
+==> test1 <==
+a1	k1	j1
+a2	k2	j2
+a3	k3	j3
+a3	k30	j3
+a3	k31	j3
+a4	k1	j1
+
+==> test2 <==
+a1	kk1	hh
+a3	kk3	hh3
+a3	kk31	hh33
+a3	kk33	hh33
+a5	kk4	hh4
+
+==> test.result <==
+a1	k1	j1	kk1	hh
+a3	k3 k30 k31	j3	kk3 kk31 kk33	hh3 hh33
+
+==> test.result1 <==
+a1	k1	j1	kk1	hh
+a3	k3,k30,k31	j3	kk3,kk31,kk33	hh3,hh33
+
+==> test.result2 <==
+a1	k1	j1	kk1	hh
+a2	k2	j2
+a3	k3,k30,k31	j3	kk3,kk31,kk33	hh3,hh33
+a4	k1	j1
+
+==> test.result3 <==
+a1	k1	j1	kk1	hh
+a2	k2	j2
+a3	k3	j3	kk3,kk31,kk33	hh3,hh33
+a3	k30	j3	kk3,kk31,kk33	hh3,hh33
+a3	k31	j3	kk3,kk31,kk33	hh3,hh33
+a4	k1	j1

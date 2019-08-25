@@ -1,0 +1,14 @@
+jingxin,4.000T
+wenweie,3.000T
+xingpengwei,2.000T
+fuxiangke,1.000T
+bizhihong,1008.000G
+juzheng,973.000G
+luhongfeng,663.000G
+gaoxinpeng,607.000G
+lixiuxin,506.000G
+wangtianyi,198.000G
+bijinpeng,191.000G
+dengshuhan,234.000M
+zhanghua,3.000M
+SUM,16.000T

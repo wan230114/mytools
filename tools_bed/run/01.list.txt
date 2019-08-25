@@ -1,0 +1,8 @@
+Pdul	/TJNAS01/PAG/Plant/zihailing/P101SC16120962_pear/Pdul	/ifs/TJPROJ3/Plant/zihailing/project/P101SC16120962_pear/Variation_calling/00.genomes/Pdan.genome.fa
+Pnan	/TJNAS01/PAG/Plant/zihailing/P101SC16120962_pear/Pnan	/ifs/TJPROJ3/Plant/zihailing/project/P101SC16120962_pear/Variation_calling/00.genomes/Pdan.genome.fa
+Pcui	/ifs/TJPROJ3/Plant/zihailing/project/P101SC16120962_pear/Variation_calling/Pcui	/ifs/TJPROJ3/Plant/zihailing/project/P101SC16120962_pear/Variation_calling/00.genomes/Pdan.genome.fa
+Phai	/ifs/TJPROJ3/Plant/zihailing/project/P101SC16120962_pear/Variation_calling/Phai	/ifs/TJPROJ3/Plant/zihailing/project/P101SC16120962_pear/Variation_calling/00.genomes/Pdan.genome.fa
+Phei	/ifs/TJPROJ3/Plant/zihailing/project/P101SC16120962_pear/Variation_calling/Phei	/ifs/TJPROJ3/Plant/zihailing/project/P101SC16120962_pear/Variation_calling/00.genomes/Pdan.genome.fa
+Pkue	/ifs/TJPROJ3/Plant/zihailing/project/P101SC16120962_pear/Variation_calling/Pkue	/ifs/TJPROJ3/Plant/zihailing/project/P101SC16120962_pear/Variation_calling/00.genomes/Pdan.genome.fa
+Ptia	/ifs/TJPROJ3/Plant/zihailing/project/P101SC16120962_pear/Variation_calling/Ptia	/ifs/TJPROJ3/Plant/zihailing/project/P101SC16120962_pear/Variation_calling/00.genomes/Pdan.genome.fa
+Pzao	/ifs/TJPROJ3/Plant/zihailing/project/P101SC16120962_pear/Variation_calling/Pzao	/ifs/TJPROJ3/Plant/zihailing/project/P101SC16120962_pear/Variation_calling/00.genomes/Pdan.genome.fa

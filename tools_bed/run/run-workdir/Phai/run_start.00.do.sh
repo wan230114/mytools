@@ -1,0 +1,1 @@
+/PUBLIC/software/public/System/Perl-5.18.2/bin/perl /PUBLIC/software/DENOVO/bio/annotation/pipeline_v2.0/scripts//qsub-sge.pl --interval 30 --maxjob 1 --convert no --reqsub --line 2 --resource vf=4G:p=18  run_start.01.sh

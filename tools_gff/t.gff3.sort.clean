@@ -1,0 +1,12 @@
+##gff-version 3
+arahy.Tifrunner.gnm1.Arahy.01	maker	gene	20298	26071	.	+	.	ID=gene000001;Name=arahy.GHMM2H
+arahy.Tifrunner.gnm1.Arahy.01	maker	gene	20298	26071	.	+	.	ID=gene000001;Name=arahy.GHMM2H
+arahy.Tifrunner.gnm1.Arahy.01	maker	mRNA	20298	26071	.	+	.	ID=gene000001.1;Parent=gene000001
+arahy.Tifrunner.gnm1.Arahy.01	maker	mRNA	20298	26071	.	+	.	ID=gene000001.1;Parent=gene000001
+arahy.Tifrunner.gnm1.Arahy.01	maker	mRNA	20298	26071	.	+	.	ID=gene000001.1;Parent=gene000001
+arahy.Tifrunner.gnm1.Arahy.01	maker	CDS	20298	20300	.	+	0	ID=gene000001.1:cds;Parent=gene000001.1
+arahy.Tifrunner.gnm1.Arahy.01	maker	CDS	20298	20300	.	+	0	ID=CDS:gene000001.1;Parent=gene000001.1
+arahy.Tifrunner.gnm1.Arahy.01	maker	CDS	20298	20300	.	+	0	ID=CDS:gene000001.1;Parent=gene000001.1
+arahy.Tifrunner.gnm1.Arahy.01	maker	gene	20298	26071	.	+	.	ID=gene000002;Name=arahy.GHMM2H
+arahy.Tifrunner.gnm1.Arahy.01	maker	mRNA	20298	26071	.	+	.	ID=gene000002.1;Parent=gene000002
+arahy.Tifrunner.gnm1.Arahy.01	maker	CDS	20298	20300	.	+	0	ID=CDS:gene000002.1;Parent=gene000002.1

@@ -1,0 +1,3 @@
+find -L ./ -type f |cat|awk '!/.\/md5.txt/'|sort| xargs -i md5sum {}> md5.txt
+perl /NJPROJ1/home/liuwenbin/dirCheckSize.pl .
+python /NJPROJ2/Plant/chenjun/mytools/sendmail.py 1170101471@qq.com -c 查看md5

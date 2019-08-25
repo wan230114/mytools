@@ -1,0 +1,1 @@
+ls |grep -e ".pep$"|xargs -i sh -c "sh /TJPROJ1/DENOVO/PROJ1/libenping/JZ_guatu/run_phylo_tree.sh {} ;mv tree.newick {}.tree.newick; mv tree.nhx {}.tree.nhx;mv in.mfa {}.in.mfa;ln -s xiufu/{}.tree.newick ../RAxML_bestTree.{}.tre; ln -s xiufu/{}.tree.newick ../RAxML_bipartitions.{}.tre;"

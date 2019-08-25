@@ -1,0 +1,45 @@
+##gff-version 3
+
+# 相同的冗余的行
+chr1	maker	gene	20298	26071	.	+	.	ID=gene000001;Name=arahy.GHMM2H
+chr1	maker	gene	20298	26071	.	+	.	ID=gene000001;Name=arahy.GHMM2H
+
+# 缺失CDS的mRNA
+chr1	maker	gene	20298	26071	.	+	.	ID=gene000002;Name=arahy.GHMM2H
+chr1	maker	mRNA	20298	26071	.	+	.	ID=gene000002.1;Parent=gene000002
+
+## 缺失mRNA
+#chr1	maker	gene	20298	26071	.	+	.	ID=gene000004;Name=arahy.GHMM2H
+#chr1	maker	CDS	20298	20300	.	+	0	ID=CDS:gene000004.1;Parent=gene000004.1
+#chr1	maker	CDS	20291	20344	.	+	0	ID=CDS:gene000004.1;Parent=gene000004.1
+
+# 缺失CDS的mRNA x2
+chr1	maker	gene	20298	26071	.	+	.	ID=gene000003;Name=arahy.GHMM2H
+chr1	maker	mRNA	20298	26071	.	+	.	ID=gene000003.1;Parent=gene000003
+chr1	maker	mRNA	20298	26071	.	+	.	ID=gene000003.2;Parent=gene000003
+chr1	maker	CDS	20298	20300	.	+	0	ID=CDS:gene000003.2;Parent=gene000003.2
+chr1	maker	CDS	21298	20300	.	+	0	ID=CDS:gene000003.2;Parent=gene000003.2
+chr1	maker	mRNA	20298	26071	.	+	.	ID=gene000003.22;Parent=gene000003
+chr1	maker	CDS	20298	20300	.	+	0	ID=CDS:gene000003.22;Parent=gene000003.22
+chr1	maker	CDS	20298	20300	.	+	0	ID=CDS:gene000003.22;Parent=gene000003.22
+chr1	maker	CDS	22298	20300	.	+	0	ID=CDS:gene000003.22;Parent=gene000003.22
+chr1	maker	mRNA	20298	26071	.	+	.	ID=gene000003.3;Parent=gene000003
+
+# 顺序混乱 + 冗余的基因行
+chr1	maker	mRNA	20298	26071	.	+	.	ID=gene000005.1;Parent=gene000005;Name=arahy.GHMM2H.1;
+chr1	maker	exon	20298	20300	.	+	.	ID=gene000005.1:exon:163;Parent=gene000005.1,maker-Arahy.01-augustus-gene-0.83.2
+chr1	maker	CDS	20298	20300	.	+	0	ID=gene000005.1:cds;Parent=gene000005.1
+chr1	maker	CDS	20298	20300	.	+	0	ID=CDS:gene000005.1;Parent=gene000005.1
+chr1	maker	gene	20298	26071	.	+	.	ID=gene000005;Name=arahy.GHMM2H
+chr1	maker	gene	20298	26071	.	+	.	ID=gene000005;Name=arahy.GHMM2H;Name=test
+
+# 正常Parent末尾，测试正则
+chr1	maker	gene	20298	26071	.	+	.	ID=gene000006;Name=arahy.GHMM2H
+chr1	maker	mRNA	20298	26071	.	+	.	ID=gene000006.1;Parent=gene000006;Name=arahy.GHMM2H.1
+chr1	maker	CDS	20298	20300	.	+	0	ID=CDS:gene000006.1;Parent=gene000006.1
+
+# 正常Parent无末尾，测试正则
+chr1	maker	gene	20298	26071	.	+	.	ID=gene000007;Name=arahy.GHMM2H
+chr1	maker	mRNA	20298	26071	.	+	.	ID=gene000007.1;Parent=gene000007
+chr1	maker	CDS	20298	20300	.	+	0	ID=CDS:gene000007.1;Parent=gene000007.1
+

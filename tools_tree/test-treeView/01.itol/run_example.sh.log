@@ -1,0 +1,32 @@
+--------------------------
+输入参数是:
+1、输入路径: ceshi.tre
+2、输出路径: out/aa/newname.xxx
+3、可选参数: None
+--------------------------
+
+---> Upload success. The ID is : https://itol.embl.de/tree/139220193229105141552469404 , filepath: ceshi.tre
+[Ok] Export tree success. ceshi.tre --> out/aa/newname.svg
+--------------------------
+输入参数是:
+1、输入路径: ceshi.tre
+2、输出路径: out/bb/newname.xxx
+3、可选参数: 
+--format svg,pdf,png
+--------------------------
+
+---> Upload success. The ID is : https://itol.embl.de/tree/139220193229106371552469445 , filepath: ceshi.tre
+[Ok] Export tree success. ceshi.tre --> out/bb/newname.svg,pdf,png
+--------------------------
+输入参数是:
+1、输入路径: ceshi.tre
+2、输出路径: out/myname.xxx
+3、可选参数:      
+--format svg,pdf,png,eer      
+--display_mode 2      
+--branchlength_display 1
+--------------------------
+
+---> Upload success. The ID is : https://itol.embl.de/tree/139220193229107731552469467 , filepath: ceshi.tre
+Warning: out/myname.eer 转换跳过，格式不支持
+[Ok] Export tree success. ceshi.tre --> out/myname.svg,pdf,png

@@ -1,0 +1,5 @@
+path_mytools = /ifs/TJPROJ3/Plant/chenjun/mytools
+path_bedtools = /ifs/TJPROJ3/Plant/chenjun/mytools/tools_bed
+path_blast = /PUBLIC/software/public/Alignment/blast-2.2.26/bin
+path_perl = /PUBLIC/software/public/System/Perl-5.18.2/bin
+path_qsub = /PUBLIC/software/DENOVO/bio/annotation/pipeline_v2.0/scripts/

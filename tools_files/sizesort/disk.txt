@@ -1,0 +1,11 @@
+62G	/TJPROJ2/RESEQ/Project_Crop/Crop4/bijinpeng
+1.6T	/TJPROJ2/RESEQ/Project_Crop/Crop1/bizhihong
+1.7T	/TJPROJ2/RESEQ/Project_Crop/Crop2/gaoxinpeng
+3.1T	/TJPROJ2/RESEQ/Project_Crop/Crop2/danghuijie
+339G	/TJPROJ2/RESEQ/Project_Crop/Crop3/P101SC17110390-01-haidamai-genome
+4.4T	/TJPROJ2/RESEQ/Project_Crop/Crop3/jingxin
+2.1T	/TJPROJ2/RESEQ/Project_Crop/Crop3/juzheng
+1.8T	/TJPROJ2/RESEQ/Project_Crop/Crop2/huangli
+474G	/TJPROJ2/RESEQ/Project_Crop/Crop1/wangtianyi
+7.6T	/TJPROJ2/RESEQ/Project_Crop/Crop2/fanshengxu
+695G	/TJPROJ2/RESEQ/Project_Crop/Crop3/P101SC18052225-01_rice_anno

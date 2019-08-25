@@ -1,0 +1,21 @@
+usage: sjms.py [-h] [-k KEYWORD] [-s] [-v] fipath
+
+本程序用于格式化处理sjm语法文件，可提取指定job，还可按运行顺序对job排序
+    当前版本：
+      v1.2 修复按流程运行顺序概率丢失job的问题
+    历史版本：
+      v1.0 初始版本，实现提取功能
+      v1.1 加入按流程运行顺序排序的功能
+
+positional arguments:
+  fipath                输入需要操作的sjm语法文件
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -k KEYWORD, --keyword KEYWORD
+                        输入想要提取的关键词，如：-k pasa2,evm,training_snap,PASA4training
+  -s, --sortjob         是否对job按流程运行顺序进行排序
+  -v, --viewname        是否只打印jobname
+
+注意事项：
+    输入的sjm语法文件需为正确格式，即`sjm xxx.job`能正常运行的文件

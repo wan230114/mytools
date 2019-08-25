@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg height="500" width="650" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title id="document-title">This is the title</title>
+	<line stroke="black" stroke-width="2" x1="100" x2="600.000000000001" y1="400" y2="400" />
+	<line stroke="black" stroke-width="2" x1="100" x2="100" y1="400" y2="403" />
+	<g transform="translate(119.705882352941,407.352941176471) rotate(-70)">
+		<text fill="black" font-faimly="Arial" font-size="15" font-style="italic" stroke="none" text-anchor="end">Pdan</text>
+	</g>
+	<line stroke="black" stroke-width="2" x1="129.411764705882" x2="129.411764705882" y1="400" y2="403" />
+	<g transform="translate(149.117647058824,407.352941176471) rotate(-70)">
+		<text fill="black" font-faimly="Arial" font-size="15" font-style="italic" stroke="none" text-anchor="end">Pzao</text>
+	</g>
+	<line stroke="black" stroke-width="2" x1="158.823529411765" x2="158.823529411765" y1="400" y2="403" />
+	<g transform="translate(178.529411764706,407.352941176471) rotate(-70)">
+		<text fill="black" font-faimly="Arial" font-size="15" font-style="italic" stroke="none" text-anchor="end">Pdul</text>
+	</g>
+	<line stroke="black" stroke-width="2" x1="188.235294117647" x2="188.235294117647" y1="400" y2="403" />
+	<g transform="translate(207.941176470588,407.352941176471) rotate(-70)">
+		<text fill="black" font-faimly="Arial" font-size="15" font-style="italic" stroke="none" text-anchor="end">Pcui</text>
+	</g>
+	<line stroke="black" stroke-width="2" x1="217.64705882353" x2="217.64705882353" y1="400" y2="403" />
+	<g transform="translate(237.352941176471,407.352941176471) rotate(-70)">
+		<text fill="black" font-faimly="Arial" font-size="15" font-style="italic" stroke="none" text-anchor="end">Phai</text>
+	</g>
+	<line stroke="black" stroke-width="2" x1="247.058823529412" x2="247.058823529412" y1="400" y2="403" />
+	<g transform="translate(266.764705882353,407.352941176471) rotate(-70)">
+		<text fill="black" font-faimly="Arial" font-size="15" font-style="italic" stroke="none" text-anchor="end">Phei</text>
+	</g>
+	<line stroke="black" stroke-width="2" x1="276.470588235294" x2="276.470588235294" y1="400" y2="403" />
+	<g transform="translate(296.176470588236,407.352941176471) rotate(-70)">
+		<text fill="black" font-faimly="Arial" font-size="15" font-style="italic" stroke="none" text-anchor="end">Pkue</text>
+	</g>
+	<line stroke="black" stroke-width="2" x1="305.882352941177" x2="305.882352941177" y1="400" y2="403" />
+	<g transform="translate(325.588235294118,407.352941176471) rotate(-70)">
+		<text fill="black" font-faimly="Arial" font-size="15" font-style="italic" stroke="none" text-anchor="end">Pnan</text>
+	</g>
+	<line stroke="black" stroke-width="2" x1="335.294117647059" x2="335.294117647059" y1="400" y2="403" />
+	<g transform="translate(355,407.352941176471) rotate(-70)">
+		<text fill="black" font-faimly="Arial" font-size="15" font-style="italic" stroke="none" text-anchor="end">Ptia</text>
+	</g>
+	<line stroke="black" stroke-width="2" x1="364.705882352942" x2="364.705882352942" y1="400" y2="403" />
+	<g transform="translate(384.411764705883,407.352941176471) rotate(-70)">
+		<text fill="black" font-faimly="Arial" font-size="15" font-style="italic" stroke="none" text-anchor="end">Pper</text>
+	</g>
+	<line stroke="black" stroke-width="2" x1="394.117647058824" x2="394.117647058824" y1="400" y2="403" />
+	<g transform="translate(413.823529411765,407.352941176471) rotate(-70)">
+		<text fill="black" font-faimly="Arial" font-size="15" font-style="italic" stroke="none" text-anchor="end">Fves</text>
+	</g>
+	<line stroke="black" stroke-width="2" x1="423.529411764706" x2="423.529411764706" y1="400" y2="403" />
+	<g transform="translate(443.235294117648,407.352941176471) rotate(-70)">
+		<text fill="black" font-faimly="Arial" font-size="15" font-style="italic" stroke="none" text-anchor="end">Mdom</text>
+	</g>
+	<line stroke="black" stroke-width="2" x1="452.941176470589" x2="452.941176470589" y1="400" y2="403" />
+	<g transform="translate(472.64705882353,407.352941176471) rotate(-70)">
+		<text fill="black" font-faimly="Arial" font-size="15" font-style="italic" stroke="none" text-anchor="end">Pavi</text>
+	</g>
+	<line stroke="black" stroke-width="2" x1="482.352941176471" x2="482.352941176471" y1="400" y2="403" />
+	<g transform="translate(502.058823529412,407.352941176471) rotate(-70)">
+		<text fill="black" font-faimly="Arial" font-size="15" font-style="italic" stroke="none" text-anchor="end">Pmum</text>
+	</g>
+	<line stroke="black" stroke-width="2" x1="511.764705882354" x2="511.764705882354" y1="400" y2="403" />
+	<g transform="translate(531.470588235295,407.352941176471) rotate(-70)">
+		<text fill="black" font-faimly="Arial" font-size="15" font-style="italic" stroke="none" text-anchor="end">Rchi</text>
+	</g>
+	<line stroke="black" stroke-width="2" x1="541.176470588236" x2="541.176470588236" y1="400" y2="403" />
+	<g transform="translate(560.882352941177,407.352941176471) rotate(-70)">
+		<text fill="black" font-faimly="Arial" font-size="15" font-style="italic" stroke="none" text-anchor="end">Slyc</text>
+	</g>
+	<line stroke="black" stroke-width="2" x1="570.588235294118" x2="570.588235294118" y1="400" y2="403" />
+	<g transform="translate(590.29411764706,407.352941176471) rotate(-70)">
+		<text fill="black" font-faimly="Arial" font-size="15" font-style="italic" stroke="none" text-anchor="end">Atha</text>
+	</g>
+	<line stroke="black" stroke-width="2" x1="600.000000000001" x2="600.000000000001" y1="400" y2="403" />
+	<g transform="translate(619.705882352942,407.352941176471) rotate(-70)">
+		<text fill="black" font-faimly="Arial" font-size="15" font-style="italic" stroke="none" text-anchor="end" />
+	</g>
+	<line stroke="black" stroke-width="2" x1="100" x2="100" y1="100" y2="400" />
+	<line stroke="black" stroke-width="2" x1="100" x2="97" y1="400" y2="400" />
+	<text fill="black" font-family="Arial" font-size="15" stroke="none" text-anchor="end" x="92" y="405">0</text>
+	<line stroke="black" stroke-width="2" x1="100" x2="97" y1="350" y2="350" />
+	<text fill="black" font-family="Arial" font-size="15" stroke="none" text-anchor="end" x="92" y="355">8000</text>
+	<line stroke="black" stroke-width="2" x1="100" x2="97" y1="300" y2="300" />
+	<text fill="black" font-family="Arial" font-size="15" stroke="none" text-anchor="end" x="92" y="305">16000</text>
+	<line stroke="black" stroke-width="2" x1="100" x2="97" y1="250" y2="250" />
+	<text fill="black" font-family="Arial" font-size="15" stroke="none" text-anchor="end" x="92" y="255">24000</text>
+	<line stroke="black" stroke-width="2" x1="100" x2="97" y1="200" y2="200" />
+	<text fill="black" font-family="Arial" font-size="15" stroke="none" text-anchor="end" x="92" y="205">32000</text>
+	<line stroke="black" stroke-width="2" x1="100" x2="97" y1="150" y2="150" />
+	<text fill="black" font-family="Arial" font-size="15" stroke="none" text-anchor="end" x="92" y="155">40000</text>
+	<line stroke="black" stroke-width="2" x1="100" x2="97" y1="100" y2="100" />
+	<text fill="black" font-family="Arial" font-size="15" stroke="none" text-anchor="end" x="92" y="105">48000</text>
+	<text fill="black" font-family="Arial" font-size="15" stroke="none" text-anchor="end" x="92" y="55" />
+	<rect fill="rgb(249,116,107)" height="7.3529411764706" stroke="black" width="7.3529411764706" x="427.647058823529" y="33.3333333333333" />
+	<text fill="black" font-family="Arial" font-size="10" stroke="none" x="438.676470588235" y="40.6862745098039">Single-copy orthologs</text>
+	<rect fill="rgb(217,145,0)" height="7.3529411764706" stroke="black" width="7.3529411764706" x="427.647058823529" y="45.0980392156863" />
+	<text fill="black" font-family="Arial" font-size="10" stroke="none" x="438.676470588235" y="52.4509803921569">Multiple-copy orthologs</text>
+	<rect fill="rgb(163,165,0)" height="7.3529411764706" stroke="black" width="7.3529411764706" x="427.647058823529" y="56.8627450980393" />
+	<text fill="black" font-family="Arial" font-size="10" stroke="none" x="438.676470588235" y="64.2156862745098">Unique</text>
+	<rect fill="rgb(56,183,0)" height="7.3529411764706" stroke="black" width="7.3529411764706" x="427.647058823529" y="68.6274509803922" />
+	<text fill="black" font-family="Arial" font-size="10" stroke="none" x="438.676470588235" y="75.9803921568628">Other orthologs</text>
+	<g transform="rotate(-90)">
+		<text fill="black" font-family="Arial" font-size="16.2" stroke="none" text-anchor="end" x="-182.5" y="37.5">Number of genes</text>
+	</g>
+	<rect fill="rgb(249,116,107)" height="17.45" stroke="black" width="14.7058823529412" x="107.352941176471" y="382.55" />
+	<rect fill="rgb(217,145,0)" height="94.175" stroke="black" width="14.7058823529412" x="107.352941176471" y="288.375" />
+	<rect fill="rgb(163,165,0)" height="0.7125" stroke="black" width="14.7058823529412" x="107.352941176471" y="287.6625" />
+	<rect fill="rgb(56,183,0)" height="118.39375" stroke="black" width="14.7058823529412" x="107.352941176471" y="169.26875" />
+	<rect fill="rgb(249,116,107)" height="15.26875" stroke="black" width="14.7058823529412" x="136.764705882353" y="384.73125" />
+	<rect fill="rgb(217,145,0)" height="102.45625" stroke="black" width="14.7058823529412" x="136.764705882353" y="282.275" />
+	<rect fill="rgb(163,165,0)" height="0.89375" stroke="black" width="14.7058823529412" x="136.764705882353" y="281.38125" />
+	<rect fill="rgb(56,183,0)" height="117.99375" stroke="black" width="14.7058823529412" x="136.764705882353" y="163.3875" />
+	<rect fill="rgb(249,116,107)" height="16.55625" stroke="black" width="14.7058823529412" x="166.176470588235" y="383.44375" />
+	<rect fill="rgb(217,145,0)" height="94.21875" stroke="black" width="14.7058823529412" x="166.176470588235" y="289.225" />
+	<rect fill="rgb(163,165,0)" height="0.84375" stroke="black" width="14.7058823529412" x="166.176470588235" y="288.38125" />
+	<rect fill="rgb(56,183,0)" height="120.525" stroke="black" width="14.7058823529412" x="166.176470588235" y="167.85625" />
+	<rect fill="rgb(249,116,107)" height="16.13125" stroke="black" width="14.7058823529412" x="195.588235294118" y="383.86875" />
+	<rect fill="rgb(217,145,0)" height="95.91875" stroke="black" width="14.7058823529412" x="195.588235294118" y="287.95" />
+	<rect fill="rgb(163,165,0)" height="0.49375" stroke="black" width="14.7058823529412" x="195.588235294118" y="287.45625" />
+	<rect fill="rgb(56,183,0)" height="120.96875" stroke="black" width="14.7058823529412" x="195.588235294118" y="166.4875" />
+	<rect fill="rgb(249,116,107)" height="17.28125" stroke="black" width="14.7058823529412" x="225" y="382.71875" />
+	<rect fill="rgb(217,145,0)" height="98.05" stroke="black" width="14.7058823529412" x="225" y="284.66875" />
+	<rect fill="rgb(163,165,0)" height="2.4375" stroke="black" width="14.7058823529412" x="225" y="282.23125" />
+	<rect fill="rgb(56,183,0)" height="111" stroke="black" width="14.7058823529412" x="225" y="171.23125" />
+	<rect fill="rgb(249,116,107)" height="16.4" stroke="black" width="14.7058823529412" x="254.411764705883" y="383.6" />
+	<rect fill="rgb(217,145,0)" height="96.63125" stroke="black" width="14.7058823529412" x="254.411764705883" y="286.96875" />
+	<rect fill="rgb(163,165,0)" height="1.175" stroke="black" width="14.7058823529412" x="254.411764705883" y="285.79375" />
+	<rect fill="rgb(56,183,0)" height="119.0375" stroke="black" width="14.7058823529412" x="254.411764705883" y="166.75625" />
+	<rect fill="rgb(249,116,107)" height="16.8625" stroke="black" width="14.7058823529412" x="283.823529411765" y="383.1375" />
+	<rect fill="rgb(217,145,0)" height="95" stroke="black" width="14.7058823529412" x="283.823529411765" y="288.1375" />
+	<rect fill="rgb(163,165,0)" height="0.41875" stroke="black" width="14.7058823529412" x="283.823529411765" y="287.71875" />
+	<rect fill="rgb(56,183,0)" height="118.96875" stroke="black" width="14.7058823529412" x="283.823529411765" y="168.75" />
+	<rect fill="rgb(249,116,107)" height="15.39375" stroke="black" width="14.7058823529412" x="313.235294117647" y="384.60625" />
+	<rect fill="rgb(217,145,0)" height="103.4125" stroke="black" width="14.7058823529412" x="313.235294117647" y="281.19375" />
+	<rect fill="rgb(163,165,0)" height="0.6875" stroke="black" width="14.7058823529412" x="313.235294117647" y="280.50625" />
+	<rect fill="rgb(56,183,0)" height="127.08125" stroke="black" width="14.7058823529412" x="313.235294117647" y="153.425" />
+	<rect fill="rgb(249,116,107)" height="19.03125" stroke="black" width="14.7058823529412" x="342.64705882353" y="380.96875" />
+	<rect fill="rgb(217,145,0)" height="87.30625" stroke="black" width="14.7058823529412" x="342.64705882353" y="293.6625" />
+	<rect fill="rgb(163,165,0)" height="0.35" stroke="black" width="14.7058823529412" x="342.64705882353" y="293.3125" />
+	<rect fill="rgb(56,183,0)" height="110.875" stroke="black" width="14.7058823529412" x="342.64705882353" y="182.4375" />
+	<rect fill="rgb(249,116,107)" height="38.3625" stroke="black" width="14.7058823529412" x="372.058823529412" y="361.6375" />
+	<rect fill="rgb(217,145,0)" height="36.7625" stroke="black" width="14.7058823529412" x="372.058823529412" y="324.875" />
+	<rect fill="rgb(163,165,0)" height="11.2375" stroke="black" width="14.7058823529412" x="372.058823529412" y="313.6375" />
+	<rect fill="rgb(56,183,0)" height="67.18125" stroke="black" width="14.7058823529412" x="372.058823529412" y="246.45625" />
+	<rect fill="rgb(249,116,107)" height="39.09375" stroke="black" width="14.7058823529412" x="401.470588235295" y="360.90625" />
+	<rect fill="rgb(217,145,0)" height="33.09375" stroke="black" width="14.7058823529412" x="401.470588235295" y="327.8125" />
+	<rect fill="rgb(163,165,0)" height="4.0125" stroke="black" width="14.7058823529412" x="401.470588235295" y="323.8" />
+	<rect fill="rgb(56,183,0)" height="59.89375" stroke="black" width="14.7058823529412" x="401.470588235295" y="263.90625" />
+	<rect fill="rgb(249,116,107)" height="15.88125" stroke="black" width="14.7058823529412" x="430.882352941177" y="384.11875" />
+	<rect fill="rgb(217,145,0)" height="101.84375" stroke="black" width="14.7058823529412" x="430.882352941177" y="282.275" />
+	<rect fill="rgb(163,165,0)" height="6.01875" stroke="black" width="14.7058823529412" x="430.882352941177" y="276.25625" />
+	<rect fill="rgb(56,183,0)" height="93.96875" stroke="black" width="14.7058823529412" x="430.882352941177" y="182.2875" />
+	<rect fill="rgb(249,116,107)" height="37.7125" stroke="black" width="14.7058823529412" x="460.294117647059" y="362.2875" />
+	<rect fill="rgb(217,145,0)" height="39.16875" stroke="black" width="14.7058823529412" x="460.294117647059" y="323.11875" />
+	<rect fill="rgb(163,165,0)" height="1.79375" stroke="black" width="14.7058823529412" x="460.294117647059" y="321.325" />
+	<rect fill="rgb(56,183,0)" height="67.75625" stroke="black" width="14.7058823529412" x="460.294117647059" y="253.56875" />
+	<rect fill="rgb(249,116,107)" height="38.75" stroke="black" width="14.7058823529412" x="489.705882352942" y="361.25" />
+	<rect fill="rgb(217,145,0)" height="34.2" stroke="black" width="14.7058823529412" x="489.705882352942" y="327.05" />
+	<rect fill="rgb(163,165,0)" height="0.625" stroke="black" width="14.7058823529412" x="489.705882352942" y="326.425" />
+	<rect fill="rgb(56,183,0)" height="60.84375" stroke="black" width="14.7058823529412" x="489.705882352942" y="265.58125" />
+	<rect fill="rgb(249,116,107)" height="37.6875" stroke="black" width="14.7058823529412" x="519.117647058824" y="362.3125" />
+	<rect fill="rgb(217,145,0)" height="42.26875" stroke="black" width="14.7058823529412" x="519.117647058824" y="320.04375" />
+	<rect fill="rgb(163,165,0)" height="9.025" stroke="black" width="14.7058823529412" x="519.117647058824" y="311.01875" />
+	<rect fill="rgb(56,183,0)" height="78.5375" stroke="black" width="14.7058823529412" x="519.117647058824" y="232.48125" />
+	<rect fill="rgb(249,116,107)" height="32.9375" stroke="black" width="14.7058823529412" x="548.529411764707" y="367.0625" />
+	<rect fill="rgb(217,145,0)" height="49.4125" stroke="black" width="14.7058823529412" x="548.529411764707" y="317.65" />
+	<rect fill="rgb(163,165,0)" height="28.38125" stroke="black" width="14.7058823529412" x="548.529411764707" y="289.26875" />
+	<rect fill="rgb(56,183,0)" height="47.6625" stroke="black" width="14.7058823529412" x="548.529411764707" y="241.60625" />
+	<rect fill="rgb(249,116,107)" height="32.66875" stroke="black" width="14.7058823529412" x="577.941176470589" y="367.33125" />
+	<rect fill="rgb(217,145,0)" height="48.45625" stroke="black" width="14.7058823529412" x="577.941176470589" y="318.875" />
+	<rect fill="rgb(163,165,0)" height="19.50625" stroke="black" width="14.7058823529412" x="577.941176470589" y="299.36875" />
+	<rect fill="rgb(56,183,0)" height="43.85" stroke="black" width="14.7058823529412" x="577.941176470589" y="255.51875" />
+	<!-- 
+	Generated using the Perl SVG Module V2.59
+	by Ronan Oger
+	Info: http://www.roitsystems.com/
+ -->
+</svg>

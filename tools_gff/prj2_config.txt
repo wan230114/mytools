@@ -1,0 +1,19 @@
+>prj2-1 
+filename   =     Cpr
+plantname  =     Cpr%06d
+path_fa    =     /TJNAS01/PAG/Plant/chenjun/prj/prj3-all/00.data/donglamei.chr.fasta
+path_gff   =     /TJNAS01/PAG/Plant/chenjun/prj/prj3-all/00.data/donglamei.chr.gff3
+path_cds   =     
+path_pep   =     
+
+>prj2-2 
+filename   =     Nnu
+plantname  =     Nnu%06d
+path_fa    =     /TJNAS01/PAG/Plant/chenjun/prj/prj3-all/00.data/lian.chr.fasta
+path_gff   =     /TJNAS01/PAG/Plant/chenjun/prj/prj3-all/00.data/lian.chr.gff3
+path_cds   =     
+path_pep   =     
+
+# 莲是 Nnu ，冬腊梅是 Cpr
+# 项目分析：
+# 

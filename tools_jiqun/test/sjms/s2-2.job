@@ -1,0 +1,252 @@
+job_begin
+	name prepare_training
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
+	cmd_begin
+		mkdir -p 05.abinito/training;
+		ln -s `pwd`/04.pasa/genome.assemblies.fasta.transdecoder.genome.gff3 05.abinito/training/pasa1.gff3;
+		ln -s `pwd`/04.pasa/genome.assemblies.fasta.transdecoder.pep 05.abinito/training/pasa1.pep;
+		perl /ifs/TJPROJ3/Plant/Pipeline/annotation/pipeline_v2.0/bin/pipeline_traning.pl
+			--outdir 05.abinito/training -PASA 
+			-pep 05.abinito/training/pasa1.pep 
+			-gff3 05.abinito/training/pasa1.gff3 
+			--genome 00.data/genome.fa 
+			--type AGS;
+	cmd_end
+job_end
+
+job_begin
+	name PASA4training
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=5g,p=0
+	cmd sh 05.abinito/training/PASA4training/run.sh
+job_end
+
+job_begin
+	name training_augustus
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=5g,p=0
+	cmd sh 05.abinito/training/Augustus/augustus.sh
+job_end
+
+job_begin
+	name training_glimmHMM
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=5g,p=0
+	cmd sh 05.abinito/training/GlimmerHMM/glimmHMM.sh
+job_end
+
+job_begin
+	name training_snap
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=5g,p=0
+	cmd sh 05.abinito/training/SNAP/snap.sh
+job_end
+
+job_begin
+	name run_glimmer
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
+	cmd_begin
+		perl /ifs/TJPROJ3/Plant/Pipeline/annotation/pipeline_v2.0/scripts/struct_run_glimmerhmm.pl 
+			--prefix glimmer 
+			--glimmerHMM_para 05.abinito/training/GlimmerHMM/pasa1 
+			--outdir 05.abinito/structure/glimmer 
+			01.repeat/RepeatStat/genome.mask.fasta
+	cmd_end
+job_end
+
+job_begin
+	name run_snap
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
+	cmd_begin
+		perl /ifs/TJPROJ3/Plant/Pipeline/annotation/pipeline_v2.0/scripts/struct_run_snap.pl 
+			--prefix snap 
+			--hmm 05.abinito/training/SNAP/pasa1.hmm 
+			--outdir 05.abinito/structure/snap 
+			01.repeat/RepeatStat/genome.mask.fasta
+	cmd_end
+job_end
+
+job_begin
+	name run_genscan
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
+	cmd_begin
+		perl /ifs/TJPROJ3/Plant/Pipeline/annotation/pipeline_v2.0/scripts/struct_run_genscan.pl 
+			--prefix genscan 
+			--para /PUBLIC/software/public/Gene_predict/Genscan/Arabidopsis.smat
+			--outdir 05.abinito/structure/genscan 
+			01.repeat/RepeatStat/genome.mask.fasta
+	cmd_end
+job_end
+
+job_begin
+	name run_geneid
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=4g,p=0
+	cmd_begin
+		perl /ifs/TJPROJ3/Plant/Pipeline/annotation/pipeline_v2.0/scripts/struct_run_geneid.pl 
+			--prefix geneid 
+			--para /PUBLIC/software/DENOVO/bio/annotation/pipeline_v2.0/package/geneid_para/PLANT/arabidopsis_thaliana.param
+			--outdir 05.abinito/structure/geneid 
+			01.repeat/RepeatStat/genome.mask.fasta
+	cmd_end
+job_end
+
+job_begin
+	name run_augustus
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
+	cmd_begin
+		perl /ifs/TJPROJ3/Plant/Pipeline/annotation/pipeline_v2.0/scripts/struct_run_augustus.pl 
+			--prefix augustus 
+			--species pasa1 
+			--AUGUSTUS_CONFIG_PATH `pwd`/05.abinito/training/Augustus/conf
+			--outdir 05.abinito/structure/augustus 
+			01.repeat/RepeatStat/genome.mask.fasta
+	cmd_end
+job_end
+
+
+order PASA4training after prepare_training
+
+order training_augustus after PASA4training
+order training_glimmHMM after PASA4training
+order training_snap after PASA4training
+
+order run_glimmer after training_glimmHMM
+order run_snap after training_snap
+order run_augustus after training_augustus
+
+
+
+
+job_begin
+	name evm
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
+	cmd_begin
+		mkdir 07.evm;
+		cat 04.pasa/*assemblies.fasta.transdecoder.genome.gff3 05.abinito/structure/*/*.gff3 > 07.evm/abinitio.gff3;
+		cat 06.homolog/*/*.gff3 > 07.evm/homo.gff3;
+		cp  00.data/weights.txt 07.evm/;
+		ln -s `pwd`/02.RNA/tophat/transcripts.gff3 07.evm/transcripts.gff3;
+		perl /ifs/TJPROJ3/Plant/Pipeline/annotation/pipeline_v2.0/bin/pipeline_EVM_v2.pl
+			-outdir 07.evm
+			-g 07.evm/abinitio.gff3
+			-p 07.evm/homo.gff3
+			-t 07.evm/transcripts.gff3
+			-w 07.evm/weights.txt
+			01.repeat/RepeatStat/genome.mask.fasta;
+		sh 07.evm/shell_dir/step0_filtout_scf.sh;
+		sh 07.evm/shell_dir/step1_cr_dir_tree.sh;
+		sh 07.evm/shell_dir/step2_evm.sh;
+		sh 07.evm/shell_dir/step3_recombine.sh;
+		sh 07.evm/shell_dir/step4_convert.sh;
+		sh 07.evm/shell_dir/step5_getresult.sh;
+	cmd_end
+job_end
+
+order evm after run_glimmer
+order evm after run_snap
+order evm after run_augustus
+order evm after run_geneid
+order evm after run_genscan
+
+
+job_begin
+	name pasa2
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=1.3g,p=0
+	cmd_begin
+	/ifs/TJPROJ3/Plant/Pipeline/annotation/pipeline_v2.0/bin/pipeline_pasa.pl 
+	--round 2 
+	--trinity_seq 04.pasa/trinity.out.Trinity.fasta 
+	--genome_seq 00.data/genome.fa  
+	--sql_name genome 
+	--mysqllib 04.pasa/mysql_bin/data/ 
+	--evm 07.evm/result/evm.gff3
+	--outdir 08.pasa 
+	cmd_end
+job_end
+
+order pasa2 after evm
+
+
+
+job_begin
+	name gene_filter
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=1.3g,p=0
+	cmd_begin
+		/ifs/TJPROJ3/Plant/Pipeline/annotation/script/09.QC.pipeline.pl
+			`
+			ls 05.abinito/structure/*/*.gff3|perl -pe  'chomp;s|^| --denovo |';
+			ls 06.homolog/*/*.gff3|perl -pe  'chomp;s|^| --homolog |';
+			ls 04.pasa/genome.assemblies.fasta.transdecoder.genome.gff3 02.RNA/tophat/transcripts.gff3|perl -pe  'chomp;s|^| --rna |';
+			ls 02.RNA/tophat/*/accepted_hits.bam|perl -pe  'chomp;s|^| --bam |';
+			ls 08.pasa/pasa2.longest.gff|perl -pe  'chomp;s|^| --evm |';
+			ls 08.pasa/pasa2.longest.cds|perl -pe  'chomp;s|^| --cds |';
+			ls 08.pasa/pasa2.longest.pep|perl -pe  'chomp;s|^| --pep |';
+			ls 01.repeat/RepeatStat/all_without_trf.gff|perl -pe  'chomp;s|^| --TE |';
+			`
+			--outdir 09.gene_filter
+	cmd_end
+job_end
+
+job_begin
+	name function
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=1.3g,p=0
+	cmd_begin
+		/ifs/TJPROJ3/Plant/Pipeline/annotation/script/10.func.pipeline.v2.pl
+			-step func
+			-Interpro -KEGG -Swissprot -NR
+			-cuts 200 -cpu 200
+			-clear
+			-outdir 10.function/fun_work
+			08.pasa/pasa2.longest.pep
+	cmd_end
+job_end
+
+order gene_filter after pasa2
+order function after pasa2
+
+
+
+
+job_begin
+	name function_filter
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=1.3g,p=0
+	cmd_begin
+		/ifs/TJPROJ3/Plant/Pipeline/annotation/script/10.func.pipeline.v2.pl
+			-step filter
+			-Interpro -KEGG -Swissprot -NR
+			-workdir 10.function/fun_work   
+			-outdir 10.function/fun_filter   
+			-filter 09.gene_filter/QC_list_Filtered.xls
+			08.pasa/pasa2.longest.pep
+	cmd_end
+job_end
+
+
+order function_filter after gene_filter
+order function_filter after function
+
+job_begin
+	name prepare_TE
+	host localhost
+	status waiting
+	cmd_begin
+		perl	/ifs/TJPROJ3/Plant/Pipeline/annotation/pipeline_v2.0/bin/pipeline_TE_normal_new.pl
+	cmd_end
+job_end
+
+job_begin
+	name TE_recycle
+	host localhost
+	status waiting
+	cmd sh 11.TE_recycle/TE_recycle.sh
+job_end
+
+job_begin
+        name TE_job
+        host localhost
+        status waiting
+        cmd sh 11.TE_recycle/11.TE.sh
+job_end
+
+order prepare_TE after function_filter
+order TE_recycle after prepare_TE
+order TE_job after TE_recycle
+
+log_dir log
+

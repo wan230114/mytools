@@ -1,0 +1,11 @@
+# 这是一个fasta测试文件
+这是错误行
+>asd
+ACTGGGCCAA
+TCC
+>asdf
+GAAACCCTTT
+NNNNNNNGGG
+>sdfa
+GAAA好CDTTT
+NAAANCJTTT

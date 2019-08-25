@@ -1,0 +1,1 @@
+python3 /ifs/TJPROJ3/Plant/chenjun/mytools/multiProgress.py allstep.sh --line 1 --thread 8 

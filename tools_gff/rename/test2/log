@@ -1,0 +1,37 @@
+['Pdan', 'Pdan00G00000', '/ifs/TJPROJ3/Plant/chenjun/mytools/tools_gff/rename/test2/input/Pdan.cds', '/ifs/TJPROJ3/Plant/chenjun/mytools/tools_gff/rename/test2/input/Pdan.fa', '/ifs/TJPROJ3/Plant/chenjun/mytools/tools_gff/rename/test2/input/Pdan.gff', '/ifs/TJPROJ3/Plant/chenjun/mytools/tools_gff/rename/test2/input/Pdan.pep']
+输入的文件是: 
+/ifs/TJPROJ3/Plant/chenjun/mytools/tools_gff/rename/test2/input/Pdan.cds
+/ifs/TJPROJ3/Plant/chenjun/mytools/tools_gff/rename/test2/input/Pdan.fa
+/ifs/TJPROJ3/Plant/chenjun/mytools/tools_gff/rename/test2/input/Pdan.gff
+/ifs/TJPROJ3/Plant/chenjun/mytools/tools_gff/rename/test2/input/Pdan.pep
+>>>统计中...
+统计的文件是: /ifs/TJPROJ3/Plant/chenjun/mytools/tools_gff/rename/test2/input/Pdan.fa
+已写入文件:  Pdan.fa.length
+统计完毕，耗时0.015301秒
+-------------------------------------------------------------
+总共序列数为:           1
+总共碱基数为:           2,175       
+该文件序列的平均长度为：2175.000
+该文件序列的N50为:      2175
+该文件序列的N90为:      2175
+-------------------------------------------------------------
+
+
+每条序列长度信息如下：
+-------------------------------------------------------------
+Chr08	2175
+-------------------------------------------------------------
+(本工具包目前功能涵盖统计每条序列，按长度或序列名排序，-y模式还增加碱基错误、gap统计功能，具体使用方法请查看详情：python fas.py --help)
+正在读取gff文件...
+文件读取完毕，排序中...
+总共基因数: 10
+总共的行数: 55
+已保存好排序文件，路径为: Pdan.gff.sort
+排序完毕！正在写入列表list文件，重新注释gff文件...
+写入完毕，请于当前文件夹查看list文件：Pdan.list
+写入完毕，请于当前文件夹查看gff文件：Pdan.gff
+正在写入pep&cds文件...
+pep写入开始...
+写入完毕，请于当前文件夹查看文件：Pdan.pep
+cds写入开始...
+写入完毕，请于当前文件夹查看文件：Pdan.cds

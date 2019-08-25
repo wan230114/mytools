@@ -1,0 +1,152 @@
+#!/PUBLIC/software/DENOVO/bio/system/ActivePerl-5.18.2/bin/perl
+
+# Mail: [leiyang@novogene.com]
+# Date: Wed 29 Mar 2017 08:12:12 PM CST
+
+use strict;
+use warnings;
+use Getopt::Long::Descriptive;
+use Data::Dumper;
+
+my ($opt, $usage) = describe_options(
+	'%c %o <other>',
+	[ 'list|l=s', '', { default=>'vf=0g,p=0' }],
+	[ 'help',       '', { shortcircuit => 1 } ],
+);
+
+print($usage->text), exit if $opt->help;
+
+my %list = (
+	'p' => 0,
+	'vf' => 0,
+);
+
+for(split /,/,$opt->list){
+	if(/(\w+)=(\S+)/){
+		my ($n,$v) = ($1,$2);
+		if($n eq 'vf' && $v =~ /([\d\.]+)([GM])/i){
+			if(uc $2 eq 'G'){
+				$list{$n} = $1;
+			}elsif(uc $2 eq 'M'){
+				$list{$n} = $1 / 1000;
+			}else{
+				$list{$n} = 0;
+			}
+		}else{
+			$list{$n} = $v;
+		}
+	}
+}
+
+my %queue;
+open FL,"qselect -U $ENV{'USER'}|";
+while(<FL>){
+	chomp;
+	$queue{$_} = 1;
+}
+close FL;
+
+my %res;
+my $node;
+my $count = 0;
+open FL,"qhost -q -F vf,p,m_core |";
+while(<FL>){
+	chomp;
+	$count ++;
+	if(/^(\w+)/ && $count > 3){
+		my ($cpu,$load,$memt,$memu);
+		($node,$cpu,$load,$memt,$memu) = (split /\s+/)[0,2,3,4,5];
+		$res{$node}{'cpu'} = $cpu;
+		$res{$node}{'load'} = $load;
+		$res{$node}{'memt'} = M2G($memt);
+		$res{$node}{'memf'} = M2G($memt) - M2G($memu);
+	}elsif(/virtual_free=([\d\.]+)([MG]*)/){
+		my $unit = $2 ? $2 : "M";
+		my $num = $1;
+		if($unit eq 'M'){
+			$num /= 1000;
+			$unit = "G";
+		}
+		$res{$node}{'vf'} = $num;
+	}elsif(/hl:m_core=(\d+)/){
+		# $res{$node}{'cput'} = $1;
+	}elsif(/^\s+(\S+\.q)\s+BIP\s+\S+\/(\S+)\s+(\S*)/){
+		my $queue = $1;
+		$res{$node}{'cput'} = $2 if(!defined $res{$node}{'cput'} || $2 > $res{$node}{'cput'});
+		my $stat = $3;
+		if($queue{"$queue\@$node.local"} && $stat !~ /o/){
+			$res{$node}{'overload'}{$queue} = $stat ? $stat : 'normal';
+			if($res{$node}{'load'} eq "-"){
+				$res{$node}{'overload'}{$queue} = "**";
+			}
+		}
+	}
+}
+close FL;
+
+for(keys %res){
+	if(!defined $res{$_}{'overload'}){
+		delete $res{$_};
+	}
+}
+
+for(sort {&sort1($a) cmp &sort1($b) || &sort2($a) <=> &sort2($b)} keys %res){
+	my @stats; 
+	my @queues;
+	my $offon = 0;
+	for my $q(sort {$a cmp $b} keys %{$res{$_}{'overload'}}){
+		my $s = $res{$_}{'overload'}{$q} eq 'normal' ? '' : "*$res{$_}{'overload'}{$q}" ;
+		push @queues,$q;
+		push @stats,$s;
+		if($s =~ /o/){
+			# print "$s\n";
+		}else{
+			$offon = 1;
+		}
+	}
+	my $stats = join ",",@stats;
+	my $queues = join ",",@queues;
+
+	my $node = $_;
+	$node =~ s/(tjbnode\d+)/[$1]/;
+	$node =~ s/(tjnode\d+)/<$1>/;
+
+	unless(defined $res{$_}{'cput'}){
+		$res{$_}{'cput'} = '-';
+	}
+	unless(defined $res{$_}{'vf'}){
+		$res{$_}{'vf'} = '0';
+	}
+
+	printf "%-18s%3s / %-3s%10.1f (%-6.1f) / %-10.1f %5s\t$queues\n",$node.$stats,$res{$_}{'cpu'},$res{$_}{'cput'},$res{$_}{'vf'}, $res{$_}{'memf'}, $res{$_}{'memt'},'' if($res{$_}{'cpu'} >= $list{'p'} && $res{$_}{'vf'} >= $list{'vf'} && $offon == 1);
+}
+
+sub sort1 {
+	my $cc = $_[0];
+	$cc =~ s/\d+//;
+	return $cc;
+} 
+
+sub sort2 {
+	my $cc = $_[0];
+	$cc =~ s/[a-z]+//;
+	return $cc;
+} 
+
+sub M2G{
+    my %unit = qw/K 1e-6 M 1e-3 G 1 T 1e3/;
+    my ($str) = @_;
+    $str = 0 if(!defined $str or $str eq 'N/A');
+    if($str =~ /(.*)(K|M|G|T)/i){
+        return sprintf "%0.1f",$1 * $unit{uc($2)};
+    }elsif($str){
+		if($str eq '-'){
+			return 0;
+		}else{
+			return sprintf "%0.1f",$str * 1e-9;
+		}
+    }else{
+        return 0;
+    }
+}
+

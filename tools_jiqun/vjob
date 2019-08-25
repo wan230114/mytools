@@ -1,0 +1,240 @@
+#!/PUBLIC/software/DENOVO/bio/system/ActivePerl-5.18.2/bin/perl
+use strict;
+use warnings;
+use Getopt::Long;
+use Pod::Usage;
+
+BEGIN{
+    for(@INC){
+        shift @INC unless(m#/PUBLIC/software/DENOVO/bio/system/ActivePerl-5.18.2#);
+    }
+}
+
+use Time::Local;
+
+my %job;
+my $jobid;
+
+my ($run,$total) = (0,0);
+
+my ($help);
+my $status;
+my $group;
+
+GetOptions(
+	'help'=>\$help,
+	'status:s'=>\$status,
+	'group:s'=>\$group,
+);
+
+pod2usage 1 if($help);
+
+my $user = "@ARGV" || $ENV{'USER'};
+
+if(defined $status){
+	$status = "-s $status";
+}else{
+	$status = '';
+}
+
+if(defined $group){
+	$user  = readpipe "qconf -su ${group}users | awk 'NR>4'| perl -pe 's/entries|\\s|\\\\//g;s/,/\\n/g'| xargs -L 1000 echo";
+}
+
+my %jobid;
+open FL,"qstat $status -u $user|";
+while(<FL>){
+    chomp;
+    if(/^\s*(\d+)/){
+        s/^\s+//;
+        my @tem = split /\s+/;
+		# $tem[7] =~ s/.*\@//;
+
+		if($tem[-1] =~ /:/){
+			next;
+		}
+		
+		$jobid{$tem[0]} = 1;
+
+        if($tem[7] =~ s/.local// || $tem[7] =~ /alnode/){
+			$tem[9] = 1 unless(defined $tem[9]);
+			$job{"$tem[0].$tem[9]"}{'host'} = $tem[7];
+		}else{
+			$tem[9] = 1 unless(defined $tem[9]);
+			$job{"$tem[0].$tem[9]"}{'host'} = "-";
+		}
+		$job{"$tem[0].$tem[9]"}{'startTime'} = "$tem[5] $tem[6]";
+
+		$job{"$tem[0].$tem[9]"}{'status'} = "$tem[4]";
+
+		$run ++ if($tem[4] eq 'r');
+		$total ++;
+    }
+}
+close FL;
+
+open OUT,"|less -S";
+printf OUT "%-15s%-15s%-7s%-10s%-9s%-9s%-25s%-10s%-8sCMD [$run/$total]\n","JOBID.taskID","USER","STATUS","CPU","Mnow","Mmax","node","VF","Hours";
+print OUT '-' x 98 ,"\n";
+
+my @jobids;
+for my $jobid(sort {$a<=>$b} keys %jobid){
+	push @jobids, $jobid;
+	if(@jobids >= 50){
+		&printOutFmt(&getstats(@jobids));
+		@jobids = ();
+	}
+}
+
+if(@jobids){
+	&printOutFmt(&getstats(@jobids));
+}
+
+sub printOutFmt{
+	my @res = @_;
+	for(@res){
+		my ($user,$jobid,$cpu,$vf,$vmem,$mmem,$path,$vcpu,$hours) = @$_;
+		my @v = ($jobid,$user,$job{$jobid}{'status'},"$cpu/$vcpu",$vmem,$mmem,$job{$jobid}{'host'},$vf,$hours,$path);
+		printf OUT "%-15s%-15s%-7s%-10s%-9s%-9s%-25s%-10s%-8s%s\n",@v;
+	}
+}
+
+sub getstats{
+    my (@jobids) = @_;
+	my $ids = join ",",@jobids;
+
+	my @res;
+	$/ = "\n==============================================================";
+    open FL,"qstat -j $ids 2> /dev/null |";
+    while(<FL>){
+		chomp;
+		my ($cwd,$cpu,$vf,$file,$vmem,$mmem,$path,$tcpu,$vcpu,$cfile,$jobid,$user);
+	    $cpu = 0;
+		$cfile = '';
+		$file = '';
+		$user = '';
+		$vcpu = 0;
+		my @usage;
+		for(split /\n/){
+			if(/^sge_o_workdir:\s+(.*)/){
+        	    $cwd = $1;
+        	}elsif(/virtual_free=([^,\)\s]+)/){
+        	    $vf = $1;
+				$vf = M2G($vf);
+        	}
+        	if(/num_proc=(\d+)/){
+        	    $cpu = $1;
+        	}elsif(/^script_file:\s+(.*)/){
+        	    $file = $1;
+        	}elsif(/^usage\s+(\d+):\s+(.*)/){
+				my $taskid = $1;
+        	    ($tcpu,$vmem,$mmem) = $2 =~ /cpu=(.*?),.*vmem=(.*?), maxvmem=(.*)/;
+				$vmem = M2G($vmem);
+				$mmem = M2G($mmem);
+				if(!defined $vf){
+					$vf = 0;
+				}
+				my $vftmp = $vf;
+				if($mmem ne '-' && $vf ne '-' && $vf < $mmem){
+					$vftmp = "[$vf]";
+				}
+				push @usage,[$taskid,$tcpu,$vmem,$mmem,$vftmp];
+        	}elsif(/^job_args:\s+(.*)/){
+        	    $cfile = $1;
+        	    $cfile =~ s/\s+/ /g;
+        	}elsif(/^job_number:\s+(\d+)/){
+        	    $jobid = $1;
+        	}elsif(/^owner:\s+(.*)/){
+        	    $user = $1;
+        	}
+		}
+		if($file eq '/bin/sh' or $file =~ /sge6-test.sh$/ or $file =~ /runCMD.*.sh$/){
+    	    $cfile =~ s/^\-c[,\s]+//;
+			if($cfile =~ /^\//){
+				$path = "$cfile";
+			}else{
+				$path = "[$cwd] $cfile";
+			}
+    	}elsif($file =~ /^\//){
+			$path = $file;
+    	}else{
+    	    $path = "$cwd/$file $cfile";
+    	}
+		
+		if(@usage > 0){
+			for(@usage){
+				my ($taskid,$tcpu,$vmem,$mmem,$vftmp) = @$_;
+				my $submit_time = $job{"$jobid.$taskid"}{'startTime'};
+        		my $vcpu = sprintf "%0.1f",&toSec($tcpu)/timespan($submit_time);
+				unless(defined $vftmp){
+					$vftmp = 0;
+				}
+				push @res,[$user,"$jobid.$taskid",$cpu,$vftmp,$vmem,$mmem,$path,$vcpu,(sprintf "%0.1fh",timespan($submit_time)/3600 )];
+			}
+		}else{
+			my $submit_time = $job{"$jobid.1"}{'startTime'};
+        	my $vcpu = "-";
+			my $vmem = '-';
+			my $mmem = '-';
+			unless(defined $vf){
+				$vf = 0;
+			}
+			push @res,[$user,"$jobid.1",$cpu,$vf,$vmem,$mmem,$path,$vcpu,(sprintf "%0.1fh",timespan($submit_time)/3600 )];
+		}
+
+    }
+	return @res;
+}
+close OUT;
+
+sub M2G{
+    my %unit = qw/K 1e-6 M 1e-3 G 1 T 1e3/;
+    my ($str) = @_;
+	$str = 0 if(!defined $str or $str eq 'N/A');
+    if($str =~ /(.*)(K|M|G|T)/i){
+        return sprintf "%0.1f",$1 * $unit{uc($2)};
+    }elsif($str){
+        return sprintf "%0.1f",$str * 1e-9;
+    }else{
+		return '-';
+	}
+}
+
+sub timespan{
+    my $start = shift;
+	my $str = readpipe "date  -d '$start' +'%Y-%m-%d %H:%M:%S'"; chomp $str;
+    my ($year,$mon,$day,$hour,$min,$sec) = split /[ \-:]/,$str;
+    $mon -= 1;
+    $year -= 1900;
+    my $epoch = timelocal($sec,$min,$hour,$day,$mon,$year);
+    return time - $epoch;
+}
+
+sub toSec{
+    my $tcpu = shift;
+    my @unit = (1,60,60*60,60*60*24);
+    my @time = split /:/,$tcpu;
+    @time = reverse @time;
+    my $sum;
+    for(0..$#time){
+        $sum += $time[$_] * $unit[$_];
+    }
+    return $sum;
+}
+
+=head1 NAME
+
+vjob 11/15/16 02:37:05  leiyang@novogene.com
+
+=head1 SYNOPSIS
+
+ vjob [users]
+
+ version v2.0,  update 2016-11-15 night
+
+=head1 OPTIONS
+
+ --help        help
+ --status|s    status for job r / s / p / ...
+=cut
+
