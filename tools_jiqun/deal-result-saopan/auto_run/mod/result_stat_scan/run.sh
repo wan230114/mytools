@@ -25,7 +25,7 @@ echo getSIZE done.
 python3 /ifs/TJPROJ3/Plant/chenjun/mytools/tools_jiqun/deal-result-saopan/main_xiangmu.py result
 # 给统计结果第二列后面一列，加上大小的单位统计，利于信息查找
 mv result/* raw-result/
-for name in `ls raw-result/`; do ((i++)); echo "python3 /ifs/TJPROJ3/Plant/chenjun/mytools/tools_jiqun/getsize.py raw-result/${name} 2 --add >result/${name} &"; if [ "$((${i}%3))" == "0" ]; then echo wait; fi;done|awk '{print}END{print "wait"}'|sh
+for name in `ls raw-result/`; do ((i++)); echo "python3 /ifs/TJPROJ3/Plant/chenjun/mytools/tools_jiqun/getsize.py -i raw-result/${name} -n 2 --add >result/${name} &"; if [ "$((${i}%3))" == "0" ]; then echo wait; fi;done|awk '{print}END{print "wait"}'|sh
 
 
 # 移动到对应日期文件夹

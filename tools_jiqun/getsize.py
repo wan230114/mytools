@@ -9,10 +9,10 @@ def fargv():
         description='本程序用于格式化存储单位某一行的大小文件',
         epilog=('注意事项：\n'
                 '    无'))
-    parser.add_argument('fipath', type=str,
-                        help=('输入需要统计的扫盘结果文件或文件夹，其中包含的文件，'
+    parser.add_argument('-i', '--inputpath', type=str, default=False,
+                        help=('输入需要统计的扫盘结果文件或文件夹，不给文件时将默认从管道读取。 其中包含的文件，'
                               '每一行四列，如：“lixiangkong <\\t> 22617126 <\\t> /TJNAS01/PAG/Plant/Data_20170920/170508_ST-E00126_0410_BHKVCJALXX/GBS00714/GBS00714_L3_1.adapter.list.gz <\\t> 2017-09-21”'))
-    parser.add_argument('num', type=int, default=1,
+    parser.add_argument('-n', '--num', type=int, default=1,
                         help='输入想统计的第几列')
     parser.add_argument('--add', action='store_true',
                         default=False,
@@ -34,28 +34,40 @@ def getsize(size):
         return size
 
 
-def fmain(fipath, num, add):
+def do(line, num, add):
+    try:
+        line = line.decode('utf8')
+    except UnicodeDecodeError:
+        line = line.decode('gbk')
+    Lline = line.strip().split('\t')
+    if add:
+        Lline.insert(num + 1, getsize(Lline[num]))
+    else:
+        Lline[num] = getsize(Lline[num])
+    print('\t'.join(Lline))
+
+
+def fmain(inputpath, num, add):
     num = int(num) - 1
-    with open(fipath, 'rb') as fi:
-        for line in fi:
-            if not line.strip():
-                continue
-            try:
-                line = line.decode('utf8')
-            except UnicodeDecodeError:
-                line = line.decode('gbk')
-            Lline = line.strip().split('\t')
-            if add:
-                Lline.insert(num + 1, getsize(Lline[num]))
-            else:
-                Lline[num] = getsize(Lline[num])
-            print('\t'.join(Lline))
+    if not inputpath:
+        while True:
+            line = sys.stdin.buffer.readline()
+            if not line:
+                break
+            do(line, num, add)
+    else:
+        with open(inputpath, 'rb') as fi:
+            for line in fi:
+                if not line.strip():
+                    continue
+                do(line, num, add)
 
 
 def main():
     # sys.argv = ['', '-h']
     # sys.argv = ['', 'deal-result-saopan/result/TJNAS_Plant_10M', '2', '--add']
     # sys.argv = ['', 'deal-result-saopan/result/TJNAS_Plant_10M', '2']
+    # sys.argv = ['', '-i', 'deal-result-saopan/result/TJNAS_Plant_10M', '-n', '2', '--add']
     args = fargv()
     # print(*list(args.keys()), sep=", ")
     fmain(**args)

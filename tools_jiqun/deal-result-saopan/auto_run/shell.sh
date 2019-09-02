@@ -6,7 +6,7 @@ if mkdir $logtime;
 then
     echo $logtime >lastdate 
     # 删除最后两次以前的内容
-    ls */scan/01.scan_results/01.scan_shell_out/|grep :|tr -d :|sed '$d'|sed '$d'|xargs rm -r
+    ls */scan/01.scan_results/|grep :|tr -d :|sed '$d'|sed '$d'|xargs rm -r
     # 杀上次任务及进程
     echo "ps xjf |grep scan/00.bin/scan_shell/shell_file_list|grep -v \"_ grep\"|awk '{print \$3}'|xargs -i grep {} <(ps xjf)|awk '{print \$2}'"|bash|xargs kill
     /home/leiyang/local/bin/vjob|grep scan/00.bin/scan_shell/shell_file_list|awk '{print $1}'|xargs qdel
