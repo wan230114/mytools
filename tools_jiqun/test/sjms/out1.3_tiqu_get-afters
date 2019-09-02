@@ -1,0 +1,39 @@
+job_begin
+	name function_filter
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=1.3g,p=0
+	cmd_begin
+		/ifs/TJPROJ3/Plant/Pipeline/annotation/script/10.func.pipeline.v2.pl
+			-step filter
+			-Interpro -KEGG -Swissprot -NR
+			-workdir 10.function/fun_work   
+			-outdir 10.function/fun_filter   
+			-filter 09.gene_filter/QC_list_Filtered.xls
+			08.pasa/pasa2.longest.pep
+	cmd_end
+job_end
+job_begin
+	name prepare_TE
+	host localhost
+	status waiting
+	cmd_begin
+		perl	/ifs/TJPROJ3/Plant/Pipeline/annotation/pipeline_v2.0/bin/pipeline_TE_normal_new.pl
+	cmd_end
+job_end
+job_begin
+	name TE_recycle
+	host localhost
+	status waiting
+	cmd sh 11.TE_recycle/TE_recycle.sh
+job_end
+job_begin
+        name TE_job
+        host localhost
+        status waiting
+        cmd sh 11.TE_recycle/11.TE.sh
+job_end
+
+order prepare_TE after function_filter
+order TE_recycle after prepare_TE
+order TE_job after TE_recycle
+
+log_dir log

@@ -1,0 +1,29 @@
+usage: sjms.py [-h] [-v] [-s] [-a AFTERS] [-b BREAKING] [-k KEYWORD] fipath
+
+本程序用于格式化处理sjm语法文件，可提取指定job，还可按运行顺序对job排序
+
+positional arguments:
+  fipath                输入需要操作的sjm语法文件
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --viewname        是否只打印jobname
+  -s, --sortjob         是否对输出jobs按流程运行顺序进行排序
+  -a AFTERS, --afters AFTERS
+                        输入jobnames(多个用英文逗号分隔)，提取输入的job节点之后预执行的所有job
+  -b BREAKING, --breaking BREAKING
+                        输入jobnames(多个用英文逗号分隔)，去除输入的job节点之后预执行的所有job
+  -k KEYWORD, --keyword KEYWORD
+                        输入jobnames(多个用英文逗号分隔), 提取输入的job节点
+
+注意事项：
+    输入的sjm语法文件需为正确格式，即`sjm xxx.job`能正常运行的文件
+
+当前版本：
+  v1.5 加入功能，能去除某一节点之后预执行的job，添加为-b参数
+历史版本：
+  v1.4 加入功能，能提取某一节点之后预执行的所有job，添加为-a参数
+  v1.3 修复-svk同时使用有时会丢失job的问题
+  v1.2 修复按流程运行顺序排序概率丢失job的问题
+  v1.1 加入按流程运行顺序排序的功能
+  v1.0 初始版本，实现提取功能

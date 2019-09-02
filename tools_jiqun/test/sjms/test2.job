@@ -1,0 +1,106 @@
+job_begin
+	name s1
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
+	cmd_begin
+		echo s1
+	cmd_end
+job_end
+
+job_begin
+	name s2
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
+	cmd_begin
+		echo s2
+	cmd_end
+job_end
+
+job_begin
+	name s2.1
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
+	cmd_begin
+		echo s2.1
+	cmd_end
+job_end
+
+job_begin
+	name s5
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
+	cmd_begin
+		echo s5
+	cmd_end
+job_end
+
+job_begin
+	name s5.1
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
+	cmd_begin
+		echo s5.1
+	cmd_end
+job_end
+
+job_begin
+	name s5.2
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
+	cmd_begin
+		echo s5.2
+	cmd_end
+job_end
+
+job_begin
+	name s3
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
+	cmd_begin
+		echo s3
+	cmd_end
+job_end
+
+job_begin
+	name s3.1
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
+	cmd_begin
+		echo s3.1
+	cmd_end
+job_end
+
+job_begin
+	name s3.2
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
+	cmd_begin
+		echo s3.2
+	cmd_end
+job_end
+
+job_begin
+	name s4
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
+	cmd_begin
+		echo s4
+	cmd_end
+job_end
+
+job_begin
+	name s4.1
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
+	cmd_begin
+		echo s4.1
+	cmd_end
+job_end
+
+order s2 after s1
+order s3 after s2
+order s3.1 after s2
+
+order s4 after s3
+order s3.2 after s2.1
+order s2.1 after s1
+
+order s5.1 after s4.1
+
+order s4.1 after s3.1
+
+order s5 after s4.1
+
+order s4.1 after s3
+order s5.2 after s4.1
+
+log_dir log
