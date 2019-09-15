@@ -7,8 +7,10 @@ cd ${script_path}
 
 # 创建运行目录
 logtime=`date  +%Y-%m-%d`
-if mkdir $logtime;
+if [ -e $logtime] ;
 then
+    echo 已跳过复制 $logtime >>log
+else
     echo $logtime >lastdate 
     # 删除最后两次以前的内容（只sed一次的原因是本次还要生成一次）
     ls */scan/01.scan_results/|grep :|tr -d :|sed '$d'|xargs rm -r
@@ -16,11 +18,9 @@ then
     echo "ps xjf |grep scan/00.bin/scan_shell/shell_file_list|grep -v \"_ grep\"|awk '{print \$3}'|xargs -i grep {} <(ps xjf)|awk '{print \$2}'"|bash|xargs kill
     vjob|grep scan/00.bin/scan_shell/shell_file_list|awk '{print $1}'|xargs qdel
     # 生成目录
-    cp mod/* $logtime -r && echo 已成功创建文夹 $logtime >>log
+    cp mod/ $logtime/ -rL && echo 已成功创建文夹 $logtime >>log
     # 投递
     cd $logtime && nohup sh work.sh &
-else
-    echo 已跳过复制 $logtime >>log
 fi
 
 
