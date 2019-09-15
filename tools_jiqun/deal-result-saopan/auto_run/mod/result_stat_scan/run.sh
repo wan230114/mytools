@@ -3,11 +3,14 @@
 Num=10
 
 
+# 导入环境变量
+source ../../mod/bashrc_source.sh
+
 ##################################################### ################################################
 #########################################  s t a r t  ################################################
 ##################################################### ################################################
-source ../../mod/bashrc  # 导入变量${tools_path}：/ifs/TJPROJ3/Plant/chenjun/mytools
 
+# 文件处理
 rm -r result/* raw-result/ 2>/dev/null
 ls -tr run.sh.*|sed '$d'|sed '$d'|xargs rm 2>/dev/null
 mkdir result/ raw-result/ 2>/dev/null
@@ -38,6 +41,6 @@ mv raw-result/ result/ result-tongji.txt*  ${new_dir}
 
 # 删除之前统计结果，只保留最后两次统计的
 ls|grep result_|sed '$d'|sed '$d'|xargs rm -r
-rm Result
-ln -s ${new_dir} Result
+rm Result 2>/dev/null
+ln -s ./${new_dir}/ Result
 

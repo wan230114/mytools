@@ -1,9 +1,5 @@
 # 导入环境变量
-if [ -e /ifs/TJPROJ3/Plant/chenjun/mytools ]; then
-    source ./mod/bashrc
-elif [ -e /NJPROJ2/Plant/chenjun/mytools ]; then
-    source ./mod/bashrc_nj
-fi
+source ./mod/bashrc_source.sh
 
 # 进入当前文件夹
 script_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
