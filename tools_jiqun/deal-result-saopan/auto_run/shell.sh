@@ -1,11 +1,17 @@
-source ./mod/bashrc
+# 导入环境变量
+if [ -e /ifs/TJPROJ3/Plant/chenjun/mytools ]; then
+    source ./mod/bashrc
+elif [ -e /NJPROJ2/Plant/chenjun/mytools ]; then
+    source ./mod/bashrc_nj
+fi
 
-tools_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-#tools_path=$(cd $(dirname ${BASH_SOURCE[0]}); cd - )
-echo  ${tools_path}
+# 进入当前文件夹
+script_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+#script_path=$(cd $(dirname ${BASH_SOURCE[0]}); cd - )
+# echo  ${script_path}
+cd ${script_path}
 
-
-cd ${tools_path}
+# 创建运行目录
 logtime=`date  +%Y-%m-%d`
 if mkdir $logtime;
 then
@@ -15,7 +21,9 @@ then
     # 杀上次任务及进程
     echo "ps xjf |grep scan/00.bin/scan_shell/shell_file_list|grep -v \"_ grep\"|awk '{print \$3}'|xargs -i grep {} <(ps xjf)|awk '{print \$2}'"|bash|xargs kill
     vjob|grep scan/00.bin/scan_shell/shell_file_list|awk '{print $1}'|xargs qdel
+    # 生成目录
     cp mod/* $logtime -r && echo 已成功创建文夹 $logtime >>log
+    # 投递
     cd $logtime && nohup sh work.sh &
 else
     echo 已跳过复制 $logtime >>log
