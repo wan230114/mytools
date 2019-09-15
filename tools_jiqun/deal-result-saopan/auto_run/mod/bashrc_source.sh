@@ -3,4 +3,3 @@ script_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 # 导入环境变量
 source ${script_path}/bashrc
-source ${script_path}/bashrc_nj
