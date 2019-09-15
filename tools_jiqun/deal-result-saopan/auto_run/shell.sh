@@ -34,7 +34,7 @@ shelp="""
     复制三个文件(夹)：get-result.sh、mod、shell.sh 于工作文件夹，然后打开crontab -e加入以下命令：
 
 三、示例：
-    1.准备工作路径，复制三个文件于工作路径：/NJPROJ2/Plant/chenjun/Admin/02.saopan/
+    1.准备工作路径，复制三个文件或软链接于工作路径， 如：/NJPROJ2/Plant/chenjun/Admin/02.saopan/
     2.打开crontab -e：加入以下命令
 
 # 天津
