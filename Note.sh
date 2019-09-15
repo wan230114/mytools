@@ -7,3 +7,7 @@ blastall -d $db -i $qu  -m 8  -F F -p blastn
 
 # python 管理
 pip3 install -i  https://pypi.tuna.tsinghua.edu.cn/simple/  
+
+# 画图
+alias circos="/PUBLIC/software/public/System/Perl-5.18.2/bin/perl /PUBLIC/software/public/Graphics/circos-0.64/bin/circos "
+

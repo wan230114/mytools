@@ -72,6 +72,7 @@ def fmain(keyword, mod, lll, jg):
             for line in ['plant.q', 'plant1.q', 'plant2.q', 'pub.q',  'novo.q', 'all.q']:
                 if line in jiedian:
                     do(' -q ' + line)
+            do('-q joyce.q -P joyce')
             do(' -q tjsmp01_1024.q -P smp1024 ')
             do(' -q tjsmp03_1024.q -P smp1024 ')
             do(' -q tjsmp07_1024.q -P smp1024 ')

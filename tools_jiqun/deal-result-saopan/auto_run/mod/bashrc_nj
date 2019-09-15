@@ -1,0 +1,120 @@
+# .bashrc
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+        . /etc/bashrc
+fi
+
+#User specific aliases and functions
+export HISTTIMEFORMAT='%F %T '
+export HISTSIZE=100000
+export HISTFILESIZE=100000
+export HISTCONTROL=erasedups
+
+export HISTIGNORE='pwd:ls:ls -ltr:cd:ll:history:'
+export PROMPT_COMMAND="history -a"
+export HISTFILE=~/.bash_history
+export LANG=en_US.UTF-8
+
+# 常用命令
+alias l="ls -lh"
+alias ll="ls -lhrt"
+alias lll="ls -l"
+alias le="less -S"
+alias les="less -S"
+alias e="less -S"
+alias ee="less -SN"
+alias eee="less -N"
+alias ca="/NJPROJ2/Plant/chenjun/software/ccat/linux-amd64-1.1.0/ccat"
+fcah(){
+cat $@|sed ':label;N;s/ \\\n/ /;b label'|sed -e 's/[[:space:]][[:space:]]*/ /g'|sed 's# \-# \\\n    \-#g'|sed 's#^/#\n/#'|ca
+}
+alias cah=fcah
+alias grep='grep --color'
+alias pp="ps ux|head -1;ps ux|grep -v PID|sort -rn -k +3|head -20"
+alias p="ps xjf"
+alias vb="vim ~/.bashrc"
+alias vbs="source ~/.bashrc"
+alias cr="crontab -e"
+alias his="history|e"
+alias md5="python /NJPROJ2/Plant/chenjun/mytools/md5.py"
+alias check="perl /NJPROJ1/home/liuwenbin/dirCheckSize.pl ."
+alias dfa="df -h /NJPROJ1/PAG/Plant/  /NJPROJ2/Plant/  /NJPROJ3/Plant/"
+alias h="history |less" 
+alias hh="history |grep -e \"[0-9] cd.* /\"|tail -20" 
+alias hhh="h|grep -e \"[0-9] *nohup*\" |tail -20"
+pwdfile(){
+echo $@|sed "s# #\n#g"|xargs -i echo `pwd`/{}
+}
+alias f=pwdfile
+fasum(){
+sh -c "awk 'BEGIN{sum=0}{sum+=\$$1}END{OFS=\"\\n\"; print \"行数：\"NR,\"总和：\"sum}' $2"
+}
+alias asum=fasum
+
+
+# 集群工具
+alias qsub_sge='echo perl /NJPROJ3/Plant/share/modules/current/commonTools/00.bin/qsub-sge.pl --maxjob 100 --convert no --reqsub --queue plant.q --resource vf=1g,p=1'
+alias qjg="qstat|awk '\$5~/s/{print \$1}' |perl -pe 's/\\n/\\t/g'|perl -pe 's/^/qmod -us /g' |sh"
+alias oss2="echo /NJPROJ2/Plant/zhangwenlin/Cluster_management/Aliyun/xiazai/bin/ossutil64 -c /NJPROJ2/Plant/Projects/Plant2/zhangkaijian/program/Aliyun/bin/general_ossutilconfig"
+alias mm="vim /NJPROJ2/Plant/chenjun/Admin/mm.sh"
+#/NJPROJ2/Plant/Projects/Plant2/zhangkaijian/program/Aliyun/bin/general_ossutilconfig
+#/TJPROJ1/DENOVO/PROJECT/zhangkaijian/program/Aliyun/bin/general_ossutilconfig
+
+# 常用软件
+alias sz="/NJPROJ2/Crop/users/chenliyang/00.bin/sz "
+alias rz="/NJPROJ2/Crop/users/xingpengwei/software/lrzsz/bin/lrz "
+
+# 个人路径
+alias cdd="cd /NJPROJ2/XJ/Data_production/department_data_Nova/1908/181024_A00153_0306_BHF3MYDMXX-new"
+alias cdc="cd /NJPROJ2/Plant/chenjun"
+alias cdc1="cd /NJPROJ1/PAG/Plant/users/chenjun"
+alias cdc3="cd /NJPROJ3/Plant/Plant3/chenjun"
+alias ff="df -h /TJPROJ2/RESEQ/"
+# alias user="cd /TJPROJ2/RESEQ/Project_Crop/Users/xingpengwei"
+
+# 个人配置
+export CLICOLOR=1
+#PS1="\[\e[1;33m\][\u@\h:\[\e[1;34m\] \t \[\e[32m\]\w]\n\[\e[33m\]$\[\e[m\]"
+# 30黑色、31红色、32绿色、 33黄色、34蓝色、35洋红、36青色、37白色
+PS1="\[\e[1;33m\][\u@\h:\[\e[1;36m\] \t \[\e[32m\]\w]\n\[\e[33m\]$\[\e[m\]"
+
+tree=/NJPROJ2/Plant/plant_bs_share/software/tree/setup/
+R=/NJPROJ1/HEALTH/software/python3/bin
+PATH=$python:$perl:$tree:$python3:$R:$PATH
+export PATH
+export PATH=/NJPROJ2/Plant/plant_bs_share/software/Perl-5.18.2/bin/:$PATH
+export PATH=$PATH:/NJPROJ2/Plant/plant_bs_share/software/Perl-5.18.2/bin/
+
+#perl
+GCC530LIBDIR=/NJPROJ2/Plant/plant_bs_share/software/compileToolChain/gcc_5.3.0/setup/lib64/
+export LD_RUN_PATH=$GCC530LIBDIR:$LD_RUN_PATH
+export LD_LIBRARY_PATH=/NJPROJ2/Plant/plant_bs_share/software/yeppp-1.0.0/binaries/linux/x86_64/:/NJPROJ2/Plant/plant_bs_share/software/root_v5.34.36.Linux-slc6-x86_64-gcc5.1/lib/:/NJPROJ2/Plant/plant_bs_share/software/compileToolChain/gcc-5.5.0_nj/lib64:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/NJPROJ2/Crop/share/software/yeppp-1.0.0/binaries/linux/x86_64/:/NJPROJ2/Crop/share/software/root_v5.34.36.Linux-slc6-x86_64-gcc5.1/lib/:/NJPROJ2/Crop/share/software/compileToolChain/gcc-5.5.0_nj/lib64:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/NJPROJ2/Plant/users/xuzhicheng/share/lib:$LD_LIBRARY_PATH
+export PERL5LIB=' /NJPROJ2/Plant/plant_bs_share/software/Perl-5.18.2/lib/perl5/site_perl/5.18.2/x86_64-linux-thread-multi:/NJPROJ2/Plant/plant_bs_share/software/Perl-5.18.2/lib/perl5/site_perl/5.18.2:/NJPROJ2/Plant/plant_bs_share/software/Perl-5.18.2/lib/perl5/5.18.2/x86_64-linux-thread-multi:/NJPROJ2/Plant/plant_bs_share/software/Perl-5.18.2/lib/perl5/5.18.2'
+export SGE_ROOT="/opt/gridengine/"
+export SGE_CELL="default"
+export DRMAA_LIBRARY_PATH="/opt/gridengine/lib/linux-x64/libdrmaa.so.1.0"
+
+export LESSCHARSET=UTF-8
+export LC_ALL='zh_CN.utf8'
+export LANG='zh_CN.utf8'
+export PATH=/NJPROJ2/Plant/plant_bs_share/software/SGE/setup/cluster_tools:/NJPROJ2/Plant/plant_bs_share/software/compileToolChain/gcc_5.3.0/setup/bin:$python:$perl:$R:$samtools:$JAVA_HOME/bin:/usr/bin:/bin/:./:/NJPROJ2/Plant/plant_bs_share/software/Velvet/setup/velvet_1.2.10/:$GCCHOME/bin:$PATH
+
+# python3环境
+# export PATH=$python3:$PATH
+#python3=/NJPROJ2/Plant/chenjun/software/python3/python3.7/bin
+#export PATH=/NJPROJ2/Plant/chenjun/software/python3/python3.7/bin/:$PATH
+#export PATH=/NJPROJ2/Plant/chenjun/software/python3.5/python3.5/bin:$PATH
+#export PATH=/NJPROJ2/Plant/plant_bs_share/software/anaconda2/bin:$PATH
+export PATH=/NJPROJ2/Plant/chenjun/software/Miniconda3/miniconda3/bin:$PATH
+export PATH=/NJPROJ2/Plant/chenjun/software/python/python2.7.11/bin:$PATH
+
+# 个人工具
+###############################################
+mymail="1170101471@qq.com"
+source /NJPROJ2/Plant/chenjun/mytools/Tools_bashrc.sh
+###############################################
+
+

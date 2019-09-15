@@ -1,0 +1,51 @@
+job_begin
+	name gene_filter
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=1.3g,p=0
+	cmd_begin
+		/ifs/TJPROJ3/Plant/Pipeline/annotation/script/09.QC.pipeline.pl
+			`
+			ls 05.abinito/structure/*/*.gff3|perl -pe  'chomp;s|^| --denovo |';
+			ls 06.homolog/*/*.gff3|perl -pe  'chomp;s|^| --homolog |';
+			ls 04.pasa/genome.assemblies.fasta.transdecoder.genome.gff3 02.RNA/tophat/transcripts.gff3|perl -pe  'chomp;s|^| --rna |';
+			ls 02.RNA/tophat/*/accepted_hits.bam|perl -pe  'chomp;s|^| --bam |';
+			ls 08.pasa/pasa2.longest.gff|perl -pe  'chomp;s|^| --evm |';
+			ls 08.pasa/pasa2.longest.cds|perl -pe  'chomp;s|^| --cds |';
+			ls 08.pasa/pasa2.longest.pep|perl -pe  'chomp;s|^| --pep |';
+			ls 01.repeat/RepeatStat/all_without_trf.gff|perl -pe  'chomp;s|^| --TE |';
+			`
+			--outdir 09.gene_filter
+	cmd_end
+job_end
+job_begin
+	name function_filter
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=1.3g,p=0
+	cmd_begin
+		/ifs/TJPROJ3/Plant/Pipeline/annotation/script/10.func.pipeline.v2.pl
+			-step filter
+			-Interpro -KEGG -Swissprot -NR
+			-workdir 10.function/fun_work   
+			-outdir 10.function/fun_filter   
+			-filter 09.gene_filter/QC_list_Filtered.xls
+			08.pasa/pasa2.longest.pep
+	cmd_end
+job_end
+job_begin
+	name prepare_TE
+	host localhost
+	status waiting
+	cmd_begin
+		perl	/ifs/TJPROJ3/Plant/Pipeline/annotation/pipeline_v2.0/bin/pipeline_TE_normal_new.pl
+	cmd_end
+job_end
+job_begin
+	name TE_recycle
+	host localhost
+	status waiting
+	cmd sh 11.TE_recycle/TE_recycle.sh
+job_end
+
+order function_filter after gene_filter
+order prepare_TE after function_filter
+order TE_recycle after prepare_TE
+
+log_dir log

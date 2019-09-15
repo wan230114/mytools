@@ -13,6 +13,9 @@ shelp='''
 # 指定快捷方式，可加入环境变量
 alias sjms='python3 /ifs/TJPROJ3/Plant/chenjun/mytools/tools_jiqun/sjms.py'
 
-# 提取s2到s4.1的流程，加上s2.1
-sjms ./test2.job -s -k s2,s2.1  -a s2 -b s3,s4.1 >out2.1_tiqu
+# 提取s2到s4.1的流程
+sjms ./test2.job -s -a s2 -b s3,s4.1 >out2.1_tiqu
+# 提取s2到s4.1的流程，加上s2.1，-k参数会自动去重
+sjms ./test2.job -s -k s2.1 -a s2 -b s3,s4.1 >out2.2_tiqu
+sjms ./test2.job -s -k s2,s2.1 -a s2 -b s3,s4.1 >out2.2_tiqu2
 

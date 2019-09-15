@@ -23,5 +23,8 @@ sjms ./test1.job -sk pasa2,evm,training_snap,PASA4training,training_glimmHMM >ou
 # 从./test1.job中提取指定job。并按流程的运行顺序，进行job间排序，只打印jobname
 sjms ./test1.job -vsk pasa2,evm,training_snap,PASA4training,training_glimmHMM >out1.2_tiqu_sorted_names
 
-# 3) -a 参数测试，用于提取某几个节点及之后流程预运行的job
-sjms ./test1.job -s -k function_filter -a function_filter >out1.3_tiqu_get-afters
+# 3) -a 参数测试，用于提取给定节点及之后流程预执行的job
+sjms ./test1.job -s -k gene_filter -a function >out1.3_tiqu_get-afters
+
+# 4) -b 参数测试，用于去除给定节点之后流程预执行的job
+sjms ./test1.job -s -a gene_filter -b TE_recycle >out1.3_tiqu_get-afters-breaks

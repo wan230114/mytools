@@ -1,19 +1,4 @@
 job_begin
-	name PASA4training
-	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=5g,p=0
-	cmd sh 05.abinito/training/PASA4training/run.sh
-job_end
-job_begin
-	name training_snap
-	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=5g,p=0
-	cmd sh 05.abinito/training/SNAP/snap.sh
-job_end
-job_begin
-	name training_glimmHMM
-	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=5g,p=0
-	cmd sh 05.abinito/training/GlimmerHMM/glimmHMM.sh
-job_end
-job_begin
 	name evm
 	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
 	cmd_begin
@@ -51,10 +36,25 @@ job_begin
 	--outdir 08.pasa 
 	cmd_end
 job_end
-
-order training_snap after PASA4training
-order training_glimmHMM after PASA4training
+job_begin
+	name PASA4training
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=5g,p=0
+	cmd sh 05.abinito/training/PASA4training/run.sh
+job_end
+job_begin
+	name training_glimmHMM
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=5g,p=0
+	cmd sh 05.abinito/training/GlimmerHMM/glimmHMM.sh
+job_end
+job_begin
+	name training_snap
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=5g,p=0
+	cmd sh 05.abinito/training/SNAP/snap.sh
+job_end
 
 order pasa2 after evm
+
+order training_glimmHMM after PASA4training
+order training_snap after PASA4training
 
 log_dir log

@@ -1,11 +1,11 @@
 job_begin
-	name run_geneid
-	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=4g,p=0
+	name run_genscan
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
 	cmd_begin
-		perl /ifs/TJPROJ3/Plant/Pipeline/annotation/pipeline_v2.0/scripts/struct_run_geneid.pl 
-			--prefix geneid 
-			--para /PUBLIC/software/DENOVO/bio/annotation/pipeline_v2.0/package/geneid_para/PLANT/arabidopsis_thaliana.param
-			--outdir 05.abinito/structure/geneid 
+		perl /ifs/TJPROJ3/Plant/Pipeline/annotation/pipeline_v2.0/scripts/struct_run_genscan.pl 
+			--prefix genscan 
+			--para /PUBLIC/software/public/Gene_predict/Genscan/Arabidopsis.smat
+			--outdir 05.abinito/structure/genscan 
 			01.repeat/RepeatStat/genome.mask.fasta
 	cmd_end
 job_end
@@ -48,19 +48,6 @@ job_begin
 	cmd_end
 job_end
 job_begin
-	name function
-	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=1.3g,p=0
-	cmd_begin
-		/ifs/TJPROJ3/Plant/Pipeline/annotation/script/10.func.pipeline.v2.pl
-			-step func
-			-Interpro -KEGG -Swissprot -NR
-			-cuts 200 -cpu 200
-			-clear
-			-outdir 10.function/fun_work
-			08.pasa/pasa2.longest.pep
-	cmd_end
-job_end
-job_begin
 	name gene_filter
 	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=1.3g,p=0
 	cmd_begin
@@ -76,6 +63,19 @@ job_begin
 			ls 01.repeat/RepeatStat/all_without_trf.gff|perl -pe  'chomp;s|^| --TE |';
 			`
 			--outdir 09.gene_filter
+	cmd_end
+job_end
+job_begin
+	name function
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=1.3g,p=0
+	cmd_begin
+		/ifs/TJPROJ3/Plant/Pipeline/annotation/script/10.func.pipeline.v2.pl
+			-step func
+			-Interpro -KEGG -Swissprot -NR
+			-cuts 200 -cpu 200
+			-clear
+			-outdir 10.function/fun_work
+			08.pasa/pasa2.longest.pep
 	cmd_end
 job_end
 job_begin
@@ -112,17 +112,6 @@ job_begin
         cmd sh 11.TE_recycle/11.TE.sh
 job_end
 job_begin
-	name run_genscan
-	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
-	cmd_begin
-		perl /ifs/TJPROJ3/Plant/Pipeline/annotation/pipeline_v2.0/scripts/struct_run_genscan.pl 
-			--prefix genscan 
-			--para /PUBLIC/software/public/Gene_predict/Genscan/Arabidopsis.smat
-			--outdir 05.abinito/structure/genscan 
-			01.repeat/RepeatStat/genome.mask.fasta
-	cmd_end
-job_end
-job_begin
 	name prepare_training
 	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
 	cmd_begin
@@ -148,14 +137,14 @@ job_begin
 	cmd sh 05.abinito/training/SNAP/snap.sh
 job_end
 job_begin
-	name training_glimmHMM
-	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=5g,p=0
-	cmd sh 05.abinito/training/GlimmerHMM/glimmHMM.sh
-job_end
-job_begin
 	name training_augustus
 	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=5g,p=0
 	cmd sh 05.abinito/training/Augustus/augustus.sh
+job_end
+job_begin
+	name training_glimmHMM
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=5g,p=0
+	cmd sh 05.abinito/training/GlimmerHMM/glimmHMM.sh
 job_end
 job_begin
 	name run_snap
@@ -165,17 +154,6 @@ job_begin
 			--prefix snap 
 			--hmm 05.abinito/training/SNAP/pasa1.hmm 
 			--outdir 05.abinito/structure/snap 
-			01.repeat/RepeatStat/genome.mask.fasta
-	cmd_end
-job_end
-job_begin
-	name run_glimmer
-	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
-	cmd_begin
-		perl /ifs/TJPROJ3/Plant/Pipeline/annotation/pipeline_v2.0/scripts/struct_run_glimmerhmm.pl 
-			--prefix glimmer 
-			--glimmerHMM_para 05.abinito/training/GlimmerHMM/pasa1 
-			--outdir 05.abinito/structure/glimmer 
 			01.repeat/RepeatStat/genome.mask.fasta
 	cmd_end
 job_end
@@ -191,28 +169,50 @@ job_begin
 			01.repeat/RepeatStat/genome.mask.fasta
 	cmd_end
 job_end
+job_begin
+	name run_glimmer
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
+	cmd_begin
+		perl /ifs/TJPROJ3/Plant/Pipeline/annotation/pipeline_v2.0/scripts/struct_run_glimmerhmm.pl 
+			--prefix glimmer 
+			--glimmerHMM_para 05.abinito/training/GlimmerHMM/pasa1 
+			--outdir 05.abinito/structure/glimmer 
+			01.repeat/RepeatStat/genome.mask.fasta
+	cmd_end
+job_end
+job_begin
+	name run_geneid
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=4g,p=0
+	cmd_begin
+		perl /ifs/TJPROJ3/Plant/Pipeline/annotation/pipeline_v2.0/scripts/struct_run_geneid.pl 
+			--prefix geneid 
+			--para /PUBLIC/software/DENOVO/bio/annotation/pipeline_v2.0/package/geneid_para/PLANT/arabidopsis_thaliana.param
+			--outdir 05.abinito/structure/geneid 
+			01.repeat/RepeatStat/genome.mask.fasta
+	cmd_end
+job_end
 
-order evm after run_geneid
+order evm after run_genscan
 order pasa2 after evm
-order function after pasa2
 order gene_filter after pasa2
-order function_filter after function
+order function after pasa2
 order function_filter after gene_filter
+order function_filter after function
 order prepare_TE after function_filter
 order TE_recycle after prepare_TE
 order TE_job after TE_recycle
 
-order evm after run_genscan
-
 order PASA4training after prepare_training
 order training_snap after PASA4training
-order training_glimmHMM after PASA4training
 order training_augustus after PASA4training
+order training_glimmHMM after PASA4training
 order run_snap after training_snap
-order run_glimmer after training_glimmHMM
 order run_augustus after training_augustus
+order run_glimmer after training_glimmHMM
 order evm after run_snap
-order evm after run_glimmer
 order evm after run_augustus
+order evm after run_glimmer
+
+order evm after run_geneid
 
 log_dir log

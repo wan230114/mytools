@@ -1,12 +1,3 @@
-run_geneid
-evm
-pasa2
-gene_filter
-function
-function_filter
-prepare_TE
-TE_recycle
-TE_job
 prepare_training
 PASA4training
 training_augustus
@@ -15,4 +6,13 @@ training_snap
 run_augustus
 run_glimmer
 run_snap
+evm
 run_genscan
+pasa2
+gene_filter
+function
+function_filter
+prepare_TE
+TE_recycle
+TE_job
+run_geneid

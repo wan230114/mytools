@@ -1,0 +1,201 @@
+# .bashrc
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
+fi
+
+########################################################
+###################### 系统配置 ########################
+########################################################
+
+#################### Language set ######################
+#export LANG="en_US.UTF-8"
+export LC_ALL="zh_CN.utf8"
+export LANG="zh_CN.utf8"
+
+######## User specific aliases and functions ########
+export HISTTIMEFORMAT='%F %T '
+export HISTSIZE=100000
+export HISTFILESIZE=100000
+export HISTCONTROL=erasedups
+export HISTIGNORE='pwd:ls:ls -ltr:cd:ll:history:'
+export PROMPT_COMMAND="history -a"
+export HISTFILE=~/.bash_history
+alias h="history |less"
+alias hh="history |grep -e \"[0-9] cd.* /\"|tail -20"
+alias hhh="h|grep -e \"[0-9] *nohup*\" |tail -20"
+alias ht="h|cut -f 5- -d ' '|uniq"
+
+#################### Color set ######################
+## 30黑,31红,32绿, 33黄,34蓝,35洋红,36青,37白
+## PS1="\[\e[1;33m\][\u@\h:\[\e[1;34m\] \t \[\e[32m\]\w]\n\[\e[33m\]$\[\e[m\]"
+export CLICOLOR=1
+export LSCOLORS=gxfxaxdxcxegedabagacad
+PS1="\[\e[1;32m\][\u@\h:\[\e[1;36m\] \t \[\e[31m\]\w]\n\[\e[32m\]$\[\e[m\]"
+
+##################  常用命令  ########################
+alias l="ls -lh"
+alias ll="ls -lhrt"
+alias lll="ls -l"
+fcd(){ 
+cd $1 && ls -lh 
+}
+alias c=fcd
+alias vi="vim"
+alias grep='grep --color'
+alias les="less -S"
+alias e="less -S"
+alias ee="less -SN"
+alias eee="less"
+alias ca="cat"
+alias vb="vim ~/.bashrc"
+alias vbs="source ~/.bashrc"
+alias cr="crontab -e"
+
+alias lsy="/TJNAS01/PAG/Plant/zhangwenlin/Cluster_management/Aliyun/JieDong/bin/ossutil64  -c /TJPROJ1/DENOVO/PROJECT/zhangkaijian/program/Aliyun/bin/general_ossutilconfig"
+
+###################  个人路径  #######################
+alias home="cd /TJPROJ1/DENOVO/PROJECT/wangyiming/"
+#alias cdc="cd /TJPROJ1/DENOVO/PROJ1/ceshi/C101SC18100625_lvdou/"
+alias cdc="cd /ifs/TJPROJ3/Plant/chenjun"
+alias cdc1="cd /TJNAS01/PAG/Plant/chenjun"
+alias cdc3="cd /TJPROJ1/DENOVO/PROJECT/chenjun"
+
+########################################################
+###################  软 件 环 境  ######################
+########################################################
+# 常见依赖库
+
+# 奎哥的zlib
+export LD_LIBRARY_PATH=/PUBLIC/software/DENOVO/pipeline/03.assembly/R/zlib-1.2.8:/PUBLIC/software/DENOVO/pipeline/03.assembly/R/zlib/include:/PUBLIC/software/DENOVO/pipeline/03.assembly/R/zlib/lib:/TJPROJ1/DENOVO/PROJECT/libenping/Software/MaSuRCA-3.2/lib:$GCC_HOME/lib:$GCC_HOME/lib64:$GCC_HOME/libexec:$LD_LIBRARY_PATH
+#PATH=/PUBLIC/software/public/System/Perl-5.18.2/bin/:$PATH
+
+#zlib library path
+SOFT=/PUBLIC/software/public
+export C_INCLUDE_PATH=$SOFT/System/zlib-1.2.8/include:$C_INCLUDE_PATH
+export CPLUS_INCLUDE_PATH=$SOFT/System/zlib-1.2.8/include:$CPLUS_INCLUD
+export LD_LIBRARY_PATH=$SOFT/System/zlib-1.2.8/lib:$LD_LIBRARY_PATH
+export LIBRARY_PATH=$SOFT/System/zlib-1.2.8/lib:$LIBRARY_PATH
+
+### GCC相关 ###
+#export PATH=/PUBLIC/software/public/System/GCC/gcc-4.9.2/bin/:$PATH
+#export LD_LIBRARY_PATH=/PUBLIC/software/public/System/GCC/gcc-4.9.2/lib64:$LD_LIBRARY_PATH
+#export LD_LIBRARY_PATH=/ifs/TJPROJ3/Plant/chenjun/software/Miniconda3/miniconda3/lib:$LD_LIBRARY_PATH
+export PATH=/TJPROJ2/RESEQ/share/software/compileToolChain/GCC/gcc_5.3.0/bin:$PATH
+export LD_LIBRARY_PATH=/TJPROJ2/RESEQ/share/software/compileToolChain/GCC/gcc_5.3.0//lib64:$LD_LIBRARY_PATH
+
+#ATALS LIBRARY PATH
+SOFT=/PUBLIC/software/public
+export ATLAS=$SOFT/System/atlas
+export LD_LIBRARY_PATH=$SOFT/System/atlas:$LD_LIBRARY_PATH
+export LIBRARY_PATH=$SOFT/System/atlas:$LIBRARY_PATH
+
+########################################################
+#####################  我的软件  #######################
+########################################################
+
+### 常用软件 ###
+#
+alias rz="/ifs/TJPROJ3/Plant/chenjun/software/lrzsz/bin/lrz"
+alias sz="/ifs/TJPROJ3/Plant/chenjun/software/lrzsz/bin/lsz"
+alias bwa="/ifs/TJPROJ3/Plant/chenjun/software/bwa/bwa-0.7.15/bwa"
+alias samtools='/ifs/TJPROJ3/Plant/likui/lk_soft/other/samtools-1.3.1/samtools'
+#export PATH=/ifs/TJPROJ3/Plant/likui/lk_soft/assembly/cmake/bin/:/ifs/TJPROJ3/Plant/likui/lk_soft/other/samtools-1.3.1:$PATH
+
+### zhangwenlin ###
+SOFT=/PUBLIC/software/public
+RNASOFT=/PUBLIC/software/RNA
+PATH=$RNASOFT/msort/bin:$RNASOFT/mirdeep2:$RNASOFT/tRNAscan-SE/bin:$RNASOFT/randfold-2.0:$RNASOFT/ViennaRNA-1.8.5/bin:$RNASOFT/mfold-3.5/bin:$SOFT/Alignment/bowtie2-2.0.6:$SOFT/Alignment/bowtie2-2.2.2:$SOFT/Alignment/bowtie-1.0.1:$SOFT/System/Perl-5.18.2/bin/:$SOFT/System/Python-2.7.6/bin/:$SOFT/System/sqlite3/bin:$SOFT/System/R-2.15.3/bin/:$SOFT/System/mysql-5.1.62/bin:/PUBLIC/software/public/Alignment/bwa/bwa-0.6.2:$SOFT/Alignment/blast-2.2.26:$SOFT/NCBI/bin/blastall:$SOFT/Alignment/ncbi-blast-2.2.28+/bin:/PUBLIC/software/public/VarCall/samtools/samtools-0.1.18:/ifs/TJPROJ3/Plant/chenfeng/proovread/bin/samtools:/BJWORK/GR/zhaoxing/bin:$PATH:$HOME/bin:/TJPROJ2/RESEQ/share/software/vcftools_v0.1.14/bin:$PATH
+export PATH
+
+# 比对
+export PATH=/PUBLIC/software/public/Alignment/blast-2.2.26/bin:$PATH
+export PATH=/PUBLIC/software/public/Alignment/blat:$PATH
+
+# OrthoFinder
+#export PATH=/ifs/TJPROJ3/Plant/chenjun/software/orthofinder/OrthoFinder-2.3.1:$PATH
+#export PATH=/ifs/TJPROJ3/Plant/chenjun/software/orthofinder/mmseqs2/bin:$PATH
+#export PATH=/ifs/TJPROJ3/Plant/chenjun/software/orthofinder/diamond:$PATH
+# other
+#export PATH=/ifs/TJPROJ3/Plant/chenjun/software/Mono/bison/bin:$PATH
+#export PATH=/ifs/TJPROJ3/Plant/chenjun/software/Mono/gettext/bin:$PATH
+#export PATH=/ifs/TJPROJ3/Plant/chenjun/software/sratoolkit/sratoolkit.2.9.4-2-ubuntu64/bin:$PATH
+# autojump
+#[[ -s /home/chenjun/.autojump/etc/profile.d/autojump.sh ]] && source /home/chenjun/.autojump/etc/profile.d/autojump.sh
+
+#########################################################################################
+# python3.7  R3.6 等等
+#export PATH=/ifs/TJPROJ3/Plant/chenjun/software/python3.5/bin:$PATH
+export PATH=/ifs/TJPROJ3/Plant/chenjun/software/Miniconda3/miniconda3/bin:$PATH
+alias subl=/ifs/TJPROJ3/Plant/chenjun/software/sublime3/sublime_text_3/sublime_text
+#########################################################################################
+
+#########################################################################################
+# R
+# 我的R-3.6.0
+#export PATH=/ifs/TJPROJ3/Plant/chenjun/software/R/lib/usr/lib64:$PATH
+#export LD_LIBRARY_PATH=/ifs/TJPROJ3/Plant/chenjun/software/R/lib/usr/lib64:$LD_LIBRARY_PATH
+#export R_LIBS_USER=$PATH:/ifs/TJPROJ3/Plant/chenjun/software/R/R_3.6.0_package
+#export R_LIBS=$PATH:/ifs/TJPROJ3/Plant/chenjun/software/R/R_3.6.0_package
+#########################################################################################
+# R others
+#export PATH=/PUBLIC/software/PB/pipeline/Pacbio_Isoseq_V1.0/software/R-3.2.3/bin:$PATH
+# 我的R包安装路径
+#alias R=/PUBLIC/software/public/System/R-3.4.0/bin/R
+#export PATH=/PUBLIC/software/public/System/R-3.4.0/bin:$PATH
+#export R_LIBS_USER=$PATH:/TJPROJ1/DENOVO/PROJECT/chenjun/R_lib
+#export R_LIBS=$PATH:/TJPROJ1/DENOVO/PROJECT/chenjun/R_lib
+# R其他软件路径 #
+export PATH=/PUBLIC/software/RNA/R-3.1.2/R-3.1.2/bin:$PATH
+#export PATH=/ifs/TJPROJ3/Plant/zhangzhongren/software/R-3.5.1/bin/:$PATH
+#export PATH=/PUBLIC/software/RNA/R/R-3.5.1/bin:$PATH
+#export R_LIBS_USER=$PATH:/TJPROJ1/DENOVO/PROJECT/chenjun/R_lib/R_3.5.1
+#export R_LIBS=$PATH:/TJPROJ1/DENOVO/PROJECT/chenjun/R_lib/R_3.5.1
+#########################################################################################
+
+#########################################################################################
+#  有参转录组比对（已废弃）
+#export  PYTHONPATH=/PUBLIC/software/public/Python-2.7.6/lib/python2.7/site-packages/:$PYTHONPATH
+#export PATH=/PUBLIC/software/public/R/v3.0.3/bin/:/TJPROJ1/DENOVO/PROJECT/libenping/Software/MaSuRCA-3.2/bin/:/PUBLIC/software/public/Python-2.7.6/bin:$PATH
+#  配置python及Bio模块（已废弃）
+#alias python=/PUBLIC/software/public/Python-2.7.6/bin/python
+#alias python=/PUBLIC/software/public/System/Python-2.7.6/bin/python
+#export PATH=/PUBLIC/software/public/System/Python-2.7.6/lib/python2.7/site-packages/:$PATH
+#  只导入python和python2命令（控制环境变量），必须打开上面的ATALS环境变量否则某些库无法导入跑不通(example:numpy)
+export PATH=/ifs/TJPROJ3/Plant/chenjun/software/python2/python2.7.6/bin:$PATH
+#########################################################################################
+
+#########################################################################################
+# 流程相关
+### xingpengwei ###
+#export PATH=/TJPROJ2/RESEQ/Project_Crop/Users/xingpengwei/software2/jdk1.8.0_161/bin:$PATH
+
+# muscle
+#export PATH=/PUBLIC/software/DENOVO/bio/software/muscle3.8.31/:$PATH
+#export PATH=/PUBLIC/software/DENOVO/pipeline/03.assembly/LACHESIS/BEDTools/bedtools2/bin/:$PATH
+
+# 三代转录流程问题解决
+#export PATH=/PUBLIC/software/PB/pipeline/Human_reseq_V1.0/software/smrtlink_5.0.1.9585/smrtcmds/bin:$PATH
+#export PATH=/TJPROJ2/Denovo/Users/zhanglei/script/software/IsoSeq3/lima_barcoding:$PATH
+#export PATH=/TJPROJ2/Denovo/Users/zhanglei/script/software/IsoSeq3//isoseq3_0.7.2:$PATH
+
+####hailing####
+#export PATH=/PUBLIC/software/DENOVO/bio/software/hmmer-3.1b2/bin/:$PATH
+
+# 注释相关：
+# sjm环境变量
+export PATH=/PUBLIC/software/public/System/sjm-1.2.0/bin:$PATH
+export LD_LIBRARY_PATH=/PUBLIC/software/public/System/boost_1_55_0/lib:$LD_LIBRARY_PATH
+#########################################################################################
+
+
+###########################################################
+####################  导 入 工 具  ########################
+#mymail="359701374@qq.com"
+mymail="1170101471@qq.com"
+source /ifs/TJPROJ3/Plant/chenjun/mytools/Tools_bashrc.sh
+###########################################################
+###########################################################
+
+#echo "提示：每个账号最多只能投递2000个任务，多余的任务会全部跑断，注意控制任务数量"
