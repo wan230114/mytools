@@ -7,8 +7,6 @@ fi
 
 # 进入当前文件夹
 script_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-#script_path=$(cd $(dirname ${BASH_SOURCE[0]}); cd - )
-# echo  ${script_path}
 cd ${script_path}
 
 # 创建运行目录
