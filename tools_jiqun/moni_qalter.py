@@ -57,6 +57,8 @@ def fmain(keyword, mod, lll, jg):
             for line in ['plant.q', 'plant1.q', 'plant2.q', 'pub.q',  'novo.q', 'all.q']:
                 if line in jiedian:
                     do(' -q ' + line)
+                time.sleep(60)
+                do('-q joyce.q -P joyce')
             if stop_single > 720:
                 break
         elif mod == '2':

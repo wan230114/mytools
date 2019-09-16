@@ -28,14 +28,19 @@ fi
 # 使用方法
 shelp="""
 一、功能简介
-    每周日零点投递扫盘（同时终止上次扫盘运行），每天在最新目录下进行扫盘结果统计。
+    每周日零点投递扫盘（同时终止上次扫盘运行），每天在统计目录下获取最新扫盘结果统计。
 
 二、使用简介：
-    复制三个文件(夹)：get-result.sh、mod、shell.sh 于工作文件夹，然后打开crontab -e加入以下命令：
+    准备三个文件(夹)：get-result.sh、mod、shell.sh 于工作文件夹，然后打开crontab -e加入以下命令：
+     - shell.sh  用于投递扫盘
+     - mod       用于投递扫盘所需要的运行文件，
+                 位于/ifs/TJPROJ3/Plant/chenjun/mytools/tools_jiqun/deal-result-saopan/auto_run/mod_tj/
+                 或/NJPROJ2/Plant/chenjun/mytools/tools_jiqun/deal-result-saopan/auto_run/mod_nj/
+     - get-result.sh  用于对扫盘后的结果进行格式化统计
 
 三、示例：
     1.准备工作路径，复制三个文件或软链接于工作路径， 如：/NJPROJ2/Plant/chenjun/Admin/02.saopan/
-    2.打开crontab -e：加入以下命令
+    2.打开crontab -e：加入以下定时运行的命令，如：
 
 # 天津
 0 0 * * 0  /bin/sh /NJPROJ2/Plant/chenjun/Admin/02.saopan/shell.sh
@@ -45,7 +50,7 @@ shelp="""
 0 0 * * 0  /bin/sh /ifs/TJPROJ3/Plant/chenjun/Admin/02.saopan/shell.sh
 0 9 * * *  /bin/sh /ifs/TJPROJ3/Plant/chenjun/Admin/02.saopan/get-result.sh
 
-时间说明：
+# crontab -e的时间语法说明：
 # {minute} {hour} {day-of-month} {month} {day-of-week} {full-path-to-shell-script}
 # o minute: 区间为 0 – 59
 # o hour: 区间为0 – 23
