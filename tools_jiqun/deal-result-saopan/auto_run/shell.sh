@@ -37,12 +37,12 @@ shelp="""
     1.准备工作路径，复制三个文件或软链接于工作路径， 如：/NJPROJ2/Plant/chenjun/Admin/02.saopan/
     2.打开crontab -e：加入以下命令
 
-# 天津
+# 天津，每周日投递一次
 0 0 * * 0  /bin/sh /NJPROJ2/Plant/chenjun/Admin/02.saopan/shell.sh
 0 9 * * *  /bin/sh /NJPROJ2/Plant/chenjun/Admin/02.saopan/get-result.sh
 
-# 南京
-0 0 * * 0  /bin/sh /ifs/TJPROJ3/Plant/chenjun/Admin/02.saopan/shell.sh
+# 南京，每月10号投递一次扫盘（每月中旬前任务较松，此时扫盘较为合适）
+0 0 10 * * /bin/sh /NJPROJ2/Plant/chenjun/Admin/02.saopan/shell.sh
 0 9 * * *  /bin/sh /ifs/TJPROJ3/Plant/chenjun/Admin/02.saopan/get-result.sh
 
 时间说明：
