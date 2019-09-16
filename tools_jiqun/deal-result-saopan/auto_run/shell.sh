@@ -46,9 +46,9 @@ shelp="""
 0 0 * * 0  /bin/sh /NJPROJ2/Plant/chenjun/Admin/02.saopan/shell.sh
 0 9 * * *  /bin/sh /NJPROJ2/Plant/chenjun/Admin/02.saopan/get-result.sh
 
-# 南京，每月10号投递一次扫盘（每月中旬前任务较松，此时扫盘较为合适）
-0 0 10 * * /bin/sh /NJPROJ2/Plant/chenjun/Admin/02.saopan/shell.sh
-0 9 * * *  /bin/sh /ifs/TJPROJ3/Plant/chenjun/Admin/02.saopan/get-result.sh
+# 南京，每两周投递一次扫盘（每月14日和28日）
+0 0 */14 * * /bin/sh /NJPROJ2/Plant/chenjun/Admin/02.saopan/shell.sh
+0 9 * * *    /bin/sh /ifs/TJPROJ3/Plant/chenjun/Admin/02.saopan/get-result.sh
 
 # crontab -e的时间语法说明：
 # {minute} {hour} {day-of-month} {month} {day-of-week} {full-path-to-shell-script}
