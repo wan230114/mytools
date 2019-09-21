@@ -1,0 +1,1 @@
+kword="$1" && while true; do vjobs=`vjob`; vjobs2=`echo -e "$vjobs"|grep $kword|grep qw`; if [ '`echo -e "$vjobs2"`' ];then echo -e "$vjobs2"|cut -f 1 -d . |xargs qalter -q joyce.q -P joyce &>/dev/null; else python /ifs/TJPROJ3/Plant/chenjun/mytools/sendmail.py 1170101471@qq.com -c "$kword 跑完了";break; fi; sleep 57; done
