@@ -1,9 +1,9 @@
-# 导入环境变量
-source ./mod/bashrc_source.sh
-
 # 进入当前文件夹
 script_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 cd ${script_path}
+
+# 导入环境变量
+source ./mod/bashrc_source.sh
 
 # 创建运行目录
 logtime=`date  +%Y-%m-%d`
