@@ -4,7 +4,21 @@
 # @Qmail:  1170101471@qq.com
 # @Date:   2019-08-24 05:15:45
 # @Last Modified by:   JUN
-# @Last Modified time: 2019-09-23 16:22:12
+# @Last Modified time: 2019-09-23 17:02:54
+
+r'''
+此版本开发暂时搁置，因为
+-b参数改了以后没有多大意义s4是要还是不要呢，还不如就要以前的-b参数，这样才能保证流程一致完整性
+           s1
+          /  \
+         s2  s2.1
+        /  \    \
+       s3  s3.1  s3.2
+      /  \  /
+     s4  s4.1 ___
+         /  \    \
+        s5  s5.1 s5.2
+'''
 
 import sys
 import re
@@ -249,7 +263,7 @@ def main():
     # sys.argv = ['', './s2-2.job', '-k', 'pasa2,evm,training_snap,PASA4training,training_glimmHMM', '-s']
     # sys.argv = ['', './test/sjms/test2.job', '-sv', '-k', 's2,s2.1',  '-a', 's2', '-b', 's4.1']
     # sys.argv = ['', './test/sjms/s2-2.job', '-k', 'pasa2,evm,training_snap,PASA4training,training_glimmHMM']
-    # sys.argv = 'test.py ./test/sjms/test2.job -vs -a s2 -b s3,s4.1'.split()
+    sys.argv = 'py ./test2.job -b s3,s4.1'.split()
     # sys.argv = ['', '-h']    # print(fargv())
     # print(fargv())
 
