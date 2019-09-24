@@ -2,7 +2,7 @@
 pip3 install -i  https://pypi.tuna.tsinghua.edu.cn/simple/  
 
 ############################################################
-######################## 集群管理 ##########################
+####################### 1.集群管理 #########################
 ############################################################
 ### 常用 ###
 # 集群投递管理脚本
@@ -23,7 +23,7 @@ perl /home/liuwenbin/STAT/CheckrmScript/CheckrmScript.v2.pl  --group 1908,1919,1
 
 
 ############################################################
-######################## 软件记录 ##########################
+####################### 2.软件记录 #########################
 ############################################################
 ### 软件语法 ###
 # blast语法
@@ -55,3 +55,52 @@ ref=App.fa
 #建立dist文件
 /NJPROJ2/Crop/share/software/picard-tools-1.96/CreateSequenceDictionary.jar R=$ref O=./App
 
+
+###### crontab -e 备份 ######
+shelp="""
+#################################### tj #####################################
+# 磁盘挂起
+#*/5 * * * * /PUBLIC/software/RESEQ/software/SGE/setup/cluster_tools/watchDisk/disk_monitor_client.pl
+#*/50 * * * * /PUBLIC/software/RESEQ/software/SGE/setup/cluster_tools/watchDisk/disk_monitor_client.pl
+#*/5 7-20  * * * /PUBLIC/software/RESEQ/software/SGE/setup/cluster_tools/watchDisk/disk_monitor_client.pl
+#*/5 7-8  * * * /PUBLIC/software/RESEQ/software/SGE/setup/cluster_tools/watchDisk/disk_monitor_client.pl
+
+# 每日磁盘大小统计
+0 8 * * * /ifs/TJPROJ3/Plant/chenjun/software/fileshare/00.get2mail.sh
+#*/1 * * * * /ifs/TJPROJ3/Plant/chenjun/software/fileshare/test.sh
+
+# 自动扫盘，每月14日和28日开始扫盘投递
+0 0 */14 * *  /bin/sh /ifs/TJPROJ3/Plant/chenjun/Admin/02.saopan/shell.sh
+#0 0 * * 0    /bin/sh /ifs/TJPROJ3/Plant/chenjun/Admin/02.saopan/shell.sh
+0 9 * * *  /bin/sh /ifs/TJPROJ3/Plant/chenjun/Admin/02.saopan/get-result.sh
+
+
+# 集群job上限超过设定值提醒，参数1为邮箱，参数2为提醒的job数量
+*/1 * * * * /ifs/TJPROJ3/Plant/chenjun/mytools/Shell/jobjk.sh 1170101471@qq.com 1850
+
+
+
+# 使用方法
+# {minute} {hour} {day-of-month} {month} {day-of-week} {full-path-to-shell-script} 
+# o minute: 区间为 0 – 59 
+# o hour: 区间为0 – 23 
+# o day-of-month: 区间为0 – 31 
+# o month: 区间为1 – 12. 1 是1月. 12是12月. 
+# o Day-of-week: 区间为0 – 7. 周日可以是0或7.
+
+
+#################################### nj #####################################
+# 磁盘挂起
+#*/5 * * * * /NJPROJ2/Plant/users/wangyayun/software/watchDisk/disk_monitor_client.pl
+#*/50  * * * * /NJPROJ2/Plant/users/wangyayun/software/watchDisk/disk_monitor_client.pl
+#*/5 7-8 * * * /NJPROJ2/Plant/users/wangyayun/software/watchDisk/disk_monitor_client.pl
+
+# 每日磁盘统计
+52-55/1 7 * * * /NJPROJ2/Plant/chenjun/software/fileshare/00.givedata.sh
+#*/1 * * * * /NJPROJ2/Plant/chenjun/software/fileshare/test.sh
+
+# 自动扫盘
+0 0 */14 * *  /bin/sh /NJPROJ2/Plant/chenjun/Admin/02.saopan/shell.sh
+0 9 * * *  /bin/sh /NJPROJ2/Plant/chenjun/Admin/02.saopan/get-result.sh
+
+"""
