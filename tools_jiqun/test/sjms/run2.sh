@@ -1,4 +1,5 @@
 shelp='''
+./test2.job:
            s1                             p1                         pp1
           /  \                           /
          s2  s2.1                       p2
@@ -14,15 +15,18 @@ shelp='''
 alias sjms='python3 /ifs/TJPROJ3/Plant/chenjun/mytools/tools_jiqun/sjms.py'
 
 # 提取s2到s4.1的流程
-sjms ./test2.job -s -a s2 -b s3,s4.1 >out2.1_tiqu
+sjms ./test2.job -s  -a s2  -b s3,s4.1    >out2.1_tiqu
+sjms ./test2.job -s  -a s2  -b s3,s4.1 -v >out2.1_tiqu_name   # 只打印名字 
+sjms ./test2.job -vs -a s2  -b s3,s4.1    >out2.1_tiqu_name2  # 只打印名字
 
-# 提取s2之后的流程，并去除s4.1之后的流程，加上s2.1（-k与-a会自动去重）
+# 提取s2之后的流程，并去除s4.1之后的流程，加上s2.1
 sjms ./test2.job -s -k s2.1    -a s2 -b s4.1  >out2.2_tiqu
-sjms ./test2.job -s -k s2,s2.1 -a s2 -b s4.1  >out2.2_tiqu2
+sjms ./test2.job -s -k s2,s2.1 -a s2 -b s4.1  >out2.2_tiqu2  # -k与-a之间会自动去重
 
 # 提取s2之后的流程，并去除s4.1之后的流程，去除s4，加上s2.1
-sjms ./test2.job -s -k s2.1 -a s2 -b s3,s4.1    >out2.3_tiqu
-sjms ./test2.job -s -k s2.1 -a s2 -b s4.1 -d s4 >out2.3_tiqu2
+sjms ./test2.job -s -k s2.1 -a s2 -b s3,s4.1    >out2.3_tiqu  # -b 去除某一节点之后的节点
+sjms ./test2.job -s -k s2.1 -a s2 -b s4.1 -d s4 >out2.3_tiqu2 # -d 去除指定的节点
 
 # 提取s2和s2.1之后的流程，并去除s4.1之后的流程，去除s3和s4
-sjms ./test2.job -s -k s2.1 -a s2,s2.1 -b s3,s4.1 -d s3 >out2.4_tiqu
+sjms ./test2.job -s -k s2.1 -a s2,s2.1 -b s3,s4.1 -d s3    >out2.4_tiqu
+sjms ./test2.job -s -k s2.1 -a s2,s2.1 -b s4.1    -d s3,s4 >out2.4_tiqu
