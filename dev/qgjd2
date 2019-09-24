@@ -1,0 +1,46 @@
+#while true;do vjob|grep 20190825|cut -d '.' -f 1|xargs qalter -q tjsmp12_2048.q -P smp2048 ;sleep 300; done 
+shelp="""usage:
+qgjd mod keyword1 [keyword2 keyword3 ...]
+    mod   改节点模式，n/b/a
+    keywords...   vjob能grep到的关键词，可以选择多个"""
+if [ "$2" ];
+then
+    if [ "$1" == "n" ] || [ "$1" == "b" ] || [ "$1" == "a" ]
+    then 
+         args=`echo $@|sed 's# #|\n#g'|sed '1d'|sed ':label;N;s/\n//;b label'`
+         echo "您使用的模式是：$1，需要改节点的关键词是：$args";
+    fi
+else echo -e "$shelp"; exit 1;
+fi
+
+vjobs=`vjob`
+if [ "$1" == "n" ]
+then
+    while [ "`echo -e "$vjobs"|grep -P "$args"`" ];
+    do
+    vjob|grep -v hmmpanther|grep -v profilescan|grep qw|cut -f 1 -d "."|xargs qalter -q plant.q,plant1.q,plant2.q,all.q,novo.q
+    sleep 10
+    done
+
+elif [ "$1" == "b" ] 
+    while [ "`echo -e "$vjobs"|grep -P "$args"`" ];
+    do
+    vjob|grep -v hmmpanther|grep -v profilescan|grep qw|cut -f 1 -d "."|xargs qalter -q tjsmp14_512.q -P smp512 
+    sleep 10
+    vjob|grep -v hmmpanther|grep -v profilescan|grep qw|cut -f 1 -d "."|xargs qalter -q tjsmp12_2048.q -P smp2048
+    sleep 10
+    vjob|grep -v hmmpanther|grep -v profilescan|grep qw|cut -f 1 -d "."|xargs qalter -q tjsmp01_1024.q,tjsmp07_1024.q,tjsmp11_1024.q -P smp1024
+    sleep 10
+    done
+elif [ "$1" == "a" ]
+    while [ "`echo -e "$vjobs"|grep -P "$args"`" ];
+    do
+    vjob|grep -v hmmpanther|grep -v profilescan|grep qw|cut -f 1 -d "."|xargs qalter -q plant.q,plant1.q,plant2.q,all.q,novo.q
+    sleep 10
+    vjob|grep -v hmmpanther|grep -v profilescan|grep qw|cut -f 1 -d "."|xargs qalter -q tjsmp14_512.q -P smp512 
+    sleep 10
+    vjob|grep -v hmmpanther|grep -v profilescan|grep qw|cut -f 1 -d "."|xargs qalter -q tjsmp01_1024.q,tjsmp07_1024.q,tjsmp11_1024.q -P smp1024
+    sleep 10
+    vjob|grep -v hmmpanther|grep -v profilescan|grep qw|cut -f 1 -d "."|xargs qalter -q tjsmp12_2048.q -P smp2048
+    sleep 10
+    done

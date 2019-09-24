@@ -80,5 +80,6 @@ alias getsize="python3 ${tools_path}/tools_jiqun/getsize.py"  # 指定文件的�
 #####################################################
 #################### mynote #########################
 #####################################################
-alias vb1="vim ${tools_path}/Tools_bashrc.sh "
+alias vb1="vim ${tools_path}/bashrc_my.cfg "
+alias vb2="vim ${tools_path}/Tools_bashrc.sh "
 alias vbb="vim ${tools_path}/Note.sh "
