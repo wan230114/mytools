@@ -1,4 +1,28 @@
 job_begin
+	name pp1
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
+	cmd_begin
+		echo p1
+	cmd_end
+job_end
+
+job_begin
+	name p1
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
+	cmd_begin
+		echo p1
+	cmd_end
+job_end
+
+job_begin
+	name p2
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
+	cmd_begin
+		echo p2
+	cmd_end
+job_end
+
+job_begin
 	name s1
 	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
 	cmd_begin
@@ -102,5 +126,7 @@ order s5 after s4.1
 
 order s4.1 after s3
 order s5.2 after s4.1
+
+order p2 after p1
 
 log_dir log

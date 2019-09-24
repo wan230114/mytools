@@ -52,8 +52,8 @@ job_begin
 	cmd sh 05.abinito/training/GlimmerHMM/glimmHMM.sh
 job_end
 
+order pasa2 after evm
 order training_glimmHMM after PASA4training
 order training_snap after PASA4training
-order pasa2 after evm
 
 log_dir log

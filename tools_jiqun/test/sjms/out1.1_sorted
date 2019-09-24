@@ -137,14 +137,14 @@ job_begin
 	cmd sh 05.abinito/training/SNAP/snap.sh
 job_end
 job_begin
-	name training_augustus
-	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=5g,p=0
-	cmd sh 05.abinito/training/Augustus/augustus.sh
-job_end
-job_begin
 	name training_glimmHMM
 	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=5g,p=0
 	cmd sh 05.abinito/training/GlimmerHMM/glimmHMM.sh
+job_end
+job_begin
+	name training_augustus
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=5g,p=0
+	cmd sh 05.abinito/training/Augustus/augustus.sh
 job_end
 job_begin
 	name run_snap
@@ -158,6 +158,17 @@ job_begin
 	cmd_end
 job_end
 job_begin
+	name run_glimmer
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
+	cmd_begin
+		perl /ifs/TJPROJ3/Plant/Pipeline/annotation/pipeline_v2.0/scripts/struct_run_glimmerhmm.pl 
+			--prefix glimmer 
+			--glimmerHMM_para 05.abinito/training/GlimmerHMM/pasa1 
+			--outdir 05.abinito/structure/glimmer 
+			01.repeat/RepeatStat/genome.mask.fasta
+	cmd_end
+job_end
+job_begin
 	name run_augustus
 	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
 	cmd_begin
@@ -166,17 +177,6 @@ job_begin
 			--species pasa1 
 			--AUGUSTUS_CONFIG_PATH `pwd`/05.abinito/training/Augustus/conf
 			--outdir 05.abinito/structure/augustus 
-			01.repeat/RepeatStat/genome.mask.fasta
-	cmd_end
-job_end
-job_begin
-	name run_glimmer
-	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
-	cmd_begin
-		perl /ifs/TJPROJ3/Plant/Pipeline/annotation/pipeline_v2.0/scripts/struct_run_glimmerhmm.pl 
-			--prefix glimmer 
-			--glimmerHMM_para 05.abinito/training/GlimmerHMM/pasa1 
-			--outdir 05.abinito/structure/glimmer 
 			01.repeat/RepeatStat/genome.mask.fasta
 	cmd_end
 job_end
@@ -204,14 +204,14 @@ order TE_job after TE_recycle
 
 order PASA4training after prepare_training
 order training_snap after PASA4training
-order training_augustus after PASA4training
 order training_glimmHMM after PASA4training
+order training_augustus after PASA4training
 order run_snap after training_snap
-order run_augustus after training_augustus
 order run_glimmer after training_glimmHMM
+order run_augustus after training_augustus
 order evm after run_snap
-order evm after run_augustus
 order evm after run_glimmer
+order evm after run_augustus
 
 order evm after run_geneid
 

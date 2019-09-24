@@ -13,9 +13,9 @@ fi
 # 投递任务
 if [ -e "/ifs/TJPROJ3/Plant/chenjun/mytools/Shell" ]
 then
-    nohup python /ifs/TJPROJ3/Plant/chenjun/mytools/tools_jiqun/moni_renwu.py $1 $2 &>nohup-moni_renwu.py.o && echo &&echo "监控完成！" && cat nohup-moni_renwu.py.o &
+    nohup python /ifs/TJPROJ3/Plant/chenjun/mytools/tools_jiqun/moni_renwu.py $1 $2 &>nohup-moni_renwu.py.o && echo && echo "监控完成！"  &
 else
-    nohup python /NJPROJ2/Plant/chenjun/mytools/tools_jiqun/moni_renwu.py     $1 $2 &>nohup-moni_renwu.py.o && echo &&echo "监控完成！" && cat nohup-moni_renwu.py.o &
+    nohup python /NJPROJ2/Plant/chenjun/mytools/tools_jiqun/moni_renwu.py     $1 $2 &>nohup-moni_renwu.py.o && echo && echo "监控完成！"  &
 fi
 
 echo 监控命令后台中...
