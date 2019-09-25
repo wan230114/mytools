@@ -110,6 +110,14 @@ job_begin
 	cmd_end
 job_end
 
+job_begin
+	name s6
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
+	cmd_begin
+		echo s6
+	cmd_end
+job_end
+
 order s2 after s1
 order s3 after s2
 order s3.1 after s2
@@ -128,5 +136,7 @@ order s4.1 after s3
 order s5.2 after s4.1
 
 order p2 after p1
+
+order s6 after s4
 
 log_dir log

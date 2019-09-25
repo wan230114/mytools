@@ -1,4 +1,11 @@
 job_begin
+	name s2.1
+	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
+	cmd_begin
+		echo s2.1
+	cmd_end
+job_end
+job_begin
 	name s2
 	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
 	cmd_begin
@@ -17,13 +24,6 @@ job_begin
 	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
 	cmd_begin
 		echo s4.1
-	cmd_end
-job_end
-job_begin
-	name s2.1
-	sched_options -V -cwd -q plant.q,plant1.q,all.q,plant2.q -l vf=2g,p=0
-	cmd_begin
-		echo s2.1
 	cmd_end
 job_end
 
