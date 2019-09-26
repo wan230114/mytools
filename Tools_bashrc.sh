@@ -19,6 +19,7 @@ alias dfa='df -h  /TJNAS01/PAG/Plant/ /TJPROJ1/DENOVO/ /ifs/TJPROJ3/Plant/  /NJP
 # 任务
 alias qs="qstat -u `whoami`"
 alias q=vjob
+alias vs=/ifs/TJPROJ3/Plant/chenjun/mytools/Shell/vs
 # 进程
 alias pp="ps ux|head -1;ps ux|grep -v PID|sort -rn -k +3"  # 查看占用资源最多的进程
 alias p="ps xjf" # 以进程树展示进程
