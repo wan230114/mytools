@@ -12,38 +12,42 @@ import getpass
 
 shelp = '''集群任务互传工具ossutil:
 使用说明: 
-    --------------------------------------
     python oss.py  fu   file1  path/
     python oss.py  fd   path/  path2/
     python oss.py  lsu [file1]
     python oss.py  lsd [file1]
     python oss.py  rmu [file1]
     python oss.py  rmd [file1]
-    --------------------------------------
     命令助记：命令中f含义是file，u含义是上传，d含义是下载
 
 设置.bashrc快捷命令:
     天津:  alias oss="python /ifs/TJPROJ3/Plant/chenjun/mytools/tools_jiqun/oss.py"
     南京:  alias oss="python /NJPROJ2/Plant/chenjun/mytools/tools_jiqun/oss.py"
 
+原理：
+    互通云有4个云存储，分别为：天津u、天津d、南京u、南京d。(u:up, d:down)
+     1、在天津集群运行 fu 将本地文件上传至 天津u, 随后被自动同步至 南京d, 运行lsu确认上传完成，
+	    再去南京集群运行lsd查看确认文件传输完成，运行 fd 即可下载
+     2、在南京集群运行 fu 将本地文件上传至 南京u, 随后被自动同步至 天津d, 运行lsu确认上传完成，
+	    再去天津集群运行lsd查看确认文件传输完成，运行 fd 即可下载
+
 示例: 南京u-->天津d
-    1) 上传：将文件(夹)上传至南京云，南京云会自动同步到天津云
+    1) 上传：将文件(夹)上传至南京u ，南京u会自动同步到 天津d
             南京客户端: oss fu file(或dir/) dict1/
-    2) 查看：查看天津云（两者应该相同，否则请等待后台传输完毕(数据量大有延时)）
+    2) 查看：查看南京u、天津d（两者应该相同，否则请等待后台传输完毕(数据量大有延时)）
             南京客户端: oss lsu
             天津客户端: oss lsd
-    3) 下载：从天津云下载
+    3) 下载：从天津d下载
         1.下载所有文件到当前文件夹
             天津客户端: oss fd
         2.下载指定文件(夹)到当前文件夹
             天津客户端: oss fd dict1/ ./
-    4) 删除：清理云端数据（转移完毕去上传端删除数据）
+    4) 删除：清理云端数据（转移完毕去上传端 南京u 删除数据）
         1.删除所有的上传数据
             南京客户端: oss rmu
         2.删除指定文件(夹)
             南京客户端: oss rmu dict1/
-      （一般来说`oss rmd`不会用到，原则是在上传端去删除，这样删除操作才会同步至另一个中心，若在下载端rmd则会需要在上传端去再删除1次）
-    '''
+      （一般来说`oss rmd`不会用到，原则是在上传端去删除，这样删除操作才会同步至另一个中心，若在下载端rmd则会需要在上传端去再删除1次）'''
 
 
 def jgq():
@@ -54,7 +58,7 @@ def jgq():
 
 
 def jq(Largv):
-    print(Largv)
+    print("Input args:", *Largv[1:])
     if ('--help' in Largv) or ('-h' in Largv):
         print(shelp)
         sys.exit()
