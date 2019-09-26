@@ -21,8 +21,8 @@ shelp = '''集群任务互传工具ossutil:
     命令助记：命令中f含义是file，u含义是上传，d含义是下载
 
 设置.bashrc快捷命令:
-    天津:  alias oss="python /ifs/TJPROJ3/Plant/chenjun/mytools/tools_jiqun/oss.py"
-    南京:  alias oss="python /NJPROJ2/Plant/chenjun/mytools/tools_jiqun/oss.py"
+    天津:  alias oss="python3 /ifs/TJPROJ3/Plant/chenjun/mytools/tools_jiqun/oss.py"
+    南京:  alias oss="python3 /NJPROJ2/Plant/chenjun/mytools/tools_jiqun/oss.py"
 
 原理：
     互通云有4个云存储，分别为：天津u、天津d、南京u、南京d。(u:up, d:down)
