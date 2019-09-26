@@ -27,9 +27,9 @@ shelp = '''集群任务互传工具ossutil:
 原理：
     互通云有4个云存储，分别为：天津u、天津d、南京u、南京d。(u:up, d:down)
      1、在天津集群运行 fu 将本地文件上传至 天津u, 随后被自动同步至 南京d, 运行lsu确认上传完成，
-	    再去南京集群运行lsd查看确认文件传输完成，运行 fd 即可下载
+        再去南京集群运行lsd查看确认文件传输完成，运行 fd 即可下载
      2、在南京集群运行 fu 将本地文件上传至 南京u, 随后被自动同步至 天津d, 运行lsu确认上传完成，
-	    再去天津集群运行lsd查看确认文件传输完成，运行 fd 即可下载
+        再去天津集群运行lsd查看确认文件传输完成，运行 fd 即可下载
 
 示例: 南京u-->天津d
     1) 上传：将文件(夹)上传至南京u ，南京u会自动同步到 天津d
@@ -65,6 +65,8 @@ def jq(Largv):
     try:
         # q = Largv[1]  # t天津，n南京
         mode = Largv[1]
+        if mode not in {'fu', 'fd', 'lsu', 'lsd', 'rmu', 'rmd'}:
+            print('args erro.  usage: oss mod [file1] [file2] [-h]/[--help]')
         try:
             file1 = Largv[2]
             try:
