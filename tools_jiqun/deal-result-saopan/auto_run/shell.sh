@@ -43,7 +43,10 @@ shelp="""
     2.打开crontab -e：加入以下定时运行的命令，如：
 
 # 天津，每周日投递一次
-0 0 * * 0  /bin/sh /NJPROJ2/Plant/chenjun/Admin/02.saopan/shell.sh
+#0 0 * * 0  /bin/sh /NJPROJ2/Plant/chenjun/Admin/02.saopan/shell.sh
+#0 9 * * *  /bin/sh /NJPROJ2/Plant/chenjun/Admin/02.saopan/get-result.sh
+# 天津，每两周投递一次扫盘（每月14日和28日）
+0 0 */14 * *  /bin/sh /ifs/TJPROJ3/Plant/chenjun/Admin/02.saopan/shell.sh
 0 9 * * *  /bin/sh /NJPROJ2/Plant/chenjun/Admin/02.saopan/get-result.sh
 
 # 南京，每两周投递一次扫盘（每月14日和28日）

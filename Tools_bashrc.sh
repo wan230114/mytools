@@ -37,7 +37,7 @@ alias oss="python3 ${tools_path}/tools_jiqun/oss.py "
 # 5) md5及size计算
 alias md5="python3 ${tools_path}/tools_jiqun/md5.py"  # 本地计算当前目录md5和checksize, 用法: `md5 num`, num为进程数，最好不要超过10
 alias md5q="sh ${tools_path}/Shell/md5q.sh"  # 自动投递集群计算当前目录md5和checksize, 用法: `md5q`
-# 6) sjm提取工具
+# 6) sjm流程提取工具
 alias sjms="python3 ${tools_path}/tools_jiqun/sjms.py"
 
 #######################################################################

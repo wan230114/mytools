@@ -68,10 +68,10 @@ def fmain(threadx, mail, log, checksize=False):
     jq = jg()
     if jq == "tj":
         qsub_sge = "perl /PUBLIC/software/DENOVO/bio/annotation/pipeline_v2.0/scripts/qsub-sge.pl "
-        resource = "--resource vf=0.2G:p=1 "
+        resource = " -lines 5 --resource vf=0.2G:p=1 --queue plant.q,plant1.q,plant2.q,novo.q,all.q "
     else:
         qsub_sge = "perl /NJPROJ3/Plant/share/modules/current/commonTools/00.bin/qsub-sge.pl "
-        resource = "--resource vf=0.2G,p=1 "
+        resource = " -lines 5 --resource vf=0.2G,p=1 --queue plant.q,plant1.q,plant2.q,novo.q,all.q "
     pwd = os.getcwd()
     if checksize == False:
         print('> 正在以 %s qsub进程 计算所有文件的md5值...' % threadx)

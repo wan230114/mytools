@@ -16,9 +16,9 @@ from collections import OrderedDict
 def fargv():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description=('“sjms” ———— <sjm流程提取器>，用于sjm流程语法文件格式化，可提取指定的job，按流程运行顺序对job“排序”。'
+        description=('“sjms” ———— “sjm流程提取器”，用于sjm流程语法文件格式化输出，可提取指定的job，按流程运行顺序对job“排序”。'
                      ),
-        epilog=('[附]：\n'
+        epilog=('说明：\n'
                 '  输入的sjm语法文件需为正确格式，即`sjm xxx.job`能正常运行的文件\n'
                 '当前版本：\n'
                 '  v1.7 新增功能，可去除指定的节点，添加为-d参数\n'
@@ -169,8 +169,7 @@ def fmain(fipath, keyword, viewname, sortjob, afters, breaking, delword):
         iters_tmp = get_afters_job(L_breaking, D_orders)
         iters_tmp = [x for x in iters_tmp if x not in L_breaking]  # 保留终止的节点
         iters = [x for x in iters if x not in iters_tmp]  # 去除后面的节点
-    # 去除待删除的job
-    iters = [x for x in iters if x not in L_delword]
+    iters = [x for x in iters if x not in L_delword]  # 去除待删除的job
     D_orders2 = {x: D_orders[x] for x in (set(D_orders) & set(iters))}  # 去除关键词之外的job
     D_orders3 = sort_iters(D_orders2) if sortjob else {'': D_orders2}  # 设计如此结构以便后期打印
     # 处理分支及排序，得到{'枝头':{'枝头之后的枝1':{name1,name2},name1:{name3}}, '枝头2':{...}}
