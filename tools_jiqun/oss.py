@@ -58,7 +58,7 @@ def jgq():
 
 
 def jq(Largv):
-    print("Input args:", *Largv[1:])
+    print("Input args:", '[', *Largv[1:], ']')
     if ('--help' in Largv) or ('-h' in Largv):
         print(shelp)
         sys.exit()
