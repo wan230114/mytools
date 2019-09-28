@@ -8,8 +8,9 @@ pip3 install -i  https://pypi.tuna.tsinghua.edu.cn/simple/
 ### 常用 ###
 # 集群投递管理脚本
 perl /PUBLIC/software/DENOVO/bio/annotation/pipeline_v2.0/scripts/qsub-sge.pl
-# rm脚本check
+# 下机数据 rm脚本check
 perl /home/liuwenbin/STAT/CheckrmScript/CheckrmScript.v2.pl  --group 1908,1919,1920  --dnum /TJPROJ4/XJ/department_data-nova/1919  rm.plant_1908_tj4_190624.sh
+perl /NJPROJ2/home/liuwenbin/STAT/CheckrmScript/CheckrmScript.v2.pl  --group 1908,1919,1920,0216 --dnum /NJPROJ3/XJ/Data_production/department_data_Nova/1908  rm.plant_nj_190705.sh >rm.plant_nj_190705.sh--check.log
 
 ### 上传阿里云冷存储 ###
 alias lsy="/TJNAS01/PAG/Plant/zhangwenlin/Cluster_management/Aliyun/JieDong/bin/ossutil64  -c /TJPROJ1/DENOVO/PROJECT/zhangkaijian/program/Aliyun/bin/general_ossutilconfig"                                     
