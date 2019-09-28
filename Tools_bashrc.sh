@@ -77,10 +77,3 @@ sh -c "awk 'BEGIN{sum=0}{sum+=\$$1}END{OFS=\"\\n\"; print sum}' $2"
 alias asum=fasum
 alias getsize="python3 ${tools_path}/tools_jiqun/getsize.py"  # 指定文件的某一列转换为计算机存储单位
 
-
-#####################################################
-#################### mynote #########################
-#####################################################
-alias vb1="vim ${tools_path}/bashrc_my.cfg "
-alias vb2="vim ${tools_path}/Tools_bashrc.sh "
-alias vbb="vim ${tools_path}/Note.sh "
