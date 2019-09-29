@@ -1,3 +1,9 @@
+#!/bin/bash
+# @Author: ChenJun
+# @Email:  chenjun2049@foxmail.com
+# @Qmail:  1170101471@qq.com
+# @Date:   2019-08-23 22:30:48
+
 # 进入当前文件夹
 script_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 cd ${script_path}
