@@ -77,3 +77,14 @@ sh -c "awk 'BEGIN{sum=0}{sum+=\$$1}END{OFS=\"\\n\"; print sum}' $2"
 alias asum=fasum
 alias getsize="python3 ${tools_path}/tools_jiqun/getsize.py"  # 指定文件的某一列转换为计算机存储单位
 
+# 4) 网络工具
+IP=`curl icanhazip.com 2>/dev/null`
+fg(){
+echo $@|xargs -i echo 'wget $IP:8999/{}'
+}
+#alias gg="find . -maxdepth 1 -type f|sed -r 's#..##'|xargs -i echo -e 'wget $IP:8999/{}'"
+alias gg="find \`pwd\` -maxdepth 1 -type f |sed -r 's#/home/chenjun/fileshare/##'|xargs -i echo -e 'wget $IP:8999/{}'"
+alias ggg="find . -type f|sed -r 's#..##'|xargs -i echo -e 'wget $IP:8999/{}'"
+alias g=fg
+alias IP="echo $IP"
+

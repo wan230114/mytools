@@ -3,8 +3,8 @@
 ########################################################
 
 #################### Language set ######################
-export LC_ALL="zh_CN.utf8"
-export LANG="zh_CN.utf8"
+#export LC_ALL="zh_CN.utf8"
+#export LANG="zh_CN.utf8"
 
 ######## User specific aliases and functions ########
 export HISTTIMEFORMAT='%F %T '
