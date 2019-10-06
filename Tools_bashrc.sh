@@ -3,8 +3,8 @@
 # source xxx/mytools/Tools_bashrc.sh
 ###########################################################
 
-
 tools_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+#tools_path="$( cd $(dirname $0) && pwd)"
 #tools_path=$(cd $(dirname ${BASH_SOURCE[0]}); cd - )
 #echo  ${tools_path}
 
