@@ -4,7 +4,7 @@
 # @Qmail:  1170101471@qq.com
 # @Date:   2018-12-29 14:19:04
 # @Last Modified by:   JUN
-# @Last Modified time: 2019-10-11 17:31:04
+# @Last Modified time: 2019-10-11 17:49:08
 
 # import os
 import sys
@@ -32,10 +32,7 @@ def fmain(keyword):
                 'logs:\n'
                 '[out.o]:\n%s\n'
                 '[out.e]:\n%s\n' % (p_status, output.decode(), err.decode()))
-        out = ''
-        for line in output.decode():
-            if keyword in line:
-                out += line
+        out = '\n'.join([line for line in output.decode().split('\n') if keyword in line])
         info = str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())) + \
             '    keyword: ' + keyword
         data = info + '\n' + out + '\n'
