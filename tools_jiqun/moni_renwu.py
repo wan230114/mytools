@@ -4,7 +4,7 @@
 # @Qmail:  1170101471@qq.com
 # @Date:   2018-12-29 14:19:04
 # @Last Modified by:   JUN
-# @Last Modified time: 2019-10-11 16:48:25
+# @Last Modified time: 2019-10-11 17:04:08
 
 # import os
 import sys
@@ -27,7 +27,8 @@ def fmain(keyword):
         output, err = p.communicate()
         p_status = p.wait()
         if p_status:
-            raise CmdRunError('[out.e]:\n%s\n[out.o]:\n%s\n' % (output, err))
+            print('进程运行状态不为零，stat:', p_status)
+            raise CmdRunError('logs:\n[out.e]:\n%s\n[out.o]:\n%s\n' % (output, err))
         info = str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())) + \
             '    keyword: ' + keyword
         data = info + '\n' + output.strip() + '\n'
