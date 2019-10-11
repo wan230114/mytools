@@ -31,7 +31,7 @@ alias qgjd="sh ${tools_path}/Shell/qgjd.sh"  # 批量改节点，用法: `qgjd m
 alias qjg="qmod -us "
 
 # 3) 任务监控
-alias qjk="sh ${tools_path}/Shell/qjk.sh ${mymail} "
+alias qjk="${tools_path}/Shell/qjk.sh ${mymail} "
 alias pjk="sh ${tools_path}/Shell/pjk.sh ${mymail} "
 # 4) oss集群互传工具
 alias oss="python3 ${tools_path}/tools_jiqun/oss.py "
