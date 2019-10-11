@@ -9,8 +9,8 @@ positional arguments:
 
 optional arguments:
   -h          show this help message and exit
+  -d          Running under the current directory
 """
-
 
 array=($*)
 echo "[input args: $*]"

@@ -15,5 +15,3 @@ echo "# >>> bashrc >>>"  >>$file
 echo source ${tools_path}/bashrc_my.cfg  >>$file
 echo mymail=\"1170101471@qq.com\"  >>$file
 echo source ${tools_path}/bashrc_Tools.sh  >>$file
-
-echo source ~/.bashrc|bash
