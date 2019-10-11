@@ -12,7 +12,9 @@ optional arguments:
   -d          Running under the current directory
 """
 
+tools_path=`dirname $(cd $(dirname ${BASH_SOURCE[0]})>/dev/null && pwd )`
 array=($*)
+
 echo "[input args: $*]"
 for i in ${array[@]}
 do
@@ -57,15 +59,17 @@ then
 fi
 
 # 投递任务
-if [ -e "/ifs/TJPROJ3/Plant/chenjun/mytools/Shell" ]
+nohup python ${tools_path}/tools_jiqun/moni_renwu.py $2 &>nohup-moni_renwu.py.o && \
+    echo "监控完成！keyword" $2  && \
+    python ${tools_path}/sendmail.py $1 -c "监控任务$2已跑完" &
+
+if [ $? -qe 0 ]
 then
-    nohup python /ifs/TJPROJ3/Plant/chenjun/mytools/tools_jiqun/moni_renwu.py $1 $2 &>nohup-moni_renwu.py.o && echo && echo "监控完成！"  &
+    echo 监控命令后台中...
+    echo [keyword: $2]
+    echo 日志文件: `pwd`/moni_renwu.py.log_`echo $2|sed 's#/#_#g'`
 else
-    nohup python /NJPROJ2/Plant/chenjun/mytools/tools_jiqun/moni_renwu.py     $1 $2 &>nohup-moni_renwu.py.o && echo && echo "监控完成！"  &
+    echo 任务投递失败，日志文件：`pwd`/nohup-moni_renwu.py.o
 fi
 
-echo 监控命令后台中...
-echo [keyword: $2]
-echo 日志文件: `pwd`/moni_renwu.py.log_`echo $2|sed 's#/#_#g'`
 cd $path
-
