@@ -60,7 +60,7 @@ then
 fi
 
 # 投递任务
-nohup python ${tools_path}/tools_jiqun/moni_renwu.py $2 &>nohup-moni_renwu.py.o && \
+nohup python3 ${tools_path}/tools_jiqun/moni_renwu.py $2 &>nohup-moni_renwu.py.o && \
     echo && echo "监控完成！keyword" $2  && \
     python ${tools_path}/sendmail/sendmail.py $1 -c "监控任务$2已跑完" &
 if [ $? -ne 0 ]; then
