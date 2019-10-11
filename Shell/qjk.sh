@@ -1,4 +1,4 @@
-#! /usr/bin/bash
+#! /bin/bash
 shelp="""usage:
   qjk email keyword [-d] [-h]
 
@@ -60,11 +60,9 @@ then
 fi
 
 # 投递任务
-echo $?
 nohup python ${tools_path}/tools_jiqun/moni_renwu.py $2 &>nohup-moni_renwu.py.o && \
-    echo "监控完成！keyword" $2  && \
+    echo && echo "监控完成！keyword" $2  && \
     python ${tools_path}/sendmail/sendmail.py $1 -c "监控任务$2已跑完" &
-echo $?
 if [ $? -ne 0 ]; then
     echo 监控命令后台中...
     echo [keyword: $2]
