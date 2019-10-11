@@ -4,7 +4,7 @@
 # @Qmail:  1170101471@qq.com
 # @Date:   2018-12-29 14:19:04
 # @Last Modified by:   JUN
-# @Last Modified time: 2019-10-11 17:22:38
+# @Last Modified time: 2019-10-11 17:31:04
 
 # import os
 import sys
@@ -17,7 +17,7 @@ class CmdRunError(Exception):
 
 
 def fmain(keyword):
-    cmd1 = 'vjob|grep %s' % keyword
+    cmd1 = 'vjob'
     fo = open('moni_renwu.py.log_%s' % (keyword.replace('/', '_')), 'a')
     while True:
         # os.system('''q|grep qw|cut -d ' ' -f 1|sed 's#\.1##'|xargs -i qalter  -q plant.q {}''')
@@ -32,12 +32,16 @@ def fmain(keyword):
                 'logs:\n'
                 '[out.o]:\n%s\n'
                 '[out.e]:\n%s\n' % (p_status, output.decode(), err.decode()))
+        out = ''
+        for line in output.decode():
+            if keyword in line:
+                out += line
         info = str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())) + \
             '    keyword: ' + keyword
-        data = info + '\n' + output.strip() + '\n'
+        data = info + '\n' + out + '\n'
         fo.write(data)
         fo.flush()
-        if not output:
+        if not out:
             break
         time.sleep(300)
     fo.close()
