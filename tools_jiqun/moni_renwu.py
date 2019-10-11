@@ -4,7 +4,7 @@
 # @Qmail:  1170101471@qq.com
 # @Date:   2018-12-29 14:19:04
 # @Last Modified by:   JUN
-# @Last Modified time: 2019-10-11 17:08:20
+# @Last Modified time: 2019-10-11 17:22:38
 
 # import os
 import sys
@@ -17,12 +17,12 @@ class CmdRunError(Exception):
 
 
 def fmain(keyword):
-    cmd1 = '''vjob|grep %s'''
+    cmd1 = 'vjob|grep %s' % keyword
     fo = open('moni_renwu.py.log_%s' % (keyword.replace('/', '_')), 'a')
     while True:
         # os.system('''q|grep qw|cut -d ' ' -f 1|sed 's#\.1##'|xargs -i qalter  -q plant.q {}''')
         # s = os.popen(cmd1 % keyword).read().strip()
-        p = subprocess.Popen(cmd1 % keyword, stdout=subprocess.PIPE,
+        p = subprocess.Popen(cmd1, stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE, shell=True)
         output, err = p.communicate()
         p_status = p.wait()
