@@ -8,6 +8,7 @@ tools_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 #tools_path=$(cd $(dirname ${BASH_SOURCE[0]}); cd - )
 #echo  ${tools_path}
 
+
 #######################################################################
 ###################  集 群 及 资 源 管 理 工 具  ######################
 #######################################################################
@@ -41,53 +42,55 @@ alias md5q="sh ${tools_path}/Shell/md5q.sh"  # 自动投递集群计算当前目
 # 6) sjm流程提取工具
 alias sjms="python3 ${tools_path}/tools_jiqun/sjms.py"
 
+
 #######################################################################
 ############################## myfunc #################################
 #######################################################################
+###  生信常用  ###
+alias fas="python3 ${tools_path}/tools_fasta/fas.py"  # 碱基统计
 
-###  工具  ###
+###  日常工具  ###
 # 发送邮件。可在搜狗输入法将邮箱等常用短语自定义添加，如输入qqqq会默认把邮箱放在输入法第一位。设置在: 搜狗输入法-->高级-->候选拓展-->自定义短语
-alias send="python ${tools_path}/sendmail/sendmail.py ${mymail}"  
+alias pysend="python ${tools_path}/sendmail/sendmail.py ${mymail}"  
 alias pywget="python3 ${tools_path}/tools_jiqun/pywget_file-client.py"
 alias view="python3 ${tools_path}/tools_tree/imgdirView.py"  # 网页可视化文件夹svg,png,pdf
-alias rep="python ${tools_path}/tools_files/rep.py "  # 替换工具
-alias fas="python3 ${tools_path}/tools_fasta/fas.py"  # 碱基统计
+alias rep="python ${tools_path}/tools_files/rep_v2.py"  # 替换工具
 alias ccut="python3 ${tools_path}/tools_files/ccut.py" # 补全cut不能去除末尾倒数多少列的问题，未开发完毕
 
+### 文本格式化工具 ###
 # markdown工具
 alias md="python3 ${tools_path}/tools_text/markdowm_toc_change.py" # markdown升级或降级工具
-
-### 工具2 ###
-
-## 1) 格式化看脚本的命令，将各个参数自动换行，用法同cat一样
+# 格式化看脚本的命令，将各个参数自动换行，用法同cat一样
 fcah(){  ## try"\n"-->"space":[ sed ':label;N;s/\n/ /;b label' ]
 cat $@|sed ':label;N;s/ \\\n/ /;b label'|sed -e 's/[[:space:]][[:space:]]*/ /g'|sed 's# \-# \\\n    \-#g'|sed 's#^/#\n/#'|ca
 }
-alias ca="${tools_path}/Shell/common/ccat "
 alias cah=fcah  # 用于格式化打印脚本文件
 alias cag="iconv -f gbk -t utf-8 "  # 打印gbk文件为utf8输出
+alias ca="${tools_path}/Shell/common/ccat "
 
-## 2) 用于返回当前文件(夹)绝对路径
+###  路径管理工具  ###
+# 用于返回当前文件(夹)绝对路径
 pwdfile(){
 echo $@|sed "s# #\n#g"|xargs -i echo `pwd`/{}
 }
 alias f=pwdfile  # 用于返回当前文件夹某文件或目录的路径, f [file/dir] [file/dir]...
 
-## 3) asum统计某一列的和，用法示例: `asum 1 file`
+###  文件磁盘管理工具  ###
+# asum统计某一列的和，用法示例: `asum 1 file`
 fasum(){
 sh -c "awk 'BEGIN{sum=0}{sum+=\$$1}END{OFS=\"\\n\"; print sum}' $2"
 }
 alias asum=fasum
 alias getsize="python3 ${tools_path}/tools_jiqun/getsize.py"  # 指定文件的某一列转换为计算机存储单位
 
-# 4) 网络工具
+###  网络工具  ###
+# 返回公网IP
 IP=`curl icanhazip.com 2>/dev/null`
 fg(){
 echo $@|xargs -i echo 'wget $IP:8999/{}'
 }
-#alias gg="find . -maxdepth 1 -type f|sed -r 's#..##'|xargs -i echo -e 'wget $IP:8999/{}'"
-alias gg="find \`pwd\` -maxdepth 1 -type f |sed -r 's#/home/chenjun/fileshare/##'|xargs -i echo -e 'wget $IP:8999/{}'"
+alias gg="find . -maxdepth 1 -type f|sed -r 's#..##'|xargs -i echo -e 'wget $IP:8999/{}'"
+# alias gg="find \`pwd\` -maxdepth 1 -type f |sed -r 's#/home/chenjun/fileshare/##'|xargs -i echo -e 'wget $IP:8999/{}'"
 alias ggg="find . -type f|sed -r 's#..##'|xargs -i echo -e 'wget $IP:8999/{}'"
 alias g=fg
 alias IP="echo $IP"
-

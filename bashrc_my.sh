@@ -14,7 +14,7 @@ export HISTCONTROL=erasedups
 export HISTIGNORE='pwd:ls:ls -ltr:cd:ll:history:'
 export PROMPT_COMMAND="history -a"
 export HISTFILE=~/.bash_history
-alias h="history |less"
+alias h="history |less -S"
 alias hh="history |grep -e \"[0-9] cd.* /\"|tail -20"
 alias hhh="h|grep -e \"[0-9] *nohup*\" |tail -20"
 alias ht="h|cut -f 5- -d ' '|uniq"
@@ -50,7 +50,7 @@ alias cr="crontab -e"
 #####################################################
 #tools_path="$( cd $(dirname $0) && pwd)"
 tools_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-alias vb1="vim ${tools_path}/bashrc_my.cfg "
+alias vb1="vim ${tools_path}/bashrc_my.sh "
 alias vb2="vim ${tools_path}/bashrc_Tools.sh "
 alias vbb="vim ${tools_path}/Note.sh "
 alias cdcm="cd ${tools_path}/"
