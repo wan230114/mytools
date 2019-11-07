@@ -54,6 +54,9 @@ alias rep="python ${tools_path}/tools_files/rep.py "  # 替换工具
 alias fas="python3 ${tools_path}/tools_fasta/fas.py"  # 碱基统计
 alias ccut="python3 ${tools_path}/tools_files/ccut.py" # 补全cut不能去除末尾倒数多少列的问题，未开发完毕
 
+# markdown工具
+alias md="python3 ${tools_path}/tools_text/markdowm_toc_change.py" # markdown升级或降级工具
+
 ### 工具2 ###
 
 ## 1) 格式化看脚本的命令，将各个参数自动换行，用法同cat一样
