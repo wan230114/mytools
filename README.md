@@ -7,22 +7,30 @@
 - 环境中同步常用工具
 
 ## 2. 使用方法
-
-初始化配置:
+step01: git clone
+```bash
+cd your_path/
+git clone https://gitee.com/wan230114/mytools.git
+```
+step02: 初始化配置
 ```bash
 ./init_bashrc.sh
-# 或 调用bash
-bash init_bashrc.sh
-# 或 调用sh
-sh init_bashrc.sh
+# 或 调用bash: bash init_bashrc.sh
+# 或 调用sh: sh init_bashrc.sh
 ```
+注：
 
-若运行初始化失败，可手动在 `~/.bashrc`中追加：
+(1) 若运行初始化失败，可手动在 `~/.bashrc`中追加：
 ```bash
 # >>> bashrc >>>
 source /home/chenjun/mytools/bashrc_my.sh
 mymail="1170101471@qq.com"  # 设置自己的邮箱，用于pywget和qjk等需要邮箱的命令
 source /home/chenjun/mytools/bashrc_Tools.sh
+```
+
+(2) 随后将bashrc文件夹文件复制到用户主目录下：
+```bash
+cp -i bashrc/* ~/
 ```
 
 ## 3. 功能简介
