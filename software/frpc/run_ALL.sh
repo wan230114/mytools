@@ -45,7 +45,7 @@ elif [ "$1" == "stop" ]; then
     nohup sh -c "nohup ps x|grep frp|grep -v ' grep '|awk '{print \$1}'|xargs -i kill -s 9 {} &>log.kill &" &>log.run_ALL &
 elif [ "$1" == "restart" ]; then
     #echo restart frpc...
-    nohup sh -c "nohup ps x|grep frp|grep -v ' grep '|awk '{print \$1}'|xargs -i kill -s 9 {} &>log.kill &; nohup ./frpc -c ./frpc.ini &>log &" &>log.run_ALL &
+    nohup sh -c "nohup ps x|grep frp|grep -v ' grep '|awk '{print \$1}'|xargs -i kill -s 9 {} &>log.kill && sleep 1 && ./frpc -c ./frpc.ini &>log &" &>log.run_ALL &
 elif [ "$1" == "clean" ]; then
     #echo clean log...
     tail -n 20000 moni.log >moni.log.last && >moni.log
