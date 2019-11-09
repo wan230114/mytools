@@ -14,7 +14,7 @@ optional arguments:
 """
 shelp2=" [please run -h/--help to get help doc.]"
 
-tools_path=`dirname $(cd $(dirname ${BASH_SOURCE[0]})>/dev/null && pwd )`
+tools_path=$(cd $(dirname ${BASH_SOURCE[0]})>/dev/null && pwd )
 
 #echo "[input args: $*]"
 array_args=($*)
