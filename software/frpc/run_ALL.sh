@@ -39,14 +39,13 @@ done
 cd ${tools_path}
 if [ "$1" == "start" ]; then
     #echo start frpc...
-    if [ "`ps|grep frpc|grep -v " grep "`" != "" ]; then echo `date +%F' '%H:%M:%S` running >>moni.log; else sh -c "echo \`date +%F' '%H:%M:%S\` no running, will do it. >>moni.log; nohup ./frpc -c ./frpc.ini &>log &"; fi;
+    if [ "`ps x|grep frpc|grep -v " grep "`" != "" ]; then echo `date +%F' '%H:%M:%S` running >>moni.log; else sh -c "echo \`date +%F' '%H:%M:%S\` no running, will do it. >>moni.log; nohup ./frpc -c ./frpc.ini &>log &"; fi; 
 elif [ "$1" == "stop" ]; then
     #echo stop frpc...
-    ps|grep frp|grep -v " grep "|awk '{print $1}'|xargs kill -s 9
+    nohup sh -c "nohup ps x|grep frp|grep -v ' grep '|awk '{print \$1}'|xargs -i kill -s 9 {} &>log.kill &" &>log.run_ALL &
 elif [ "$1" == "restart" ]; then
     #echo restart frpc...
-    ps|grep frp|grep -v " grep "|awk '{print $1}'|xargs kill -s 9
-    nohup ./frpc -c ./frpc.ini &>log &
+    nohup sh -c "nohup ps x|grep frp|grep -v ' grep '|awk '{print \$1}'|xargs -i kill -s 9 {} &>log.kill &; nohup ./frpc -c ./frpc.ini &>log &" &>log.run_ALL &
 elif [ "$1" == "clean" ]; then
     #echo clean log...
     tail -n 20000 moni.log >moni.log.last && >moni.log
