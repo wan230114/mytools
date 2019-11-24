@@ -3,7 +3,7 @@
 # * @Last Modified by:   ChenJun
 # * @Last Modified time: 2019-11-01 12:13:51
 
-# import sys
+import sys
 import argparse
 import re
 
@@ -30,33 +30,34 @@ def fargv():
 
 
 def fmain(mod, fipath, lineRows, coverage):
-    Llines = []
-    with open(fipath) as fi:
-        row = 0
-        p = 1
-        for line in fi:
-            row += 1
-            if row >= lineRows:
-                line_2 = re.sub('^  ? ?[#`]', '', line)
-                if line_2.startswith('```'):
-                    p *= -1
-                if p > 0 and line_2.startswith('#'):
-                    if mod in {'u', 'up'}:
-                        if line_2.startswith('##'):
-                            line_3 = re.sub('^ ? ? ?(#)', '', line)
-                        else:
-                            line_3 = line
-                    elif mod in {'d', 'down'}:
-                        line_3 = re.sub('^ ? ? ?(#)', '##', line)
-                    Llines.append(line_3)
-                else:
-                    Llines.append(line)
+    def get_Llines():
+        with open(fipath, 'r') as fi:
+            row = 0
+            p = 1
+            for line in fi:
+                row += 1
+                if row >= lineRows:
+                    line_2 = re.sub('^  ? ?[#`]', '', line)
+                    if line_2.startswith('```'):
+                        p *= -1
+                        if line_2.strip().replace('```', '', 1).endswith('```'):
+                            p *= -1
+                    if p > 0 and line_2.startswith('#'):
+                        if mod in {'u', 'up'}:
+                            if line_2.startswith('##'):
+                                line_3 = re.sub('^ ? ? ?(#)', '', line)
+                            else:
+                                line_3 = line
+                        elif mod in {'d', 'down'}:
+                            line_3 = re.sub('^ ? ? ?(#)', '##', line)
+                        yield line_3
+                    else:
+                        yield line
     if coverage:
-        with open(fipath, 'w') as fo:
-            for line in Llines:
-                fo.write(line)
+        print(*list(get_Llines()),
+              sep='', end='', file=open(fipath, 'w'))
     else:
-        print(*Llines, sep='', end='')
+        print(*get_Llines(), sep='', end='')
 
 
 def main():
