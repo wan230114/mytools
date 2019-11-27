@@ -14,9 +14,10 @@ git clone https://gitee.com/wan230114/mytools.git
 ```
 step02: 初始化配置
 ```bash
-./init_bashrc.sh
-# 或 调用bash: bash init_bashrc.sh
-# 或 调用sh: sh init_bashrc.sh
+. init_bashrc.sh
+```
+或调用bash：`bash init_bashrc.sh`<br/>
+或调用sh：`sh init_bashrc.sh`
 ```
 注：
 
