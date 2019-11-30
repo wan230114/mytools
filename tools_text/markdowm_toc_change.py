@@ -31,33 +31,33 @@ def fargv():
 
 def fmain(mod, fipath, lineRows, coverage):
     def get_Llines():
-        with open(fipath, 'r') as fi:
+        with open(fipath, 'rb') as fi:
             row = 0
             p = 1
             for line in fi:
                 row += 1
                 if row >= lineRows:
-                    line_2 = re.sub('^  ? ?[#`]', '', line)
-                    if line_2.startswith('```'):
+                    line_2 = re.sub(b'^  ? ?[#`]', b'', line)
+                    if line_2.startswith(b'```'):
                         p *= -1
-                        if line_2.strip().replace('```', '', 1).endswith('```'):
+                        if line_2.strip().replace(b'```', b'', 1).endswith(b'```'):
                             p *= -1
-                    if p > 0 and line_2.startswith('#'):
+                    if p > 0 and line_2.startswith(b'#'):
                         if mod in {'u', 'up'}:
-                            if line_2.startswith('##'):
-                                line_3 = re.sub('^ ? ? ?(#)', '', line)
+                            if line_2.startswith(b'##'):
+                                line_3 = re.sub(b'^ ? ? ?(#)', b'', line)
                             else:
                                 line_3 = line
                         elif mod in {'d', 'down'}:
-                            line_3 = re.sub('^ ? ? ?(#)', '##', line)
+                            line_3 = re.sub(b'^ ? ? ?(#)', b'##', line)
                         yield line_3
                     else:
                         yield line
     if coverage:
-        print(*list(get_Llines()),
+        print(*[x.decode() for x in get_Llines()],
               sep='', end='', file=open(fipath, 'w'))
     else:
-        print(*get_Llines(), sep='', end='')
+        print(*(x.decode() for x in get_Llines()), sep='', end='',)
 
 
 def main():
