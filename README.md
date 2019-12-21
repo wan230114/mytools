@@ -14,7 +14,8 @@ git clone https://gitee.com/wan230114/mytools.git
 ```
 step02: 初始化配置
 ```bash
-. init_bashrc.sh
+cd mytools/  # 进入clone目录
+. init_bashrc.sh  # 加载保存环境变量
 ```
 或调用bash：`bash init_bashrc.sh`<br/>
 或调用sh：`sh init_bashrc.sh`
