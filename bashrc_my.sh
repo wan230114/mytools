@@ -3,8 +3,8 @@
 ########################################################
 
 #################### Language set ######################
-#export LC_ALL="zh_CN.utf8"
-#export LANG="zh_CN.utf8"
+export LC_ALL="zh_CN.utf8"
+export LANG="zh_CN.utf8"
 
 ######## User specific aliases and functions ########
 export HISTTIMEFORMAT='%F %T '
@@ -20,10 +20,10 @@ alias hhh="h|grep -e \"[0-9] *nohup*\" |tail -20"
 alias ht="h|cut -f 5- -d ' '|uniq"
 
 #################### Color set ######################
-## 30黑,31红,32绿, 33黄,34蓝,35洋红,36青,37白
-## PS1="\[\e[1;33m\][\u@\h:\[\e[1;34m\] \t \[\e[32m\]\w]\n\[\e[33m\]$\[\e[m\]"
 export CLICOLOR=1
 export LSCOLORS=gxfxaxdxcxegedabagacad
+## 30黑,31红,32绿, 33黄,34蓝,35洋红,36青,37白
+## PS1="\[\e[1;33m\][\u@\h:\[\e[1;34m\] \t \[\e[32m\]\w]\n\[\e[33m\]$\[\e[m\]"
 PS1="\[\e[1;32m\][\u@\h:\[\e[1;36m\] \t \[\e[31m\]\w]\n\[\e[32m\]$\[\e[m\]"
 
 ##################  常用命令  ########################

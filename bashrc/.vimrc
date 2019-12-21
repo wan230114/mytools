@@ -11,8 +11,8 @@ set fileencodings=ucs-bom,utf-8,utf-16,gbk,big5,gb18030,gb2312,latin1
 set encoding=utf-8
 set cul
 
-"用F5来切换粘贴模式，可以解决是否自动缩进
-set pastetoggle=<F5>   
+"用F10来切换纯粘贴模式，可以解决是否自动缩进
+set pastetoggle=<F10>   
 
 
 "set foldlevelstart=99
@@ -23,7 +23,7 @@ func SetTitle()
 call append(0, "\#################################################")
 call append(1,"\#  File Name:".expand("%"))
 call append(2,"\#  Author: chenjun")
-call append(3,"\#  Mail: chenjun4663@novogene.com")
+call append(3,"\#  Mail: 1170101471@qq.com")
 call append(4,"\#  Created Time: ".strftime("%c"))
 call append(5,"\#################################################")
 call append(6,"")
