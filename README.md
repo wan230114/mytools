@@ -12,6 +12,7 @@ step01: git clone
 cd your_path/
 git clone https://gitee.com/wan230114/mytools.git
 ```
+
 step02: 初始化配置
 ```bash
 cd mytools/       # 进入clone目录
