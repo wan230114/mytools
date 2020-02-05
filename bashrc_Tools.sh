@@ -98,6 +98,6 @@ IP_info=`curl icanhazip.com 2>/dev/null`
 alias g=fg
 alias gg=fgg
 alias IP="echo $IP_info"
-alias IPAD=fIPad
+alias IPa=fIPinfo
 
 
