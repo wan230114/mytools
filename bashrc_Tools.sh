@@ -94,10 +94,9 @@ find `pwd` -maxdepth 1 -type f |awk -v ip=$IP_info -F "fileshare" '{print "wget 
 fIPinfo(){
 curl https://ip.cn/index/php?ip=$1
 }
-IP_info=`curl icanhazip.com 2>/dev/null`
 alias g=fg
 alias gg=fgg
-alias IP="echo $IP_info"
+alias IP="curl icanhazip.com 2>/dev/null"
 alias IPa=fIPinfo
 
 
