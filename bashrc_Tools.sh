@@ -14,6 +14,7 @@ tools_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 #######################################################################
 export PATH=/home/leiyang/local/bin/:$PATH
 export PATH=/NJPROJ2/home/leiyang/local/bin/:$PATH
+
 # 1) 查看各种状态
 # 磁盘
 alias dfa='df -h  /TJNAS01/PAG/Plant/ /TJPROJ1/DENOVO/ /ifs/TJPROJ3/Plant/  /NJPROJ1/PAG/Plant/  /NJPROJ2/Plant/  /NJPROJ3/Plant/ 2>/dev/null'
@@ -25,20 +26,25 @@ alias vs=${tools_path}/Shell/vs
 alias pp="ps ux|head -1;ps ux|grep -v PID|sort -rn -k +3"  # 查看占用资源最多的进程
 alias p="ps xjf" # 以进程树展示进程
 
+
 # 2) 进程及任务操作
 alias ks="python3 ${tools_path}/tools_jiqun/ks.py"  # 批量杀进程，用法: `ks PGID/keyword`
 alias qd="python3 ${tools_path}/tools_jiqun/qd.py"  # 批量杀任务，用法：`qd jobID/keyword`
 alias qgjd="sh ${tools_path}/Shell/qgjd.sh"  # 批量改节点，用法: `qgjd mod keyword`，mod模式可选：1,2,3 (含义是：小节点，大节点，所有节点)
 alias qjg="qmod -us "
 
+
 # 3) 任务监控
 alias qjk="${tools_path}/Shell/qjk.sh ${mymail} "
 alias pjk="sh ${tools_path}/Shell/pjk.sh ${mymail} "
+
 # 4) oss集群互传工具
 alias oss="python3 ${tools_path}/tools_jiqun/oss.py "
+
 # 5) md5及size计算
 alias md5="python3 ${tools_path}/tools_jiqun/md5.py"  # 本地计算当前目录md5和checksize, 用法: `md5 num`, num为进程数，最好不要超过10
 alias md5q="sh ${tools_path}/Shell/md5q.sh"  # 自动投递集群计算当前目录md5和checksize, 用法: `md5q`
+
 # 6) sjm流程提取工具
 alias sjms="python3 ${tools_path}/tools_jiqun/sjms.py"
 
@@ -99,4 +105,5 @@ alias gg=fgg
 alias IP="curl icanhazip.com 2>/dev/null"
 alias IPa=fIPinfo
 
-
+# unrar解压快捷方式定义
+alias unrar2="while read x; do dirname=\`echo \$x|sed 's/.rar\$//'\`; mkdir \$dirname; unrar x -y \$x \$dirname; done"
