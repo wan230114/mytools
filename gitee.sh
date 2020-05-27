@@ -8,5 +8,6 @@ echo "***********"
 echo ">上传中..."
 read -p "Input this commit: " val echo $val
 git add -A
-git commit -a -m "`date "+%F  %H:%M:%S"` $val"
+#git commit -a -m "`date "+%F  %H:%M:%S"` $val"
+git commit -a -m ":fire: $val"
 git push -u origin master        # 上传仓库到码云

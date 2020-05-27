@@ -77,7 +77,8 @@ alias ca="${tools_path}/Shell/common/ccat "
 ###  路径管理工具  ###
 # 用于返回当前文件(夹)绝对路径
 pwdfile(){
-echo $@|sed "s# #\n#g"|xargs -i echo `pwd`/{}
+#echo $@|sed "s# #\n#g"|xargs -i echo `pwd`/{}
+echo $@|sed "s# #\n#g"|while read x; do echo $(cd $x; pwd); done
 }
 alias f=pwdfile  # 用于返回当前文件夹某文件或目录的路径, f [file/dir] [file/dir]...
 

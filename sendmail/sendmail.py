@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # @Author: ChenJun
 # @Email:  chenjun4663@novogene.com
