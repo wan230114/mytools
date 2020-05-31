@@ -42,7 +42,7 @@ alias ee="less -SN"
 alias eee="less"
 alias ca="cat"
 alias vb="vim ~/.bashrc"
-alias vbs="source ~/.bashrc"
+alias vbs="source ~/.bash_profile ~/.bashrc"
 alias cr="crontab -e"
 
 #####################################################
