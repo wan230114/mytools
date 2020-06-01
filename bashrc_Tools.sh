@@ -93,10 +93,10 @@ alias getsize="python3 ${tools_path}/tools_jiqun/getsize.py"  # 指定文件的�
 ###  网络工具  ###
 # 返回公网IP
 fg(){
-echo $@|while read x;do ls `pwd`/$x|awk -v ip=$IP_info -F "fileshare" '{print "wget "ip":8999"$2}';done
+echo $@|while read x;do ls `pwd`/$x|awk -v ip=`curl icanhazip.com 2>/dev/null` -F "fileshare" '{print "wget "ip":8999"$2}';done
 }
 fgg(){
-find `pwd` -maxdepth 1 -type f |awk -v ip=$IP_info -F "fileshare" '{print "wget "ip":8999"$2}'
+find `pwd` -maxdepth 1 -type f |awk -v ip=`curl icanhazip.com 2>/dev/null` -F "fileshare" '{print "wget "ip":8999"$2}'
 }
 fIPinfo(){
 curl https://ip.cn/index/php?ip=$1
