@@ -21,7 +21,7 @@
 import os
 import sys
 import argparse
-import datetime
+from datetime import datetime
 from multiprocessing import Pool
 
 
@@ -29,10 +29,10 @@ class RunSh(object):
 
     def __init__(self):
         self.folog = 'log.%s.%s' % (
-            str(datetime.datetime.now().strftime('%m-%d_%H-%M-%S')), os.getpid())
+            datetime.now().strftime('%Y-%m-%d_%H-%M-%S'), os.getpid())
         self.__dict__.update(self.fargv())
-        if not self.logdir:
-            self.logdir = self.file_sh + '.log'
+        self.logdir = self.file_sh + '.' + self.folog
+        print("  4、日志文件夹: %s" % self.logdir)
         # open(self.folog, 'w+').close()
 
     def fargv(self):
@@ -43,8 +43,8 @@ class RunSh(object):
                             help='line 每几行做一个运行的分割，默认1')
         parser.add_argument('-t', '--thread', type=int, default=4,
                             help='thread 用多少线程跑，默认4')
-        parser.add_argument('-o', '--logdir', type=str, default="",
-                            help='输出日志文件夹的后缀, 默认为 脚本+.log')
+        # parser.add_argument('-o', '--logdir', type=str, default="",
+        # help='输出日志文件夹的后缀, 默认为 脚本+.log')
         if len(sys.argv) == 1:
             parser.parse_args(['', '--help'])
             sys.exit()
@@ -52,9 +52,8 @@ class RunSh(object):
         print("输入参数是:\n"
               "  1、文件: %(file_sh)s\n"
               "  2、每个进程运行的行数: %(lineNUM)s\n"
-              "  3、进程数: %(thread)s\n"
-              "  4、日志文件夹: %(logdir)s" %
-              args.__dict__, flush=True)
+              "  3、进程数: %(thread)s"
+              % args.__dict__, flush=True)
         return args.__dict__
 
     def fmain(self):
@@ -88,13 +87,18 @@ class RunSh(object):
         try:
             # print('hello')
             for line in L_cmd:
-                fprint(folog,     '> [CMD Start Run. %s] %s' % (lineNUM, line))
+                t1 = datetime.now()
+                fprint(folog,     '>>>[CMD Start Run. %s %s]\t%s' %
+                       (lineNUM, t1.strftime('%Y-%m-%d_%H:%M:%S'), line))
+                t2 = datetime.now()
                 if os.system(line):
-                    fprint(folog, '[CMD Run Failed.  %s] %s' %
-                           (lineNUM, line))
+                    fprint(folog, '[CMD Run Failed.   %s  %s (Time:%s)]\t%s' %
+                           (lineNUM, t2.strftime('%Y-%m-%d_%H:%M:%S'),
+                            t2-t1, line))
                 else:
-                    fprint(folog, '[CMD Run Success. %s] %s' %
-                           (lineNUM, line))
+                    fprint(folog, '[CMD Run Success.  %s  %s (Time:%s)]\t%s' %
+                           (lineNUM, t2.strftime('%Y-%m-%d_%H:%M:%S'),
+                            t2-t1, line))
         except Exception as ex:
             msg = "Error :%s" % ex
             fprint(folog, msg)
