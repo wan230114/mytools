@@ -1,4 +1,4 @@
-#! /ifs/TJPROJ3/Plant/chenjun/software/Miniconda3/miniconda3/bin/python3
+#!/usr/bin/env python3
 import sys
 import argparse
 
@@ -14,6 +14,8 @@ def fargv():
                               '每一行四列，如：“lixiangkong <\\t> 22617126 <\\t> /TJNAS01/PAG/Plant/Data_20170920/170508_ST-E00126_0410_BHKVCJALXX/GBS00714/GBS00714_L3_1.adapter.list.gz <\\t> 2017-09-21”'))
     parser.add_argument('-n', '--num', type=int, default=1,
                         help='输入想统计的第几列')
+    parser.add_argument('-s', '--sep', type=str, default='',
+                        help='输入列之间的分隔符，默认为一切空字符，与awk默认类似')
     parser.add_argument('--add', action='store_true',
                         default=False,
                         help='是否使用增加模式？在大小一列后面添加新一列')
@@ -34,33 +36,35 @@ def getsize(size):
         return size
 
 
-def do(line, num, add):
+def do(line, num, add, sep):
     try:
         line = line.decode('utf8')
     except UnicodeDecodeError:
         line = line.decode('gbk')
-    Lline = line.strip().split('\t')
+    sep = sep if sep else None
+    Lline = line.strip().split(sep)
     if add:
         Lline.insert(num + 1, getsize(Lline[num]))
     else:
         Lline[num] = getsize(Lline[num])
+    # print(Lline)
     print('\t'.join(Lline))
 
 
-def fmain(inputpath, num, add):
+def fmain(inputpath, num, add, sep):
     num = int(num) - 1
     if not inputpath:
         while True:
             line = sys.stdin.buffer.readline()
             if not line:
                 break
-            do(line, num, add)
+            do(line, num, add, sep)
     else:
         with open(inputpath, 'rb') as fi:
             for line in fi:
                 if not line.strip():
                     continue
-                do(line, num, add)
+                do(line, num, add, sep)
 
 
 def main():

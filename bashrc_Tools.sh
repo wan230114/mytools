@@ -36,7 +36,7 @@ alias qjg="qmod -us "
 
 # 3) 任务监控
 alias qjk="${tools_path}/Shell/qjk.sh ${mymail} "
-alias pjk="sh ${tools_path}/Shell/pjk.sh ${mymail} "
+#alias pjk="sh ${tools_path}/Shell/pjk.sh ${mymail} "
 
 # 4) oss集群互传工具
 alias oss="python3 ${tools_path}/tools_jiqun/oss.py "
@@ -57,8 +57,8 @@ alias fas="python3 ${tools_path}/tools_fasta/fas.py"  # 碱基统计
 
 ###  日常工具  ###
 # 发送邮件。可在搜狗输入法将邮箱等常用短语自定义添加，如输入qqqq会默认把邮箱放在输入法第一位。设置在: 搜狗输入法-->高级-->候选拓展-->自定义短语
-alias pysend="python ${tools_path}/sendmail/sendmail.py ${mymail}"  
-alias pywget="python3 ${tools_path}/tools_jiqun/pywget_file-client.py"
+#alias pysend="python ${tools_path}/sendmail/sendmail.py ${mymail}"  
+#alias pywget="python3 ${tools_path}/tools_jiqun/pywget_file-client.py"
 alias view="python3 ${tools_path}/tools_tree/imgdirView.py"  # 网页可视化文件夹svg,png,pdf
 alias rep="python ${tools_path}/tools_files/rep_v2.py"  # 替换工具
 alias ccut="python3 ${tools_path}/tools_files/ccut.py" # 补全cut不能去除末尾倒数多少列的问题，未开发完毕
