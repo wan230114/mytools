@@ -15,7 +15,9 @@ startup_message off
 term linux
 
 ## 解决无法滚动
-termcapinfo xterm|xterms|xs ti@:te=\E[2J
+#termcapinfo xterm|xterms|xs ti@:te=\E[2J
+termcapinfo xterm* ti@:te@
+termcapinfo xterm|xterms|xs|rxvt 'hs:ts=\E]2;:fs=07:ds=\E]2;screen07'
 
 # 屏幕缓冲区行数
 defscrollback 10000

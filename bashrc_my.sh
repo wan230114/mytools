@@ -28,11 +28,11 @@ PS1="\[\e[1;31m\][\u@\h:\[\e[1;31m\] \t \[\e[31m\]\w]\n\[\e[31m\]# \[\e[m\]"
 PS1="\[\e[1;32m\][\u@\h:\[\e[1;36m\] \t \[\e[31m\]\w]\n\[\e[32m\]$ \[\e[m\]"
 
 ##################  常用命令  ########################
-alias l="ls -lh"
-alias ll="ls -lhrt"
+alias l="ls -lhrt"
+alias ll="ls -lh"
 alias lll="ls -l"
 fcd(){ 
-cd $1 && ls -lh 
+if [ "$1" ]; then cd $1 && l; else cd . && l; fi
 }
 alias c=fcd
 alias vi="vim"
