@@ -41,8 +41,10 @@ class RunSh(object):
                             help='输入需要运行的sh文件')
         parser.add_argument('-l', '--lineNUM', type=int, default=1,
                             help='line 每几行做一个运行的分割，默认1')
-        parser.add_argument('-t', '--thread', type=int, default=4,
-                            help='thread 用多少线程跑，默认4')
+        parser.add_argument('-t', '--thread', type=int, default=1,
+                            help='thread 用多少线程跑，默认1')
+        parser.add_argument('-r', '--retry', type=int, default=3,
+                            help='出错时重试的次数，默认3')
         # parser.add_argument('-o', '--logdir', type=str, default="",
         # help='输出日志文件夹的后缀, 默认为 脚本+.log')
         if len(sys.argv) == 1:
@@ -79,26 +81,42 @@ class RunSh(object):
             # self.sh(i, L_cmd, Ldatas_len, self.folog)
             p.apply_async(self.sh, args=(
                 L_cmd, Ldatas_len % i,
-                self.logdir+os.sep+self.file_sh+Ldatas_len % i+'.'+self.folog))
+                self.logdir+os.sep+self.file_sh+Ldatas_len % i,
+                self.retry))
         p.close()
         p.join()
 
-    def sh(self, L_cmd, lineNUM, folog):
+    def sh(self, L_cmd, lineNUM, folog_pre, retry):
         try:
             # print('hello')
-            for line in L_cmd:
-                t1 = datetime.now()
-                fprint(folog,     '>>>[CMD Start Run. %s %s]\t%s' %
-                       (lineNUM, t1.strftime('%Y-%m-%d_%H:%M:%S'), line))
-                t2 = datetime.now()
-                if os.system(line):
-                    fprint(folog, '[CMD Run Failed.   %s  %s (Time:%s)]\t%s' %
-                           (lineNUM, t2.strftime('%Y-%m-%d_%H:%M:%S'),
-                            t2-t1, line))
-                else:
-                    fprint(folog, '[CMD Run Success.  %s  %s (Time:%s)]\t%s' %
-                           (lineNUM, t2.strftime('%Y-%m-%d_%H:%M:%S'),
-                            t2-t1, line))
+            folog = folog_pre + '.' + self.folog
+            with open(folog_pre, 'w') as fo:
+                fo.write('\n'.join(L_cmd))
+            num_len_line = len(str(len(L_cmd)))
+            for num_line, line in enumerate(L_cmd, start=1):
+                stat = 1
+                retry_raw = retry
+                while stat and retry > 0:
+                    isretry = ('\nRetrying time(%d/%d)\n' % (
+                        retry_raw - retry, retry_raw)
+                        if retry < retry_raw else '')
+                    retry -= 1
+                    t1 = datetime.now()
+                    fprint(folog, isretry + '>>>[CMD Start Run. %s-%s  %s]\t%s' %
+                           (lineNUM, ('%%0%dd' % num_len_line) % num_line,
+                            t1.strftime('%Y-%m-%d_%H:%M:%S'), line))
+                    stat = os.system(line)
+                    t2 = datetime.now()
+                    if stat:
+                        fprint(folog, '\n[CMD Run Failed.   %s-%s  %s (Time: %s)]\t%s\n' %
+                               (lineNUM, ('%%0%dd' % num_len_line) % num_line,
+                                t2.strftime('%Y-%m-%d_%H:%M:%S'),
+                                t2-t1, line))
+                    else:
+                        fprint(folog, '[CMD Run Success.  %s-%s  %s (Time:%s)]\t%s' %
+                               (lineNUM, ('%%0%dd' % num_len_line) % num_line,
+                                t2.strftime('%Y-%m-%d_%H:%M:%S'),
+                                t2-t1, line))
         except Exception as ex:
             msg = "Error :%s" % ex
             fprint(folog, msg)
