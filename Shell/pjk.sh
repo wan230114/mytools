@@ -8,11 +8,11 @@ if [ "${kwword}" ];then
 
 echo -e "\ndate\tuser\tpid\t%cpu\t%mem\trss\tvsz\tvsz(F)"
 
-res="$(ps -eo user,pid,%cpu,%mem,rss,vsz|grep ${kwword}|getsize -n 6 --add)"
+res="$(ps -eo user,pid,%cpu,%mem,rss,vsz|grep ${kwword}|getsize -n 6)"
 datetime=`date "+%F_%H:%M:%S"`
 while [ "$res" ];do
 echo -e "${datetime}\t${res}"
-res="$(ps -eo user,pid,%cpu,%mem,rss,vsz|grep ${kwword}|getsize -n 6 --add)"
+res="$(ps -eo user,pid,%cpu,%mem,rss,vsz|grep ${kwword}|getsize -n 6)"
 datetime=`date "+%F_%H:%M:%S"`
 sleep 30;
 done

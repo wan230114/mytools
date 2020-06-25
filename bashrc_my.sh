@@ -46,6 +46,10 @@ alias vb="vim ~/.bashrc"
 alias vbs="source ~/.bash_profile ~/.bashrc"
 alias cr="crontab -e"
 
+alias cp="cp -i"
+alias mv="mv -i"
+#alias rm="rm -i"
+
 #####################################################
 #################### mynote #########################
 #####################################################

@@ -1,3 +1,3 @@
 #! /usr/bin/bash
 tools_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-python3 ${tools_path}/../tools_process/multiProgress.py $@
+python3 -u ${tools_path}/../tools_process/multiProgress.py $@

@@ -16,9 +16,9 @@ def fargv():
                         help='输入想统计的第几列')
     parser.add_argument('-s', '--sep', type=str, default='',
                         help='输入列之间的分隔符，默认为一切空字符，与awk默认类似')
-    parser.add_argument('--add', action='store_true',
+    parser.add_argument('--rep', action='store_true',
                         default=False,
-                        help='是否使用增加模式？在大小一列后面添加新一列')
+                        help='是否使用替换模式？对指定列不在后面一列增加一列，而直接替换当前列')
     args = parser.parse_args()
     # print(args.__dict__)
     return args.__dict__
@@ -36,42 +36,42 @@ def getsize(size):
         return size
 
 
-def do(line, num, add, sep):
+def do(line, num, rep, sep):
     try:
         line = line.decode('utf8')
     except UnicodeDecodeError:
         line = line.decode('gbk')
     sep = sep if sep else None
     Lline = line.strip().split(sep)
-    if add:
-        Lline.insert(num + 1, getsize(Lline[num]))
-    else:
+    if rep:
         Lline[num] = getsize(Lline[num])
+    else:
+        Lline.insert(num + 1, getsize(Lline[num]))
     # print(Lline)
     print('\t'.join(Lline))
 
 
-def fmain(inputpath, num, add, sep):
+def fmain(inputpath, num, rep, sep):
     num = int(num) - 1
     if not inputpath:
         while True:
             line = sys.stdin.buffer.readline()
             if not line:
                 break
-            do(line, num, add, sep)
+            do(line, num, rep, sep)
     else:
         with open(inputpath, 'rb') as fi:
             for line in fi:
                 if not line.strip():
                     continue
-                do(line, num, add, sep)
+                do(line, num, rep, sep)
 
 
 def main():
     # sys.argv = ['', '-h']
-    # sys.argv = ['', 'deal-result-saopan/result/TJNAS_Plant_10M', '2', '--add']
+    # sys.argv = ['', 'deal-result-saopan/result/TJNAS_Plant_10M', '2', '--rep']
     # sys.argv = ['', 'deal-result-saopan/result/TJNAS_Plant_10M', '2']
-    # sys.argv = ['', '-i', 'deal-result-saopan/result/TJNAS_Plant_10M', '-n', '2', '--add']
+    # sys.argv = ['', '-i', 'deal-result-saopan/result/TJNAS_Plant_10M', '-n', '2', '--rep']
     args = fargv()
     # print(*list(args.keys()), sep=", ")
     fmain(**args)

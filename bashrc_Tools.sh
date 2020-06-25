@@ -86,13 +86,19 @@ alias f="realpath "
 ###  文件磁盘管理工具  ###
 # asum统计某一列的和，用法示例: `asum 1 file`
 fasum(){
-sh -c "awk 'BEGIN{sum=0}{sum+=\$$1}END{OFS=\"\\n\"; print sum}' $2"
+sh -c "awk 'BEGIN{sum=0}{sum+=\$$1; print \$0}END{print \"-----------\";print sum}' $2"
+}
+fasum2(){
+echo -e "$0"|xargs -i du -bs {}|sort -k1|asum 1|getsize
 }
 alias asum=fasum
-alias getsize="python3 ${tools_path}/tools_jiqun/getsize.py"  # 指定文件的某一列转换为计算机存储单位
+#alias getsize="python3 ${tools_path}/tools_jiqun/getsize.py"  # 指定文件的某一列转换为计算机存储单位
+#alias duc="du -bs ./*|sort -k1n|awk 'BEGIN{sum=0}{sum+=\$1;print \$0}END{print \"-----------\";print sum}'|getsize"
+alias ducc=fasum2
 
 ###  网络工具  ###
 # 返回公网IP
+# wget --tries=0 --recursive --restrict-file-names=windows --no-parent 
 fg(){
 echo $@|while read x;do ls `pwd`/$x|awk -v ip=`curl icanhazip.com 2>/dev/null` -F "fileshare" '{print "wget "ip":8999"$2}';done
 }

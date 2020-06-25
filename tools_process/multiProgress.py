@@ -68,9 +68,7 @@ class RunSh(object):
             Llines = fi.read().strip().split('\n')
             Llines = [x.strip() for x in Llines]
             for i in range(0, len(Llines), self.lineNUM):
-                Ldata = []
-                for j in range(self.lineNUM):
-                    Ldata.append(Llines[i + j])
+                Ldata = Llines[i:i+self.lineNUM]
                 Ldatas.append(Ldata)
         # fprint(self.folog,'\n'.join([str(x) for x in Ldatas]))
         print('runstart>>>', flush=True)
@@ -80,7 +78,8 @@ class RunSh(object):
             # print(i, L_cmd)
             # self.sh(i, L_cmd, Ldatas_len, self.folog)
             p.apply_async(self.sh, args=(
-                L_cmd, Ldatas_len % i,
+                L_cmd,
+                '(%s/%s)' % (Ldatas_len % i, len(Ldatas)),
                 self.logdir+os.sep+self.file_sh+Ldatas_len % i,
                 self.retry))
         p.close()
@@ -93,9 +92,10 @@ class RunSh(object):
             with open(folog_pre, 'w') as fo:
                 fo.write('\n'.join(L_cmd))
             num_len_line = len(str(len(L_cmd)))
+            retry_raw = retry
             for num_line, line in enumerate(L_cmd, start=1):
                 stat = 1
-                retry_raw = retry
+                retry = retry_raw
                 while stat and retry > 0:
                     isretry = ('\nRetrying time(%d/%d)\n' % (
                         retry_raw - retry, retry_raw)
@@ -113,7 +113,7 @@ class RunSh(object):
                                 t2.strftime('%Y-%m-%d_%H:%M:%S'),
                                 t2-t1, line))
                     else:
-                        fprint(folog, '[CMD Run Success.  %s-%s  %s (Time:%s)]\t%s' %
+                        fprint(folog, '[CMD Run Success.  %s-%s  %s (Time: %s)]\t%s' %
                                (lineNUM, ('%%0%dd' % num_len_line) % num_line,
                                 t2.strftime('%Y-%m-%d_%H:%M:%S'),
                                 t2-t1, line))
@@ -127,7 +127,7 @@ def fprint(fo, *t):
         s = ' '.join([str(x) for x in t])
         fo.write(s + '\n')
         fo.flush()
-        print(s, flush=True)
+        print(s + '\n', flush=True, end='')
 
 
 def main():

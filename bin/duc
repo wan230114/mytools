@@ -1,0 +1,13 @@
+#!/usr/bin/bash
+
+tools_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+
+echo $@
+if [ "`echo $@`" ];then
+	dirname="$@"
+else
+	dirname="./*"
+fi
+
+du -bs $dirname|sort -k1n|awk 'BEGIN{sum=0}{sum+=$1;print $0}END{print "-----------";print sum}'|${tools_path}/getsize
+
