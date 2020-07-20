@@ -101,7 +101,9 @@ def filter(img):
     return rect
 
 
-def fmain(finame, foname):
+def fmain(finame, foname, i, i_all):
+    str_num = ('%%0%dd' % len(str(i_all))) % i + \
+        ('-%s(%0.3f%%)' % (i_all, i/i_all*100))
     try:
         try:
             img = Image.open(finame)
@@ -110,9 +112,9 @@ def fmain(finame, foname):
             return
         if img.mode != "RGB":
             img = img.convert("RGB")
-        # print('[裁剪开始: ', finame, "] 图片宽度和高度分别是{}".format(img.size))
+        print(str_num, '[裁剪开始: ', finame, "] 图片宽度和高度分别是{}".format(img.size))
         rect = filter(img)
-        print('[裁剪完毕: ', finame, '-->', foname, '] 裁剪坐标是：',
+        print(str_num, '[裁剪完毕: ', finame, '-->', foname, '] 裁剪坐标是：',
               (0, 0) + img.size, '-->', rect)
         region = img.crop(rect)
         region.save(foname)
@@ -128,18 +130,21 @@ def main():
     if not houzui:
         houzui = ""
     if os.path.isdir(fipath):
-        Lfiles = os.listdir(fipath)
+        # Lfiles = os.listdir(fipath)
+        Lfiles = ['%s/%s' % (a, file)
+                  for a, b, c in os.walk(fipath)
+                  for file in c
+                  if file.endswith('%s' % houzui)]
         # print(Lfiles)
         Lfiles = [x for x in Lfiles if x.endswith('%s' % houzui)]
         # print(Lfiles)
         p = Pool(20)
-        for fi in Lfiles:
+        for i, fi in enumerate(Lfiles, start=1):
             if isbak:
                 fo = fi + '.cut' + re.findall('\.[A-Za-z]*?$', fi)[0]
             else:
                 fo = fi
-            p.apply_async(fmain, args=(fipath + os.sep + fi,
-                                       fipath + os.sep + fo))
+            p.apply_async(fmain, args=(fi, fo, i, len(Lfiles)))
             # fmain(fipath + os.sep + fi, fipath + os.sep + fo)
         p.close()
         p.join()

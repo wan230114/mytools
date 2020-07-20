@@ -26,6 +26,7 @@ export LSCOLORS=gxfxaxdxcxegedabagacad
 ## PS1="\[\e[1;33m\][\u@\h:\[\e[1;34m\] \t \[\e[32m\]\w]\n\[\e[33m\]$\[\e[m\]"
 PS1="\[\e[1;31m\][\u@\h:\[\e[1;31m\] \t \[\e[31m\]\w]\n\[\e[31m\]# \[\e[m\]"
 PS1="\[\e[1;32m\][\u@\h:\[\e[1;36m\] \t \[\e[31m\]\w]\n\[\e[32m\]$ \[\e[m\]"
+#PS1="\[\e[31;1m\]\u cd \[\e[34;1m\]\h \[\e[36;1m\]\w \[\e[33;1m\]\t $ \[\e[37;1m\]\n"
 
 ##################  常用命令  ########################
 alias l="ls -lhrt"
@@ -46,7 +47,7 @@ alias vb="vim ~/.bashrc"
 alias vbs="source ~/.bash_profile ~/.bashrc"
 alias cr="crontab -e"
 
-alias cp="cp -i"
+#alias cp="cp -i"
 alias mv="mv -i"
 #alias rm="rm -i"
 

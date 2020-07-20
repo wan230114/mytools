@@ -48,6 +48,12 @@ alias md5q="sh ${tools_path}/Shell/md5q.sh"  # 自动投递集群计算当前目
 # 6) sjm流程提取工具
 alias sjms="python3 ${tools_path}/tools_jiqun/sjms.py"
 
+# 7) server
+pys_f(){
+echo http://`ifconfig|grep 192.168|head -1|awk '{print $2}'`:$1
+python3 -m http.server $1
+}
+alias pys=pys_f
 
 #######################################################################
 ############################## myfunc #################################
@@ -67,7 +73,7 @@ alias ccut="python3 ${tools_path}/tools_files/ccut.py" # 补全cut不能去除�
 # markdown工具
 alias mdc="python3 ${tools_path}/tools_text/markdowm_toc_change.py" # markdown升级或降级工具
 # 格式化看脚本的命令，将各个参数自动换行，用法同cat一样
-fcah(){  ## try"\n"-->"space":[ sed ':label;N;s/\n/ /;b label' ]
+fcah(){  ## try"\n"-->"\t":[ sed ':label;N;s/\n/\t/;b label' ]
 cat $@|sed ':label;N;s/ \\\n/ /;b label'|sed -e 's/[[:space:]][[:space:]]*/ /g'|sed 's# \-# \\\n    \-#g'|sed 's#^/#\n/#'|ca
 }
 alias cah=fcah  # 用于格式化打印脚本文件
@@ -76,12 +82,15 @@ alias ca="${tools_path}/Shell/common/ccat "
 
 ###  路径管理工具  ###
 # 用于返回当前文件(夹)绝对路径
-#pwdfile(){
-#echo $@|sed "s# #\n#g"|xargs -i echo `pwd`/{}
-##echo $@|sed "s# #\n#g"|while read x; do echo $(cd $x; pwd); done
-#}
-#alias f=pwdfile  # 用于返回当前文件夹某文件或目录的路径, f [file/dir] [file/dir]...
-alias f="realpath "
+pwdfile(){
+	if [ "`echo $@`" ]; then
+		for idx in $(seq $#); do eval echo `pwd`/"$"$idx; done
+	else
+		ls -d *|xargs -i echo `pwd`/{}
+	fi
+}
+alias f=pwdfile  # 用于返回当前文件夹某文件或目录的路径, f [file/dir] [file/dir]...
+#alias f="realpath "
 
 ###  文件磁盘管理工具  ###
 # asum统计某一列的和，用法示例: `asum 1 file`

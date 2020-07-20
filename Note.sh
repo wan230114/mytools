@@ -1,3 +1,12 @@
+### 软件语法 ###
+# blast语法
+blastall -d $db -i $qu  -m 8  -F F -p blastn
+
+# mapping
+hisat2 -p 10 --dta  -x $index  -1 $R1  -2 $R2 2>log.hisat2.${name}| samtools view -bS >${name}.bam
+
+
+
 # python 管理
 pip3 install -i  https://pypi.tuna.tsinghua.edu.cn/simple/  
 
@@ -27,10 +36,6 @@ alias lsy="/TJNAS01/PAG/Plant/zhangwenlin/Cluster_management/Aliyun/JieDong/bin/
 ############################################################
 ####################### 2.软件记录 #########################
 ############################################################
-### 软件语法 ###
-# blast语法
-blastall -d $db -i $qu  -m 8  -F F -p blastn
-
 ### 软件脚本 ###
 # 画circos图：
 alias circos="/PUBLIC/software/public/System/Perl-5.18.2/bin/perl /PUBLIC/software/public/Graphics/circos-0.64/bin/circos "

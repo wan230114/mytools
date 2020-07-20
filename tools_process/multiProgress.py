@@ -77,11 +77,14 @@ class RunSh(object):
         for i, L_cmd in enumerate(Ldatas, start=1):
             # print(i, L_cmd)
             # self.sh(i, L_cmd, Ldatas_len, self.folog)
-            p.apply_async(self.sh, args=(
+            L_cmd, lineNUM, folog_pre, retry = (
                 L_cmd,
                 '(%s/%s)' % (Ldatas_len % i, len(Ldatas)),
                 self.logdir+os.sep+self.file_sh+Ldatas_len % i,
-                self.retry))
+                self.retry)
+            with open(folog_pre, 'w') as fo:
+                fo.write('\n'.join(L_cmd))
+            p.apply_async(self.sh, args=(L_cmd, lineNUM, folog_pre, retry))
         p.close()
         p.join()
 
@@ -89,8 +92,6 @@ class RunSh(object):
         try:
             # print('hello')
             folog = folog_pre + '.' + self.folog
-            with open(folog_pre, 'w') as fo:
-                fo.write('\n'.join(L_cmd))
             num_len_line = len(str(len(L_cmd)))
             retry_raw = retry
             for num_line, line in enumerate(L_cmd, start=1):
