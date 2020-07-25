@@ -53,7 +53,7 @@ pys_f(){
 echo http://`ifconfig|grep 192.168|head -1|awk '{print $2}'`:$1
 python3 -m http.server $1
 }
-alias pys=pys_f
+alias s=pys_f
 
 #######################################################################
 ############################## myfunc #################################
@@ -97,13 +97,10 @@ alias f=pwdfile  # 用于返回当前文件夹某文件或目录的路径, f [fi
 fasum(){
 sh -c "awk 'BEGIN{sum=0}{sum+=\$$1; print \$0}END{print \"-----------\";print sum}' $2"
 }
-fasum2(){
-echo -e "$0"|xargs -i du -bs {}|sort -k1|asum 1|getsize
-}
 alias asum=fasum
 #alias getsize="python3 ${tools_path}/tools_jiqun/getsize.py"  # 指定文件的某一列转换为计算机存储单位
 #alias duc="du -bs ./*|sort -k1n|awk 'BEGIN{sum=0}{sum+=\$1;print \$0}END{print \"-----------\";print sum}'|getsize"
-alias ducc=fasum2
+alias d="duc"  # 已在bin内
 
 ###  网络工具  ###
 # 返回公网IP

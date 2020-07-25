@@ -114,10 +114,15 @@ def fmain(finame, foname, i, i_all):
             img = img.convert("RGB")
         print(str_num, '[裁剪开始: ', finame, "] 图片宽度和高度分别是{}".format(img.size))
         rect = filter(img)
-        print(str_num, '[裁剪完毕: ', finame, '-->', foname, '] 裁剪坐标是：',
-              (0, 0) + img.size, '-->', rect)
         region = img.crop(rect)
-        region.save(foname)
+        try:
+            region.save(foname)
+            info = ''
+        except SystemError:
+            info = '\n   Warning: 图片全白'
+        print(str_num, '[裁剪完毕: ', finame, '-->', foname, ']',
+              '\n   裁剪坐标是：', (0, 0) + img.size, '-->', rect,
+              info)
     except Exception:
         traceback.print_exc()
 

@@ -1,4 +1,6 @@
-# ref: https://zhuanlan.zhihu.com/p/102742847
+#!/usr/bin/env python3
+
+## ref: https://zhuanlan.zhihu.com/p/102742847
 
 import fitz
 import sys
