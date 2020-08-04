@@ -1,0 +1,17 @@
+#! /bin/bash
+
+text=`ks -v $1`
+text_speend=$2
+text_old=$text
+
+while [ "$text" ]; do
+    $text=`ks -v $1`
+    if [ "$text" != "$text_old" ];then
+        echo
+        date "+ ==> %F %T <==" >> moni_$1.log
+        echo -e "$text" >> moni_$1.log
+    fi
+    text_old=$text
+    sleep $text_speend
+done
+

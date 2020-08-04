@@ -21,6 +21,7 @@
 import os
 import sys
 import argparse
+import time
 from datetime import datetime
 from multiprocessing import Pool
 
@@ -45,6 +46,8 @@ class RunSh(object):
                             help='thread 用多少线程跑，默认1')
         parser.add_argument('-r', '--retry', type=int, default=3,
                             help='出错时重试的次数，默认3')
+        parser.add_argument('-rt', '--interval_time', type=float, default=0,
+                            help='出错时重试的间隔时间(秒)，默认0')
         # parser.add_argument('-o', '--logdir', type=str, default="",
         # help='输出日志文件夹的后缀, 默认为 脚本+.log')
         if len(sys.argv) == 1:
@@ -77,18 +80,19 @@ class RunSh(object):
         for i, L_cmd in enumerate(Ldatas, start=1):
             # print(i, L_cmd)
             # self.sh(i, L_cmd, Ldatas_len, self.folog)
-            L_cmd, lineNUM, folog_pre, retry = (
+            args = L_cmd, lineNUM, folog_pre, retry, interval_time = (
                 L_cmd,
                 '(%s/%s)' % (Ldatas_len % i, len(Ldatas)),
                 self.logdir+os.sep+self.file_sh+Ldatas_len % i,
-                self.retry)
+                self.retry,
+                self.interval_time)
             with open(folog_pre, 'w') as fo:
                 fo.write('\n'.join(L_cmd))
-            p.apply_async(self.sh, args=(L_cmd, lineNUM, folog_pre, retry))
+            p.apply_async(self.sh, args=args)
         p.close()
         p.join()
 
-    def sh(self, L_cmd, lineNUM, folog_pre, retry):
+    def sh(self, L_cmd, lineNUM, folog_pre, retry, interval_time=0):
         try:
             # print('hello')
             folog = folog_pre + '.' + self.folog
@@ -97,7 +101,7 @@ class RunSh(object):
             for num_line, line in enumerate(L_cmd, start=1):
                 stat = 1
                 retry = retry_raw
-                while stat and retry > 0:
+                while stat and retry >= 0:
                     isretry = ('\nRetrying time(%d/%d)\n' % (
                         retry_raw - retry, retry_raw)
                         if retry < retry_raw else '')
@@ -113,6 +117,7 @@ class RunSh(object):
                                (lineNUM, ('%%0%dd' % num_len_line) % num_line,
                                 t2.strftime('%Y-%m-%d_%H:%M:%S'),
                                 t2-t1, line))
+                        time.sleep(interval_time)
                     else:
                         fprint(folog, '[CMD Run Success.  %s-%s  %s (Time: %s)]\t%s' %
                                (lineNUM, ('%%0%dd' % num_len_line) % num_line,

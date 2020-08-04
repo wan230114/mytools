@@ -23,24 +23,11 @@ alias ht="h|cut -f 5- -d ' '|uniq"
 export CLICOLOR=1
 export LSCOLORS=gxfxaxdxcxegedabagacad
 ## 30黑,31红,32绿, 33黄,34蓝,35洋红,36青,37白
-#PS1="\[\e[31;1m\]\u cd \[\e[34;1m\]\h \[\e[36;1m\]\w \[\e[33;1m\]\t $ \[\e[37;1m\]\n"
 #PS1="\[\e[1;33m\][\u@\h:\[\e[1;34m\] \t \[\e[32m\]\w]\n\[\e[33m\]$\[\e[m\]"
-PS1="\[\e[1;31m\][\u@\h:\[\e[1;31m\] \t \[\e[31m\]\w]\n\[\e[31m\]# \[\e[m\]"
+#PS1="\[\e[1;31m\][\u@\h:\[\e[1;31m\] \t \[\e[31m\]\w]\n\[\e[31m\]# \[\e[m\]"  # root red color
 ## 30黑,31红,32绿, 33黄,34蓝,35洋红,36青,37白
-PS1="\[\e[1;32m\][\u@\h:\[\e[1;36m\] \t \[\e[31m\]\w]\n\[\e[32m\]$ \[\e[m\]"
-rawPS1="$PS1"
-fcd(){
-    builtin cd $@
-    PS1=`echo ${PS1}|sed 's#\\\\w#$PWD#'`
-    PS1_tmp=`echo ${rawPS1}|sed 's#$PWD#\\\\w#'`
-    if [ "$PS1_tmp" == "$rawPS1" ] ;then rawPS1=$PS1_tmp ; fi
-}
-alias cd=fcd
-cd .
-ffcd(){ 
-if [ "$1" ]; then cd $1 && l; else cd . && l; fi
-}
-alias c=ffcd
+PS1="\[\e[1;32m\][\u@\h:\[\e[1;36m\] \t \[\e[31m\]\"\w\"]\n\[\e[32m\]$ \[\e[m\]"
+PS1=`echo ${PS1}|sed 's#\\\\w#$PWD#'`  # "~/" --> "/home/user/"
 
 ##################  常用命令  ########################
 alias l="ls -lhrt"
@@ -56,6 +43,7 @@ alias ca="cat"
 alias vb="vim ~/.bashrc"
 alias vbs="source ~/.bash_profile ~/.bashrc"
 alias cr="crontab -e"
+alias ffind="find ./ -name "
 
 #alias cp="cp -i"
 alias mv="mv -i"

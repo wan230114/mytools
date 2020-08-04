@@ -1,10 +1,10 @@
-sleep 1 # 1
-sleep 1 # 2
-sleep 1 # 3
-sleep 1 # 4
-sleep 1 # 5
-sleep 1 # 6
-sleep 1 # 7
-sleep 1 # 8
-sleep 1 # 9
-sleep 1 # 10
+sleep 1 && rm 666 # 1
+sleep 1 && rm 666 # 2
+sleep 1 && rm 666 # 3
+sleep 1 && rm 666 # 4
+sleep 1 && rm 666 # 5
+sleep 1 && rm 666 # 6
+sleep 1 && rm 666 # 7
+sleep 1 && rm 666 # 8
+sleep 1 && rm 666 # 9
+sleep 1 && rm 666 # 10

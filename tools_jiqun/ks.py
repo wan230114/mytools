@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # -*- coding: utf-8 -*-
 # @Author: ChenJun
 # @Email:  chenjun4663@novogene.com
@@ -6,7 +8,7 @@
 # @Last Modified by:   JUN
 # @Last Modified time: 2019-06-11 15:51:56
 
-"""keyword找寻关键字的所有父子进程"""
+""""""
 
 import os
 import sys
@@ -16,7 +18,7 @@ import argparse
 def fargv():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description=('“ks” ———— 进程树管理器'
+        description=('“ks” ———— 进程树管理器 \n  使用keyword找寻关键字的SGID父子进程'
                      ),
         epilog=('说明：\n'
                 '  谨慎使用'
@@ -26,6 +28,9 @@ def fargv():
     parser.add_argument('-v', '--view', action='store_true',
                         default=False,
                         help='是否只打印进程树')
+    parser.add_argument('-a', '--all', action='store_true',
+                        default=False,
+                        help='是否使用严格模式遍历所有父子进程')
     parser.add_argument('-s', '--sigle', type=int, default=-1,
                         help='kill发送的信号值，默认不指定(系统默认为15)')
     args = parser.parse_args()
@@ -33,16 +38,21 @@ def fargv():
     return args.__dict__
 
 
-def fmain(keyword, view=False, sigle=-1):
+def fmain(keyword, view=False, all=False, sigle=-1):
     xjf = os.popen('''ps xjf|grep -v mytools/tools_jiqun/ks.py''').read()
     Llines = []
     S_PGID = set()
+    S_PID = set()
     for line in xjf.strip().split('\n'):
         Lline = line.strip().split()
         # print(Lline)
         Llines.append([Lline[2], Lline[1], line])
+        if all:
+            if Lline[0] in S_PID:
+                S_PGID.add(Lline[2])
         if keyword in line:
             S_PGID.add(Lline[2])
+            S_PID.add(Lline[1])
     Lresult = []
     Lpid = []
     for PGID in S_PGID:

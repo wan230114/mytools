@@ -28,7 +28,7 @@ alias p="ps xjf" # 以进程树展示进程
 
 
 # 2) 进程及任务操作
-alias ks="python3 ${tools_path}/tools_jiqun/ks.py"  # 批量杀进程，用法: `ks PGID/keyword`
+#alias ks="python3 ${tools_path}/tools_jiqun/ks.py"  # 批量杀进程，用法: `ks PGID/keyword`
 alias qd="python3 ${tools_path}/tools_jiqun/qd.py"  # 批量杀任务，用法：`qd jobID/keyword`
 alias qgjd="sh ${tools_path}/Shell/qgjd.sh"  # 批量改节点，用法: `qgjd mod keyword`，mod模式可选：1,2,3 (含义是：小节点，大节点，所有节点)
 alias qjg="qmod -us "
@@ -86,11 +86,16 @@ pwdfile(){
 	if [ "`echo $@`" ]; then
 		for idx in $(seq $#); do eval echo `pwd`/"$"$idx; done
 	else
-		ls -d *|xargs -i echo `pwd`/{}
+		ls -trd *|xargs -i echo `pwd`/{}
 	fi
 }
 alias f=pwdfile  # 用于返回当前文件夹某文件或目录的路径, f [file/dir] [file/dir]...
-#alias f="realpath "
+alias r="realpath "
+# 用于快速切换目录用
+ffcd(){
+if [ "$1" ]; then cd $1 && l; else cd . && l; fi
+}
+alias c=ffcd
 
 ###  文件磁盘管理工具  ###
 # asum统计某一列的和，用法示例: `asum 1 file`
