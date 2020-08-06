@@ -1,6 +1,9 @@
-#!/usr/bin/env python3
+#!/bin/env python3
 
 ## ref: https://zhuanlan.zhihu.com/p/102742847
+# pip install fitz
+# pip install PyMuPDF
+
 
 import fitz
 import sys

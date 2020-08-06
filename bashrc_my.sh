@@ -27,7 +27,7 @@ export LSCOLORS=gxfxaxdxcxegedabagacad
 #PS1="\[\e[1;31m\][\u@\h:\[\e[1;31m\] \t \[\e[31m\]\w]\n\[\e[31m\]# \[\e[m\]"  # root red color
 ## 30黑,31红,32绿, 33黄,34蓝,35洋红,36青,37白
 PS1="\[\e[1;32m\][\u@\h:\[\e[1;36m\] \t \[\e[31m\]\"\w\"]\n\[\e[32m\]$ \[\e[m\]"
-PS1=`echo ${PS1}|sed 's#\\\\w#$PWD#'`  # "~/" --> "/home/user/"
+PS1=`echo ${PS1}|sed 's#"\\\\w"#"$PWD"#'`  # "~/" --> "/home/user/"
 
 ##################  常用命令  ########################
 alias l="ls -lhrt"

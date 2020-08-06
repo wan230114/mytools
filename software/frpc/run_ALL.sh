@@ -1,4 +1,4 @@
-#!/usr/bin/env bash                                                                                                                                                                                
+#!/bin/env bash                                                                                                                                                                                
 shelp="""usage:
   run_ALL.sh argument
 

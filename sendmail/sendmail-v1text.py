@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/bin/python
 # -*- coding: utf8 -*-
 
 runhelp = """

@@ -49,11 +49,12 @@ alias md5q="sh ${tools_path}/Shell/md5q.sh"  # 自动投递集群计算当前目
 alias sjms="python3 ${tools_path}/tools_jiqun/sjms.py"
 
 # 7) server
-pys_f(){
-echo http://`ifconfig|grep 192.168|head -1|awk '{print $2}'`:$1
-python3 -m http.server $1
+s_func(){
+if [ "`echo $@`" ]; then port=$1; else port="8000";fi 
+echo http://`ifconfig|grep 192.168|head -1|awk '{print $2}'`:$port
+python3 -m http.server $port
 }
-alias s=pys_f
+alias s=s_func
 
 #######################################################################
 ############################## myfunc #################################

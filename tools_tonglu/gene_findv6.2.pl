@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/bin/perl
 use Cwd qw(getcwd);
 use Getopt::Long;
 my $useage=<<E;

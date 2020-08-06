@@ -44,8 +44,8 @@ class RunSh(object):
                             help='line 每几行做一个运行的分割，默认1')
         parser.add_argument('-t', '--thread', type=int, default=1,
                             help='thread 用多少线程跑，默认1')
-        parser.add_argument('-r', '--retry', type=int, default=3,
-                            help='出错时重试的次数，默认3')
+        parser.add_argument('-r', '--retry', type=int, default=0,
+                            help='出错时重试的次数，默认0')
         parser.add_argument('-rt', '--interval_time', type=float, default=0,
                             help='出错时重试的间隔时间(秒)，默认0')
         # parser.add_argument('-o', '--logdir', type=str, default="",

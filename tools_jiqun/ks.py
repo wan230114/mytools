@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/bin/env python3
 
 # -*- coding: utf-8 -*-
 # @Author: ChenJun
@@ -39,7 +39,7 @@ def fargv():
 
 
 def fmain(keyword, view=False, all=False, sigle=-1):
-    xjf = os.popen('''ps xjf|grep -v mytools/tools_jiqun/ks.py''').read()
+    xjf = os.popen('''ps xjf|grep -v mytools/tools_jiqun/ks.py|grep -v mytools/bin/ks''').read()
     Llines = []
     S_PGID = set()
     S_PID = set()
