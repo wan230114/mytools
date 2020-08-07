@@ -1,11 +1,14 @@
 #! /bin/bash
 
-text=`ks -v $1`
+text=`ks -v $1|cut -f 2- -d "|"`
 text_speend=$2
 text_old=$text
 
+date "+ ==> %F %T <==" >> moni_$1.log
+echo -e "$text"
+
 while [ "$text" ]; do
-    $text=`ks -v $1`
+    text=`ks -v $1|cut -f 2- -d "|"`
     if [ "$text" != "$text_old" ];then
         echo
         date "+ ==> %F %T <==" >> moni_$1.log

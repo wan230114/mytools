@@ -43,10 +43,10 @@ def fmain(keyword, view=False, all=False, sigle=-1):
     Llines = []
     S_PGID = set()
     S_PID = set()
-    for line in xjf.strip().split('\n'):
+    for NUM, line in enumerate(xjf.strip().split('\n'), start=1):
         Lline = line.strip().split()
         # print(Lline)
-        Llines.append([Lline[2], Lline[1], line])
+        Llines.append([Lline[2], Lline[1], line, NUM])
         if all:
             if Lline[0] in S_PID:
                 S_PGID.add(Lline[2])
@@ -56,7 +56,7 @@ def fmain(keyword, view=False, all=False, sigle=-1):
     Lresult = []
     Lpid = []
     for PGID in S_PGID:
-        for PGID2, pid, line in Llines:
+        for PGID2, pid, line, NUM in Llines:
             if PGID2 == PGID:
                 Lresult.append(line)
                 Lpid.append(pid)
@@ -65,6 +65,7 @@ def fmain(keyword, view=False, all=False, sigle=-1):
     if not Lresult:
         print('WARNING: 未搜索到相关进程.')
         sys.exit()
+    Lresult = sorted(Lresult, key=lambda x: x[-1])
     xjf = '\n'.join(Lresult)
     os.system('echo -e "%s"|less -S' % xjf)
     if view:
