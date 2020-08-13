@@ -43,7 +43,7 @@ alias ca="cat"
 alias vb="vim ~/.bashrc"
 alias vbs="source ~/.bash_profile ~/.bashrc"
 alias cr="crontab -e"
-alias ffind="find ./ -name "
+alias ff="find ./ -name "
 
 #alias cp="cp -i"
 alias mv="mv -i"

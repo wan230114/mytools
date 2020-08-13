@@ -18,7 +18,7 @@ import argparse
 def fargv():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description=('“ks” ———— 进程树管理器 \n  使用keyword找寻关键字的SGID父子进程'
+        description=('“ks” ———— 进程树管理器 \n  使用keyword找寻关键字的SGID所包含的父子进程'
                      ),
         epilog=('说明：\n'
                 '  谨慎使用'
@@ -30,7 +30,10 @@ def fargv():
                         help='是否只打印进程树')
     parser.add_argument('-a', '--all', action='store_true',
                         default=False,
-                        help='是否使用严格模式遍历所有父子进程')
+                        help='是否使用全遍历模式遍历所有父子进程')
+    parser.add_argument('-c', '--children', action='store_true',
+                        default=False,
+                        help='是否使用去除该进程的父进程，只遍历其下子进程')
     parser.add_argument('-s', '--sigle', type=int, default=-1,
                         help='kill发送的信号值，默认不指定(系统默认为15)')
     args = parser.parse_args()
@@ -38,7 +41,7 @@ def fargv():
     return args.__dict__
 
 
-def fmain(keyword, view=False, all=False, sigle=-1):
+def fmain(keyword, view=False, all=False, children=False, sigle=-1):
     xjf = os.popen('''ps xjf|grep -v mytools/tools_jiqun/ks.py|grep -v mytools/bin/ks''').read()
     Llines = []
     S_PGID = set()
@@ -84,6 +87,7 @@ def fmain(keyword, view=False, all=False, sigle=-1):
 
 
 def main():
+    # print(fargv())
     fmain(**fargv())
 
 
