@@ -51,7 +51,7 @@ alias sjms="python3 ${tools_path}/tools_jiqun/sjms.py"
 # 7) server
 s_func(){
 if [ "`echo $@`" ]; then port=$1; else port="8000";fi 
-echo http://`ifconfig|grep 192.168|head -1|awk '{print $2}'`:$port
+echo http://`ifconfig|grep inet|head -1|awk '{print $2}'`:$port
 python3 -m http.server $port
 }
 alias s=s_func
