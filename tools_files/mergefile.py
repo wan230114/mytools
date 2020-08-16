@@ -162,7 +162,8 @@ def fmain(finame1, num1, finame2, num2, foname, keep, alone, showlost, sep, incl
                         print(tmp_key, D2[tmp_key])
                     print('----------------------------------------------------')
                 Lline2 = cleanL([sep.join(x) for x in D2[D_D2[key][0]]])
-                fo.write('\t'.join([key] + Lline1 + Lline2) + '\n')
+                fo.write('\t'.join(Lline1 + Lline2) + '\n')
+                # fo.write('\t'.join([key] + Lline1 + Lline2) + '\n')
             else:
                 p = 0  # 用于是否匹配到的指标
                 if include:
@@ -170,7 +171,8 @@ def fmain(finame1, num1, finame2, num2, foname, keep, alone, showlost, sep, incl
                         if key_DD2 and key:
                             if key in key_DD2:
                                 Lline2 = cleanL([sep.join(x) for x in D2[D_D2[key_DD2][0]]])
-                                fo.write('\t'.join([key] + Lline1 + Lline2) + '\n')
+                                fo.write('\t'.join(Lline1 + Lline2) + '\n')
+                                # fo.write('\t'.join([key] + Lline1 + Lline2) + '\n')
                                 print('WARNING: 键 %s 使用包含模式匹配, %s --> %s' % (key, key, key_DD2), )
                                 p = 1
                                 break
