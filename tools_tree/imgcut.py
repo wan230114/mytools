@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author: ChenJun
 # @Email:  chenjun4663@novogene.com
@@ -103,7 +104,7 @@ def filter(img):
 
 def fmain(finame, foname, i, i_all):
     str_num = ('%%0%dd' % len(str(i_all))) % i + \
-        ('-%s(%0.3f%%)' % (i_all, i/i_all*100))
+        ('-%s' % (i_all))
     try:
         try:
             img = Image.open(finame)
