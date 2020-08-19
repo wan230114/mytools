@@ -51,8 +51,10 @@ alias sjms="python3 ${tools_path}/tools_jiqun/sjms.py"
 # 7) server
 s_func(){
 if [ "`echo $@`" ]; then port=$1; else port="8000";fi 
-echo http://`ifconfig|grep inet|head -1|awk '{print $2}'`:$port
+ifconfig|grep inet|awk '{print $2}'|grep -v "::"|sort|while read x; do echo http://$x:$port; done
+sh -c "echo http://\`curl icanhazip.com 2>/dev/null\`:$port &"
 python3 -m http.server $port
+
 }
 alias s=s_func
 
