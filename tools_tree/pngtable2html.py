@@ -48,7 +48,10 @@ with open(foname, 'w') as fo:
                 fo.write("<table>\n")
             fo.write("<tr>")
             for x in Lline:
-                fo.write('  <td><p>%s</p><img src="%s" /></td>' % (x, x))
+                if x.endswith(".png"):
+                    fo.write('  <td><p>%s</p><img src="%s" /></td>' % (x, x))
+                elif x.endswith(".svg"):
+                    fo.write('  <td><p>%s</p><object data="%s" type="image/svg+xml"></object></td>' % (x, x))
             fo.write("</tr>\n")
             table_in = 1
     fo.write("</table></body>")

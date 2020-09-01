@@ -41,8 +41,9 @@ def fargv():
     return args.__dict__
 
 
-def fmain(keyword, view=False, all=False, children=False, sigle=-1):
-    xjf = os.popen('''ps xjf|grep -v mytools/tools_jiqun/ks.py|grep -v mytools/bin/ks''').read()
+def fmain(keyword, view=False, all=False, children=False,
+          sigle=-1, return_mode=False,
+          xjf=os.popen('ps xjf|grep -v mytools/tools_jiqun/ks.py|grep -v /mytools/').read()):
     Llines = []
     S_PGID = set()
     S_PID = set()
@@ -61,18 +62,20 @@ def fmain(keyword, view=False, all=False, children=False, sigle=-1):
     for PGID in S_PGID:
         for PGID2, pid, line, NUM in Llines:
             if PGID2 == PGID:
-                Lresult.append(line)
+                Lresult.append((line, NUM))
                 Lpid.append(pid)
     # xjf = os.popen('''tmp="`ps xjf`"; echo -e "$tmp"|grep -v "\\-bash"|grep -v mytools/ks.py|grep %s|awk '{print $3}'|sort|uniq'''%s).read()
     # 'ps xjf|grep -v bash|grep -v mytools/ks.py|grep -v "grep %s"|grep %s' % (keyword, keyword)).read()
     if not Lresult:
         print('WARNING: 未搜索到相关进程.')
-        sys.exit()
+        return ""
     Lresult = sorted(Lresult, key=lambda x: x[-1])
-    xjf = '\n'.join(Lresult)
+    xjf = '\n'.join([x[0] for x in Lresult])
+    if return_mode:
+        return xjf
     os.system('echo -e "%s"|less -S' % xjf)
     if view:
-        sys.exit()
+        return
     os.system('echo -e "%s"' % xjf)
     if sigle == -1:
         print('准备使用`kill PIDs`命令杀死以下PID的进程')

@@ -3,6 +3,9 @@
 ########################################################
 
 #################### Language set ######################
+#export LC_ALL="en_US.utf8"
+#export LANG="en_US.utf8"
+
 #export LC_ALL="zh_CN.utf8"
 #export LANG="zh_CN.utf8"
 
@@ -43,7 +46,11 @@ alias ca="cat"
 alias vb="vim ~/.bashrc"
 alias vbs="source ~/.bash_profile ~/.bashrc"
 alias cr="crontab -e"
-alias ff="find ./ -name "
+
+ff_function(){
+find ./ -name "*$@*"
+}
+alias ff=ff_function
 
 #alias cp="cp -i"
 alias mv="mv -i"

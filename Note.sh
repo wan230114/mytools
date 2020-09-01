@@ -34,6 +34,17 @@ alias lsy="/TJNAS01/PAG/Plant/zhangwenlin/Cluster_management/Aliyun/JieDong/bin/
 # 现成封装开发脚本，可以直接运行，会自动投递
 /NJPROJ1/PAG/Plant/Projects/Business/GWAS/WGS/P101SC17071673-01_300_yama/10.release/work_aliyun_Data.sh
 
+# 查找软链接文件夹下包含的md5.txt
+{
+    find ./ -type l|sort|while read x; do 
+        dirpath=`dirname $(realpath $x)`
+        echo $dirpath
+    done|xargs du -bs|awk '{print $2}'|sort|uniq| while read x; do
+        echo -e "$x\t`ls $x/|grep txt`"
+        echo
+    done
+}
+
 
 ############################################################
 ####################### 2.软件记录 #########################

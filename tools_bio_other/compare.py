@@ -67,3 +67,4 @@ venn2(subsets=[s1, s2], set_labels=("A", "B"), set_colors=('r', 'g'))
 # %%
 plt.savefig('venn_%s__vs__%s.pdf' % (out1, out2), dpi=200, bbox_inches='tight')
 plt.savefig('venn_%s__vs__%s.png' % (out1, out2), dpi=200, bbox_inches='tight')
+plt.savefig('venn_%s__vs__%s.svg' % (out1, out2), dpi=200, bbox_inches='tight')
