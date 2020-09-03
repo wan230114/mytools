@@ -18,7 +18,7 @@ import argparse
 def fargv():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description=('“ks” ———— 进程树管理器 \n  使用keyword找寻关键字的SGID所包含的父子进程'
+        description=('“moni_ps” ———— 进程树监控器 \n  使用keyword找寻关键字的SGID所包含的父子进程'
                      ),
         epilog=('说明：\n'
                 '  谨慎使用'
@@ -35,18 +35,31 @@ def fargv():
 def fmain(keyword, speed=1):
     time_start = datetime.datetime.now()
     ps_info_old = "STAT: moni start\n"
+    L_ps_info = []
     while True:
+        # 判断结束
         if not ps_info_old:
             print("\nEND: moni ok.")
             time_spend = datetime.datetime.now() - time_start
             print('耗时:', time_spend)  # 耗时: 0:00:01.003083
             break
-        xjf = os.popen('ps xjf|grep -v mytools/tools_jiqun/ks.py|grep -v /mytools/').read()
-        ps_info = ks.fmain(keyword, return_mode=True, xjf=xjf)
+        # 截取字符串进行判断
+        xjf = os.popen('ps xjf').read()
+        ps_info = ks.fmain(keyword, return_mode=True, xjf=xjf).strip()
+        if not ps_info:
+            print("ps_info is None.")
+            ps_info_old = ps_info
+            continue
+        L_ps_info.clear()
+        for line in ps_info.split('\n'):
+            L_ps_info.append(line.split(maxsplit=9)[-1])
+        ps_info = '\n'.join(L_ps_info)
+        # print(ps_info)
         # os.popen("ks -v %s|cat" % keyword).read()
         if ps_info != ps_info_old:
-            print(time.strftime("\n[Now_time] : %Y-%m-%d %H:%M:%S", time.localtime()))
-            print(ps_info_old)
+            print(time.strftime(
+                "\n[Now_time] : %Y-%m-%d %H:%M:%S", time.localtime()))
+            print(ps_info)
         ps_info_old = ps_info
         time.sleep(speed)
 

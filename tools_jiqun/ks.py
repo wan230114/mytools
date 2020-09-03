@@ -43,7 +43,7 @@ def fargv():
 
 def fmain(keyword, view=False, all=False, children=False,
           sigle=-1, return_mode=False,
-          xjf=os.popen('ps xjf|grep -v mytools/tools_jiqun/ks.py|grep -v /mytools/').read()):
+          xjf=os.popen('ps xjf').read()):
     Llines = []
     S_PGID = set()
     S_PID = set()
@@ -54,7 +54,7 @@ def fmain(keyword, view=False, all=False, children=False,
         if all:
             if Lline[0] in S_PID:
                 S_PGID.add(Lline[2])
-        if keyword in line:
+        if keyword in line and int(Lline[1]) != os.getpid():
             S_PGID.add(Lline[2])
             S_PID.add(Lline[1])
     Lresult = []
