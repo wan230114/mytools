@@ -26,7 +26,8 @@ def fargv():
     parser.add_argument('-fo', type=str,
                         help='输出文件的名字')
     parser.add_argument('--keep', action='store_true',
-                        help='默认False，是否按照第一个文件的相应列顺序输出，此模式下不合并相同行。与alone、showlost参数不能并存')
+                        help='默认False，是否按照第一个文件的相应列顺序输出，'
+                             '此模式下不合并相同行。与alone、showlost参数不能并存')
     parser.add_argument('--alone', action='store_true',
                         help='默认False，是否跳过相同键值，若是则只保留第一个出现的键值')
     parser.add_argument('--showlost', action='store_true',
@@ -37,7 +38,8 @@ def fargv():
     parser.add_argument('--sep', type=str, default=' ',
                         help='定义相同键合并时使用的符号，默认为空格')
     args = parser.parse_args()
-    Largs = [args.f1, args.f2, args.fo, args.keep, args.alone, args.showlost, args.sep]
+    Largs = [args.f1, args.f2, args.fo, args.keep,
+             args.alone, args.showlost, args.sep]
     if (None in Largs[1:3]) or (args.keep & args.alone) or (args.keep & args.showlost):
         parser.parse_args(['', '--help'])
         sys.exit()
@@ -123,7 +125,8 @@ def dealfile(finame, nums, alone):
 
 
 def fmain(finame1, num1, finame2, num2, foname, keep, alone, showlost, sep, include):
-    Llines = [[[x] for x in line.strip().split('\t')] for line in open(finame1)]
+    Llines = [[[x] for x in line.strip().split('\t')]
+              for line in open(finame1)]
     # L1 = [[L[num1 - 1][0], L[0:num1 - 1] + L[num1:]] for L in Llines]
     L1 = [[L[int(num1) - 1][0], L] for L in Llines]
     Lp1 = []
@@ -170,16 +173,21 @@ def fmain(finame1, num1, finame2, num2, foname, keep, alone, showlost, sep, incl
                     for key_DD2 in D_D2:
                         if key_DD2 and key:
                             if key in key_DD2:
-                                Lline2 = cleanL([sep.join(x) for x in D2[D_D2[key_DD2][0]]])
+                                Lline2 = cleanL([sep.join(x)
+                                                 for x in D2[D_D2[key_DD2][0]]])
                                 fo.write('\t'.join(Lline1 + Lline2) + '\n')
                                 # fo.write('\t'.join([key] + Lline1 + Lline2) + '\n')
-                                print('WARNING: 键 %s 使用包含模式匹配, %s --> %s' % (key, key, key_DD2), )
+                                print('WARNING: 键 %s 使用包含模式匹配, %s --> %s' %
+                                      (key, key, key_DD2), )
                                 p = 1
                                 break
                             elif key_DD2 in key:
-                                Lline2 = cleanL([sep.join(x) for x in D2[D_D2[key_DD2][0]]])
-                                fo.write('\t'.join([key] + Lline1 + Lline2) + '\n')
-                                print('WARNING: 键 %s 使用包含模式匹配, %s --> %s' % (key, key, key_DD2), )
+                                Lline2 = cleanL([sep.join(x)
+                                                 for x in D2[D_D2[key_DD2][0]]])
+                                fo.write(
+                                    '\t'.join([key] + Lline1 + Lline2) + '\n')
+                                print('WARNING: 键 %s 使用包含模式匹配, %s --> %s' %
+                                      (key, key, key_DD2), )
                                 p = 1
                                 break
                 if p == 0:
@@ -207,7 +215,8 @@ def main():
     # fmain(fargv())
     # sys.argv = ['', '-f1', 'file1', '1', '-f2', 'file2', '1', '-fo', 'file-merge.txt']
     finame1, num1, finame2, num2, foname, keep, alone, showlost, sep, include = fargv()
-    fmain(finame1, num1, finame2, num2, foname, keep, alone, showlost, sep, include)
+    fmain(finame1, num1, finame2, num2, foname,
+          keep, alone, showlost, sep, include)
 
 
 if __name__ == '__main__':

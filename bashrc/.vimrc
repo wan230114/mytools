@@ -12,6 +12,7 @@ set encoding=utf-8
 set cul
 
 "用F10来切换纯粘贴模式，可以解决是否自动缩进
+set paste
 set pastetoggle=<F10>   
 
 

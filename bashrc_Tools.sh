@@ -52,7 +52,7 @@ alias sjms="python3 ${tools_path}/tools_jiqun/sjms.py"
 s_func(){
 if [ "`echo $@`" ]; then port=$1; else port="8000";fi 
 ifconfig|grep inet|awk '{print $2}'|grep -v "::"|sort|while read x; do echo http://$x:$port; done
-sh -c "echo http://\`curl icanhazip.com 2>/dev/null\`:$port &"
+sh -c "echo http://\`curl ipv4.icanhazip.com 2>/dev/null\`:$port &"
 python3 -m http.server $port
 
 }
@@ -121,17 +121,17 @@ alias d="duc"  # 已在bin内
 # 返回公网IP
 # wget --tries=0 --recursive --restrict-file-names=windows --no-parent 
 fg(){
-echo $@|while read x;do ls `pwd`/$x|awk -v ip=`curl icanhazip.com 2>/dev/null` -F "fileshare" '{print "wget "ip":8999"$2}';done
+echo $@|while read x;do ls `pwd`/$x|awk -v ip=`curl ipv4.icanhazip.com 2>/dev/null` -F "fileshare" '{print "wget "ip":8999"$2}';done
 }
 fgg(){
-find `pwd` -maxdepth 1 -type f |awk -v ip=`curl icanhazip.com 2>/dev/null` -F "fileshare" '{print "wget "ip":8999"$2}'
+find `pwd` -maxdepth 1 -type f |awk -v ip=`curl ipv4.icanhazip.com 2>/dev/null` -F "fileshare" '{print "wget "ip":8999"$2}'
 }
 fIPinfo(){
 curl https://ip.cn/index/php?ip=$1
 }
 alias g=fg
 alias gg=fgg
-alias IP="curl icanhazip.com 2>/dev/null"
+alias IP="curl ipv4.icanhazip.com 2>/dev/null"
 alias IPa=fIPinfo
 
 # unrar解压快捷方式定义

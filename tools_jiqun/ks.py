@@ -11,7 +11,6 @@
 """"""
 
 import os
-import sys
 import argparse
 
 
@@ -36,18 +35,22 @@ def fargv():
                         help='是否使用去除该进程的父进程，只遍历其下子进程')
     parser.add_argument('-s', '--sigle', type=int, default=-1,
                         help='kill发送的信号值，默认不指定(系统默认为15)')
+    parser.add_argument('-u', '--user', type=str, default="x",
+                        help='查看谁的进程，默认为当前用户')
     args = parser.parse_args()
     # print(args)
     return args.__dict__
 
 
 def fmain(keyword, view=False, all=False, children=False,
-          sigle=-1, return_mode=False,
-          xjf=os.popen('ps xjf').read()):
+          sigle=-1, return_mode=False, user="x",
+          CMD=None):
+    user = "-u " + user if user != "x" else user
+    CMD = os.popen('ps %s jf' % user).read() if not CMD else CMD
     Llines = []
     S_PGID = set()
     S_PID = set()
-    for NUM, line in enumerate(xjf.strip().split('\n'), start=1):
+    for NUM, line in enumerate(CMD.strip().split('\n'), start=1):
         Lline = line.strip().split()
         # print(Lline)
         Llines.append([Lline[2], Lline[1], line, NUM])
@@ -70,13 +73,13 @@ def fmain(keyword, view=False, all=False, children=False,
         print('WARNING: 未搜索到相关进程.')
         return ""
     Lresult = sorted(Lresult, key=lambda x: x[-1])
-    xjf = '\n'.join([x[0] for x in Lresult])
+    CMD = '\n'.join([x[0] for x in Lresult])
     if return_mode:
-        return xjf
-    os.system('echo -e "%s"|less -S' % xjf)
+        return CMD
+    os.system('echo -e "%s"|less -S' % CMD)
     if view:
         return
-    os.system('echo -e "%s"' % xjf)
+    os.system('echo -e "%s"' % CMD)
     if sigle == -1:
         print('准备使用`kill PIDs`命令杀死以下PID的进程')
         print(Lpid)

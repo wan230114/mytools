@@ -9,6 +9,7 @@
 
 import os
 import sys
+import re
 import datetime
 import time
 import ks
@@ -25,14 +26,16 @@ def fargv():
                 ))
     parser.add_argument('keyword', type=str,
                         help=('输入需要操作的sjm语法文件'))
-    parser.add_argument('-s', '--speed', type=int, default=1,
-                        help='监控的时间间隔，秒为单位，默认为1')
+    parser.add_argument('-s', '--speed', type=int, default=2,
+                        help='监控的时间间隔，秒为单位，默认为2')
+    parser.add_argument('-u', '--user', type=str, default="x",
+                        help='查看谁的进程，默认为当前用户')
     args = parser.parse_args()
     # print(args)
     return args.__dict__
 
 
-def fmain(keyword, speed=1):
+def fmain(keyword, speed=1, user="x"):
     time_start = datetime.datetime.now()
     ps_info_old = "STAT: moni start\n"
     L_ps_info = []
@@ -44,15 +47,16 @@ def fmain(keyword, speed=1):
             print('耗时:', time_spend)  # 耗时: 0:00:01.003083
             break
         # 截取字符串进行判断
-        xjf = os.popen('ps xjf').read()
-        ps_info = ks.fmain(keyword, return_mode=True, xjf=xjf).strip()
+        ps_info = ks.fmain(keyword, return_mode=True, user=user).strip()
         if not ps_info:
             print("ps_info is None.")
             ps_info_old = ps_info
             continue
         L_ps_info.clear()
         for line in ps_info.split('\n'):
-            L_ps_info.append(line.split(maxsplit=9)[-1])
+            result = line.split(maxsplit=8)[-1]
+            result = re.findall(" .*", result)[0]
+            L_ps_info.append(result)
         ps_info = '\n'.join(L_ps_info)
         # print(ps_info)
         # os.popen("ks -v %s|cat" % keyword).read()

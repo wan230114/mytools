@@ -26,7 +26,8 @@ def fargv():
     parser.add_argument('-fo', type=str,
                         help='输出文件的名字')
     parser.add_argument('--keep', action='store_true',
-                        help='默认False，是否按照第一个文件的相应列顺序输出，此模式下不合并相同行。与alone、showlost参数不能并存')
+                        help='默认False，是否按照第一个文件的相应列顺序输出，'
+                             '此模式下不合并相同行。与alone、showlost参数不能并存')
     parser.add_argument('--alone', action='store_true',
                         help='默认False，是否跳过相同键值，若是则只保留第一个出现的键值')
     parser.add_argument('--showlost', action='store_true',
@@ -34,8 +35,8 @@ def fargv():
     parser.add_argument('--include', action='store_true',
                         help='默认False，是否使用包含匹配模式，\
                         既当无法全等匹配时，采用包含模式去匹配（一个部分包含于另一个）')
-    parser.add_argument('--sep', type=str, default=' ',
-                        help='定义相同键合并时使用的符号，默认为空格')
+    parser.add_argument('--sep', type=str, default=';',
+                        help='定义相同键合并时使用的符号，默认为;')
     args = parser.parse_args()
     Largs = [args.f1, args.f2, args.fo, args.keep,
              args.alone, args.showlost, args.sep]
