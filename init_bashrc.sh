@@ -7,7 +7,7 @@ if [ "$1" == "-p" ]; then
     file=/dev/stdout
 else
     file=~/.bashrc
-    cp -ir ./bashrc/.*rc ~/
+    ls ./bashrc/.* -d|sed 1,2d|xargs -i cp -ir {} ~/
 fi
 
 echo >>$file

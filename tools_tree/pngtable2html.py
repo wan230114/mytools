@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import sys
 
 finame, foname = sys.argv[1:3]
@@ -9,7 +11,7 @@ header = """<!DOCTYPE html>
 <html>
 
 <head>
-    <title>YJ</title>
+    <title>table</title>
     <style>
         table {
             text-align: left;
@@ -20,10 +22,15 @@ header = """<!DOCTYPE html>
         }
 
         td {
-            width: 300px;
+            width: 500px;
             border-width: 1px;
             border-style: dashed;
-            valign: top
+            word-wrap:break-word;
+            word-break:break-all;
+            font-size:14px;
+            font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+            color: #605d5d;
+            valign: top;
         }
 
         img {
@@ -51,7 +58,8 @@ with open(foname, 'w') as fo:
                 if x.endswith(".png"):
                     fo.write('  <td><p>%s</p><img src="%s" /></td>' % (x, x))
                 elif x.endswith(".svg"):
-                    fo.write('  <td><p>%s</p><object data="%s" type="image/svg+xml"></object></td>' % (x, x))
+                    fo.write(
+                        '  <td><p>%s</p><object data="%s" type="image/svg+xml"></object></td>' % (x, x))
             fo.write("</tr>\n")
             table_in = 1
-    fo.write("</table></body>")
+    fo.write("</table>\n</body>")

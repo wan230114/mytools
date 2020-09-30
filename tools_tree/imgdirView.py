@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author: ChenJun
 # @Email:  chenjun4663@novogene.com
@@ -26,6 +27,8 @@ def fargv():
                         help='输入后缀名，末尾只能以png,pdf,svg结束，可以包含多个字符如 tre.png , option.tre.pdf , ')
     parser.add_argument('-v', '--reverse', type=str, default=[], nargs='*',
                         help='排除不想要的文件名，可依次增加多个条件，类似于grep -v用法')
+    parser.add_argument('-c', '--clean', action='store_true', default=False,
+                        help='是否只生成html而不压缩')
     args = parser.parse_args()
     if args.houzui[-3:] not in ["png", "pdf", "svg"]:
         print('请检查输入文件后缀名')
@@ -35,10 +38,10 @@ def fargv():
     print("--------------------------")
     print("输入参数是:\n1、输入文件夹: %s\n2、过滤文件后缀名: %s\n3、排除的文件名：%s" % Targs)
     print("--------------------------\n")
-    return Targs[0], Targs[1], args.reverse
+    return Targs[0], Targs[1], args.reverse, args.clean
 
 
-def fmain(fidirraw, houzui, reverse=[]):
+def fmain(fidirraw, houzui, reverse=[], clean=False):
     softpath = os.path.split(os.path.realpath(__file__))[0]
     if not os.path.isdir(fidirraw):
         print('%s 文件夹不存在' % fidirraw)
@@ -65,7 +68,7 @@ def fmain(fidirraw, houzui, reverse=[]):
         L = sorted(S)
     else:
         L = sorted([x for x in L if x.endswith(houzui)])
-    [print(x) for x in L]
+    print(*L, sep='\n')
     print('过滤到%s个文件' % len(L))
     Dfile = {'pdf': 'mod-pdf.html',
              'png': 'mod-png.html',
@@ -102,27 +105,27 @@ def fmain(fidirraw, houzui, reverse=[]):
                       '        find %s -type f -name "*"|xargs zip %s.zip %s\n' % (
                           fidir, fidir, foname),
                       '    模式其他：预自定义操作，请按Enter或输入其他任意字符退出\n\n请输入数字进行模式选择(1/2/3): '])
-    try:
-        mond = input(sinput).strip()
-    except Exception:
-        mond = ''
-    if mond == "1":
-        os.system('zip %s.zip %s %s' % (fidir, foname, ' '.join(L)))
-    if mond == "2":
-        os.system('find -L %s -type f -name "*"|xargs zip %s.zip %s' %
-                  (fidir, foname, foname))
-    if mond == "3":
-        os.system('find %s -type f -name "*"|xargs zip %s.zip %s' %
-                  (fidir, foname, foname))
-    print('\n请下载文件于本地查看: %s.zip' % fidir)
+    if not clean:
+        try:
+            mond = input(sinput).strip()
+        except Exception:
+            mond = ''
+        if mond == "1":
+            os.system('zip %s.zip %s %s' % (fidir, foname, ' '.join(L)))
+        if mond == "2":
+            os.system('find -L %s -type f -name "*"|xargs zip %s.zip %s' %
+                      (fidir, foname, foname))
+        if mond == "3":
+            os.system('find %s -type f -name "*"|xargs zip %s.zip %s' %
+                      (fidir, foname, foname))
+        print('\n请下载文件于本地查看: %s.zip' % fidir)
     print('\nThank you for using imgdirView.py.')
 
 
 def main():
     # sys.argv = ['', '1', 'pdf']
     # fidir, houzui = sys.argv[1:3]
-    fidir, houzui, reverse = fargv()
-    fmain(fidir, houzui, reverse)
+    fmain(*fargv())
 
 
 if __name__ == '__main__':
