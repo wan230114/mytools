@@ -52,9 +52,9 @@ find ./ -name "*$@*"
 }
 alias ff=ff_function
 
-#alias cp="cp -i"
-alias mv="mv -i"
-#alias rm="rm -i"
+#alias cp="cp -iv"
+alias mv="mv -iv"
+#alias rm="rm -iv"
 
 #####################################################
 #################### mynote #########################
