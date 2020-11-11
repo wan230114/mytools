@@ -14,6 +14,8 @@ def fargv():
                         help=('table需要实现的功能, T为转置'))
     parser.add_argument('-i', '--inputpath', type=str, default='',
                         help='选择从文件读入，默认从标准输出读入')
+    parser.add_argument('-F', '--field_separator', type=str, default=None,
+                        help='选择分隔符，默认为string.whitespace')
     # parser.add_argument('-t', '--title', action='store_true',
     #                     default=False,
     #                     help='是否')
@@ -22,15 +24,13 @@ def fargv():
     return args.__dict__
 
 
-def do(line, Lline):
-    try:
-        line = line.decode('utf8')
-    except UnicodeDecodeError:
-        line = line.decode('gbk')
-    Lline.append(line.strip(os.linesep).split("\t"))
-
-
-def fmain(func, inputpath):
+def fmain(func, inputpath, field_separator):
+    def do(line, Lline):
+        try:
+            line = line.decode('utf8')
+        except UnicodeDecodeError:
+            line = line.decode('gbk')
+        Lline.append(line.strip(os.linesep).split(field_separator))
     Lline = []
     if not inputpath:
         while True:
