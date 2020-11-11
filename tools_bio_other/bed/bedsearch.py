@@ -9,6 +9,10 @@ s1   e1       s2    e2      s3    e3
 1. 二分法查找所有起始位置，定位最后一个上游区块，如L1和L2都定位到s1-e1所在参考
 2. 判断是否在参考区域内。终点是否是小于该区域，如L1小于e1。结束判断，注释为gene1基因。但L2结束大于e1，继续下面判断
 3. 判断L2开始与上一个区块结束距离，L2结束与下一区块开始距离。谁近则以谁作为临近注释基因。如L2注释到gene2
+
+BUG待修复:
+
+NWD2未注释到
 """
 
 
@@ -172,8 +176,8 @@ def fmain(inputfile, ref, outfile, spacing, print_all):
 def main():
     # sys.argv = '.py -pa -s 100000,100000 -r bedsearch.py--test/ref.bed bedsearch.py--test/in.bed'.split()
     # sys.argv = ('.py -s 100000,100000 '
-    #             '-r protein_coding.v32.position.bed'
-    #             ' in2.bed').split()
+    #             '-r bedsearch.py--test/protein_coding.v32.position'
+    #             ' bedsearch.py--test/DYQ-HCT116_peaks_lncRNA.bed').split()
     args = fargv()
     # print(*list(args.keys()), sep=", ")
     # print(*list(args.values()), sep=", ")
