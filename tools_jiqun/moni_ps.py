@@ -26,7 +26,7 @@ def fargv():
                 ))
     parser.add_argument('keyword', type=str,
                         help=('输入需要操作的sjm语法文件'))
-    parser.add_argument('-s', '--speed', type=int, default=2,
+    parser.add_argument('-s', '--speed', type=float, default=2,
                         help='监控的时间间隔，秒为单位，默认为2')
     parser.add_argument('-u', '--user', type=str, default="x",
                         help='查看谁的进程，默认为当前用户')
@@ -39,6 +39,7 @@ def fmain(keyword, speed=1, user="x"):
     time_start = datetime.datetime.now()
     ps_info_old = "STAT: moni start\n"
     L_ps_info = []
+    CMD = 'ps %s jf|grep -v moni_ps' % user
     while True:
         # 判断结束
         if not ps_info_old:
@@ -47,7 +48,8 @@ def fmain(keyword, speed=1, user="x"):
             print('耗时:', time_spend)  # 耗时: 0:00:01.003083
             break
         # 截取字符串进行判断
-        ps_info = ks.fmain(keyword, return_mode=True, user=user).strip()
+        ps_info = ks.fmain(keyword, return_mode=True,
+                           user=user, CMD=CMD).strip()
         if not ps_info:
             print("ps_info is None.")
             ps_info_old = ps_info
