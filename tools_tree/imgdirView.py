@@ -25,8 +25,10 @@ def fargv():
                         help='输入需要可视化的文件夹名，当前文件夹')
     parser.add_argument('houzui', type=str,
                         help='输入后缀名，末尾只能以png,pdf,svg结束，可以包含多个字符如 tre.png , option.tre.pdf , ')
-    parser.add_argument('-v', '--reverse', type=str, default=[], nargs='*',
-                        help='排除不想要的文件名，可依次增加多个条件，类似于grep -v用法')
+    parser.add_argument('-f', '--filter', type=str, default=[], nargs='*',
+                        help='增加想要的文件名，可依次增加多个条件，类似于grep -v用法')
+    parser.add_argument('-v', '--remove', type=str, default=[], nargs='*',
+                        help='排除不想要的文件名，可依次增加多个条件，类似于grep -v用法（此方法一定存在于f之后）')
     parser.add_argument('-c', '--clean', action='store_true', default=False,
                         help='是否只生成html而不压缩')
     args = parser.parse_args()
@@ -34,40 +36,47 @@ def fargv():
         print('请检查输入文件后缀名')
         parser.parse_args(['', '--help'])
         sys.exit()
-    Targs = (args.fidir, args.houzui, ', '.join(args.reverse))
     print("--------------------------")
-    print("输入参数是:\n1、输入文件夹: %s\n2、过滤文件后缀名: %s\n3、排除的文件名：%s" % Targs)
+    print(f"输入参数是:\n1、输入文件夹: {args.fidir}\n"
+          f"2、过滤文件后缀名: {args.houzui}\n"
+          f"3、筛选的文件名：{args.filter}\n"
+          f"4、排除的文件名：{args.remove}")
     print("--------------------------\n")
-    return Targs[0], Targs[1], args.reverse, args.clean
+    return args.__dict__
 
 
-def fmain(fidirraw, houzui, reverse=[], clean=False):
+def fmain(fidir, houzui, filter=[], remove=[], clean=False):
     softpath = os.path.split(os.path.realpath(__file__))[0]
-    if not os.path.isdir(fidirraw):
-        print('%s 文件夹不存在' % fidirraw)
+    if not os.path.isdir(fidir):
+        print('%s 文件夹不存在' % fidir)
         sys.exit()
-    fidir = fidirraw.rstrip(os.sep).split(os.sep)[-1]
+    fidir = fidir.rstrip(os.sep).split(os.sep)[-1]
     # L = os.listdir(fidir)
     L = []
     for p, d, f in os.walk(fidir):
         for ff in f:
             L.append(os.path.join('.', p, ff))
-    if reverse:
-        L = [x for x in L if x.endswith(houzui)]
+    L = [x for x in L if x.endswith(houzui)]
+    if filter:
         S = set()
         for x in L:
-            if x.endswith(houzui):
-                p = 0
-                for xx in reverse:
-                    # print(xx not in x, xx, x)
-                    if xx in x:
-                        p = 1
-                        break
-                if p == 0:
+            for f in filter:
+                if f in x:
                     S.add(x)
         L = sorted(S)
-    else:
-        L = sorted([x for x in L if x.endswith(houzui)])
+    if remove:
+        S = set()
+        for x in L:
+            p = 0
+            print(remove)
+            for r in remove:
+                # print(r not in x, r, x)
+                if r in x:
+                    p = 1
+                    break
+            if p == 0:
+                S.add(x)
+        L = sorted(S)
     print(*L, sep='\n')
     print('过滤到%s个文件' % len(L))
     Dfile = {'pdf': 'mod-pdf.html',
@@ -125,7 +134,7 @@ def fmain(fidirraw, houzui, reverse=[], clean=False):
 def main():
     # sys.argv = ['', '1', 'pdf']
     # fidir, houzui = sys.argv[1:3]
-    fmain(*fargv())
+    fmain(**fargv())
 
 
 if __name__ == '__main__':
