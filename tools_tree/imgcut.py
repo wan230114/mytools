@@ -144,7 +144,7 @@ def main():
         # print(Lfiles)
         Lfiles = [x for x in Lfiles if x.endswith('%s' % houzui)]
         # print(Lfiles)
-        p = Pool(20)
+        p = Pool(5)
         for i, fi in enumerate(Lfiles, start=1):
             if isbak:
                 fo = fi + '.cut' + re.findall('\.[A-Za-z]*?$', fi)[0]

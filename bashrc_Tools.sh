@@ -94,9 +94,9 @@ pwdfile(){
 alias f=pwdfile  # 用于返回当前文件夹某文件或目录的路径, f [file/dir] [file/dir]...
 realpath_func(){
     if [ "`echo $@`" ]; then
-        for idx in $(seq $#); do eval realpath "$"$idx; done
+        for idx in $(seq $#); do eval "realpath \${$idx}"; done
     else
-        ls -trd *|xargs -i realpath {}
+        if [ "`ls|wc -l`" -gt "0" ] ;then ls -trd *|xargs -i realpath {};fi
     fi
 }
 alias r="realpath_func "

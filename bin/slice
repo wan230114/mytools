@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+
+"""
+开发状态：未完成
+"""
+
+import sys
+import argparse
+
+
+def fargv():
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description='本程序用于对文件进行切片操作',
+        epilog=('注意事项：\n'
+                '    无'))
+    parser.add_argument('-i', '--inputpath', type=str, default=False,
+                        help=('输入需要切片的文件'))
+    parser.add_argument('--code', type=str, default="utf8",
+                        help=('定义输入流的编码'))
+    args = parser.parse_args()
+    # print(args.__dict__)
+    return args.__dict__
+
+
+def fmain(inputpath, code):
+    if not inputpath:
+        while True:
+            line = sys.stdin.buffer.readline()
+            if not line:
+                break
+            line = line.decode(code)
+    else:
+        with open(inputpath, 'rb') as fi:
+            for line in fi:
+                if not line.strip():
+                    continue
+                do(line, num, rep, sep)
+
+
+def main():
+    # sys.argv = ['', '-h']
+    # sys.argv = ['', 'deal-result-saopan/result/TJNAS_Plant_10M', '2', '--rep']
+    # sys.argv = ['', 'deal-result-saopan/result/TJNAS_Plant_10M', '2']
+    # sys.argv = ['', '-i', 'deal-result-saopan/result/TJNAS_Plant_10M', '-n', '2', '--rep']
+    args = fargv()
+    # print(*list(args.keys()), sep=", ")
+    fmain(**args)
+
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,61 @@
+#!/usr/bin/env python3
+import sys
+import argparse
+import os
+
+
+def fargv():
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description='本程序用于转置文件',
+        epilog=('注意事项：\n'
+                '    无'))
+    parser.add_argument('func', type=str, default=False,
+                        help=('table需要实现的功能, T为转置'))
+    parser.add_argument('-i', '--inputpath', type=str, default='',
+                        help='选择从文件读入，默认从标准输出读入')
+    parser.add_argument('-F', '--field_separator', type=str, default=None,
+                        help='选择分隔符，默认为string.whitespace')
+    # parser.add_argument('-t', '--title', action='store_true',
+    #                     default=False,
+    #                     help='是否')
+    args = parser.parse_args()
+    # print(args.__dict__)
+    return args.__dict__
+
+
+def fmain(func, inputpath, field_separator):
+    def do(line, Lline):
+        try:
+            line = line.decode('utf8')
+        except UnicodeDecodeError:
+            line = line.decode('gbk')
+        Lline.append(line.strip(os.linesep).split(field_separator))
+    Lline = []
+    if not inputpath:
+        while True:
+            line = sys.stdin.buffer.readline()
+            if not line:
+                break
+            do(line, Lline)
+    else:
+        with open(inputpath, 'rb') as fi:
+            for line in fi:
+                if not line.strip():
+                    continue
+                do(line, Lline)
+    if func == "T":
+        Lline = list(zip(*Lline))
+        for line in Lline:
+            print(*line, sep="\t")
+
+
+def main():
+    # sys.argv = ['', '-h']
+    args = fargv()
+    # print(*list(args.keys()), sep=", ")
+    fmain(**args)
+
+
+if __name__ == '__main__':
+    main()

@@ -46,11 +46,12 @@ def fmain(keyword, view=False, all=False, children=False,
           sigle=-1, return_mode=False, user="x",
           CMD=None):
     user = "-u " + user if user != "x" else user
-    CMD = os.popen('ps %s jf' % user).read() if not CMD else CMD
+    CMD = 'ps %s jf' % user if not CMD else CMD
+    CMD_res = os.popen(CMD).read()
     Llines = []
     S_PGID = set()
     S_PID = set()
-    for NUM, line in enumerate(CMD.strip().split('\n'), start=1):
+    for NUM, line in enumerate(CMD_res.strip().split('\n'), start=1):
         Lline = line.strip().split()
         # print(Lline)
         Llines.append([Lline[2], Lline[1], line, NUM])
@@ -73,13 +74,13 @@ def fmain(keyword, view=False, all=False, children=False,
         print('WARNING: 未搜索到相关进程.')
         return ""
     Lresult = sorted(Lresult, key=lambda x: x[-1])
-    CMD = '\n'.join([x[0] for x in Lresult])
+    CMD_res = '\n'.join([x[0] for x in Lresult])
     if return_mode:
-        return CMD
-    os.system('echo -e "%s"|less -S' % CMD)
+        return CMD_res
+    os.system('echo -e "%s"|less -S' % CMD_res)
     if view:
         return
-    os.system('echo -e "%s"' % CMD)
+    os.system('echo -e "%s"' % CMD_res)
     if sigle == -1:
         print('准备使用`kill PIDs`命令杀死以下PID的进程')
         print(Lpid)
