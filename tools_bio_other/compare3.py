@@ -10,9 +10,10 @@ from matplotlib_venn import venn3
 # fi1_name, fi2_name = "merge_H3K27me3_YJ-A549-3-0uM--VS--YJ-A549-NC_filter_DOWN.genelist", "merge_H3K27me3_YJ-3-0--VS--YJ-NC_filter_DOWN.genelist"
 fi1_name, fi2_name, fi3_name = sys.argv[1:4]
 # fi1_name, fi2_name, fi3_name = ['A', 'B', 'C']
-out1 = os.path.splitext(os.path.basename(fi1_name))[0]
-out2 = os.path.splitext(os.path.basename(fi2_name))[0]
-out3 = os.path.splitext(os.path.basename(fi3_name))[0]
+out1, out2, out3 = fi1_name, fi2_name, fi3_name
+# out1 = os.path.splitext(os.path.basename(fi1_name))[0]
+# out2 = os.path.splitext(os.path.basename(fi2_name))[0]
+# out3 = os.path.splitext(os.path.basename(fi3_name))[0]
 
 Outname = out1 + '--VS--' + out2 + '--VS--' + out3
 

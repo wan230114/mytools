@@ -42,7 +42,7 @@ def main():
         else:
             x = int(sys.argv[1])
 
-    print('> 正在获取当前文件夹所有文件路径...')
+    print('> \n正在获取当前文件夹所有文件路径...')
     t0 = time.time()
     # s_files = os.popen("""find -L ./ -type f |cat|awk '!/.\/md5.txt/'|sort""").read()
     s_files = os.popen("""find -L ./ -type f|cat|awk '!/.\/md5.txt/'|awk '!/.\/checkSize.xls/'""").read()
@@ -50,7 +50,16 @@ def main():
     Lfiles = s_files.strip().split('\n')
     print('获取结束，耗时%s秒' % (time.time() - t0))
 
-    print('> 正在以 %s 进程 计算所有文件的md5值...' % x)
+    print('> \n正在获取文件夹大小...')
+    t0 = time.time()
+    with open('checkSize.xls', 'w') as fo:
+        # fo.write(
+        #     '\t'.join([str(os.path.getsize('./md5.txt')), './md5.txt']) + '\n')
+        for path in Lfiles:
+            fo.write('\t'.join([str(os.path.getsize(path)), path]) + '\n')
+    print('获取结束，耗时%s秒' % (time.time() - t0))
+
+    print('> \n正在以 %s 进程 计算所有文件的md5值...' % x)
     t0 = time.time()
     p = Pool(x)
     for path in Lfiles:
@@ -60,15 +69,7 @@ def main():
     p.join()
     print('计算结束，耗时%s秒' % (time.time() - t0))
 
-    print('> 正在获取文件夹大小...')
-    t0 = time.time()
-    with open('checkSize.xls', 'w') as fo:
-        fo.write('\t'.join([str(os.path.getsize('./md5.txt')), './md5.txt']) + '\n')
-        for path in Lfiles:
-            fo.write('\t'.join([str(os.path.getsize(path)), path]) + '\n')
-    print('获取结束，耗时%s秒' % (time.time() - t0))
-
-    print('> 正在对md5.txt、checkSize.xls进行排序...')
+    print('> \n正在对md5.txt、checkSize.xls进行排序...')
     t0 = time.time()
     os.system('sort -k2 md5.txt -o md5.txt')
     os.system('sort -k2 checkSize.xls -o checkSize.xls')

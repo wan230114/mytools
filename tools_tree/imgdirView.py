@@ -56,7 +56,7 @@ def fmain(fidir, houzui, filter=[], remove=[], clean=False):
     for p, d, f in os.walk(fidir):
         for ff in f:
             L.append(os.path.join('.', p, ff))
-    L = [x for x in L if x.endswith(houzui)]
+    L = sorted([x for x in L if x.endswith(houzui)])
     if filter:
         S = set()
         for x in L:

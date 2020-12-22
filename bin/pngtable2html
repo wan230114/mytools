@@ -1,0 +1,1 @@
+pngtable2html.py <(echo $@|sed 's# #\t#g') /dev/stdout|sed 1,48d

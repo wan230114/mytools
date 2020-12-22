@@ -1,22 +1,36 @@
 #!/usr/bin/env python3
 
-## ref: https://zhuanlan.zhihu.com/p/102742847
+# ref: https://zhuanlan.zhihu.com/p/102742847
 # pip install fitz
 # pip install PyMuPDF
 
-
-import fitz
-import sys
-import os
-
-'''
+"""
 # 将PDF转化为图片
 pdfPath pdf文件的路径
 imgPath 图像要保存的文件夹
 zoom_x x方向的缩放系数
 zoom_y y方向的缩放系数
 rotation_angle 旋转角度
-'''
+"""
+
+
+import fitz
+import sys
+import os
+# import argparse
+
+
+# def args():
+#     if len(sys.argv) == 1:
+#         sys.argv = ["", "-h"]
+#     parser = argparse.ArgumentParser(description=('TargetScan7.0注释（human）'))
+#     group = parser.add_mutually_exclusive_group()
+#     group.add_argument('-i', '--inputfile', type=str, default=None,
+#                        help=('输入文件'))
+#     group.add_argument('-ID', '--mirID', type=str, default=None,
+#                        help=('输入文件'))
+#     args = parser.parse_args()
+#     return args
 
 
 def pdf_image(pdfPath, imgPath, zoom_x, zoom_y, rotation_angle):
@@ -34,7 +48,8 @@ def pdf_image(pdfPath, imgPath, zoom_x, zoom_y, rotation_angle):
     pdf.close()
 
 
-file = os.path.abspath(sys.argv[1])
-outpre = os.path.splitext(file)[0]
-print('in :', file, '\nout:', outpre)
-pdf_image(file, outpre, 5, 5, 0)
+if __name__ == "__main__":
+    file = os.path.abspath(sys.argv[1])
+    outpre = os.path.splitext(file)[0]
+    print('in :', file, '\nout:', outpre)
+    pdf_image(file, outpre, 5, 5, 0)

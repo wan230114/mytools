@@ -13,7 +13,20 @@ header = """<!DOCTYPE html>
 <head>
     <title>table</title>
     <style>
+        p {
+            margin: 0 0 10.5px;
+            display: block;
+            margin-block-start: 0.3em;
+            margin-block-end: 1em;
+            margin-inline-start: 0px;
+            margin-inline-end: 0px;
+        }
+
         table {
+            border-collapse: collapse;
+            min-width: 450px;
+            font-size: 12px;
+            border-spacing: 0;
             text-align: left;
             /* width: 1000px; */
             border-width: 1px;
@@ -22,14 +35,17 @@ header = """<!DOCTYPE html>
         }
 
         td {
+            padding: 5px 10px;
+            font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+            vertical-align: top;
             width: 500px;
             border-width: 1px;
-            border-style: dashed;
+            /* border-style: dashed; */
             word-wrap:break-word;
             word-break:break-all;
             font-size:14px;
-            font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-            color: #605d5d;
+            color: #434242;
+            /* color: #605d5d; */
             valign: top;
         }
 

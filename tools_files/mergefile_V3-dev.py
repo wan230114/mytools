@@ -1,13 +1,30 @@
-# -*- coding: utf-8 -*-
-# @Author: ChenJun
-# @Email:  chenjun4663@novogene.com
-# @Qmail:  1170101471@qq.com
-# @Date:   2019-03-01 14:30:22
-# @Last Modified by:   JUN
-# @Last Modified time: 2019-06-03 11:30:10
+#!/usr/bin/env python3
+# -*- coding:utf-8 -*-
 
+#############################################
+# @ Author: Chen Jun
+# @ Author Email: 1170101471@qq.com
+# @ Created Date: 2019-03-01 14:30:22
+# @ Modified By: Chen Jun
+# @ Last Modified: 2020-11-13, 16:09:16
+#############################################
 
-# 处理意外：当匹配的列有空值时如何处理
+"""
+!参数设置:
+mergefile_V2.py
+    -f1 文件1 数字/列名  （如此设计，万一列名是数字如何区分呢？）
+    -f2 文件2 数字/列名
+    [-fo FO]
+    [--keep]
+    [--alone]
+    [--showlost]
+    [--include]
+    [--sep SEP]
+
+!BUG修复:
+  * 处理意外：当匹配的列有空值时如何处理
+
+"""
 
 
 import sys
