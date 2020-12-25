@@ -7,7 +7,7 @@ if [ "$1" == "-p" ]; then
     file=/dev/stdout
 else
     file=~/.bashrc
-    ls ./bashrc/.* -d|sed 1,2d|xargs -i cp -ir {} ~/
+    ls ./bashrc/.* -d|sed 1,2d|while read x; do if [ -e "$x" ];then echo Passed cp $x ; else cp -ir $x ~/;fi;  done
 fi
 
 echo >>$file

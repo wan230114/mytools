@@ -48,8 +48,12 @@ def pdf_image(pdfPath, imgPath, zoom_x, zoom_y, rotation_angle):
     pdf.close()
 
 
-if __name__ == "__main__":
-    file = os.path.abspath(sys.argv[1])
+def main(file):
     outpre = os.path.splitext(file)[0]
     print('in :', file, '\nout:', outpre)
     pdf_image(file, outpre, 5, 5, 0)
+
+
+if __name__ == "__main__":
+    file = os.path.abspath(sys.argv[1])
+    main(file)
