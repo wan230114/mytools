@@ -26,6 +26,11 @@ if sys.version[0] == '2':
     sys.setdefaultencoding('utf-8')
 
 
+def printM(file, *args, **kwargs):
+    print(*args, **kwargs)
+    print(*args, **kwargs, file=file)
+
+
 class fas():
     '''--help：
     fas功能：
@@ -49,8 +54,7 @@ class fas():
             python fas.py [--help]
 
     快捷设置:
-        alias fas='python /ifs/TJPROJ3/Plant/chenjun/mytools/fas.py'
-        alias fas='python /NJPROJ2/Plant/chenjun/mytools/fas.py'
+        alias fas='python /.../mytools/fas.py'
 
     注意事项:
         1.-y详情模式统计较久，若基因组过大，请投递运行

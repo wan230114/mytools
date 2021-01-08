@@ -1,1 +1,1 @@
-find ./ -type f -name "*pdf"|xargs -i pdf2png {}
+../tools_tree/pdf2png/pdf2png_all.py

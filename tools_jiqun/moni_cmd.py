@@ -13,39 +13,31 @@ import re
 import datetime
 import time
 import ks
-import moni_free
-from multiprocessing import Process, Array
 import argparse
 
 
 def fargv():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description=('“moni_ps” ———— 进程树监控器 \n  使用keyword找寻关键字的SGID所包含的父子进程'
+        description=('“moni_cmd” ———— 命令标准输出监控器 \n  '
                      ),
         epilog=('说明：\n'
                 '  谨慎使用'
                 ))
-    parser.add_argument('keyword', type=str,
+    parser.add_argument('CMD', type=str,
                         help=('输入需要操作的sjm语法文件'))
     parser.add_argument('-s', '--speed', type=float, default=2,
-                        help='监控的时间间隔，秒为单位，默认为2')
-    parser.add_argument('-u', '--user', type=str, default="x",
-                        help='查看谁的进程，默认为当前用户')
+                        help='监控的时间间隔，秒为单位，默认为5')
+    parser.add_argument('--endtime', type=float, default=1,
+                        help='指定结束时间，单位h，默认1h')
     args = parser.parse_args()
     # print(args)
     return args.__dict__
 
 
-def fmain(keyword, speed=1, user="x"):
+def fmain(CMD, speed=5, endtime=1):
     time_start = datetime.datetime.now()
     ps_info_old = "STAT: moni start\n"
-    shm = Array('i', [0])
-    p = Process(target=moni_free.moni_free,
-                args=(shm, 10, keyword + ".moni.log"))
-    p.start()
-    L_ps_info = []
-    CMD = 'ps %s jf|grep -v moni_ps' % user
     while True:
         # 判断结束
         if not ps_info_old:
@@ -54,28 +46,13 @@ def fmain(keyword, speed=1, user="x"):
             print('耗时:', time_spend)  # 耗时: 0:00:01.003083
             break
         # 截取字符串进行判断
-        ps_info = ks.fmain(keyword, return_mode=True,
-                           user=user, CMD=CMD).strip()
-        if not ps_info:
-            print("ps_info is None.")
-            ps_info_old = ps_info
-            continue
-        L_ps_info.clear()
-        for line in ps_info.split('\n'):
-            result = line.split(maxsplit=8)[-1]
-            result = re.findall(" .*", result)[0]
-            L_ps_info.append(result)
-        ps_info = '\n'.join(L_ps_info)
-        # print(ps_info)
-        # os.popen("ks -v %s|cat" % keyword).read()
+        ps_info = os.popen(CMD).read()
         if ps_info != ps_info_old:
             print(time.strftime(
                 "\n[Now_time] : %Y-%m-%d %H:%M:%S", time.localtime()))
             print(ps_info)
         ps_info_old = ps_info
         time.sleep(speed)
-    shm[0] = 1
-    p.join()
 
 
 def main():

@@ -79,7 +79,7 @@ alias fas="python3 ${tools_path}/tools_fasta/fas.py"  # 碱基统计
 ###  日常工具  ###
 # 发送邮件。可在搜狗输入法将邮箱等常用短语自定义添加，如输入qqqq会默认把邮箱放在输入法第一位。设置在: 搜狗输入法-->高级-->候选拓展-->自定义短语
 #alias pywget="python3 ${tools_path}/tools_jiqun/pywget_file-client.py"
-alias view="python3 ${tools_path}/tools_tree/imgdirView.py"  # 网页可视化文件夹svg,png,pdf
+#alias view="python3 ${tools_path}/tools_tree/imgdirView.py"  # 网页可视化文件夹svg,png,pdf
 alias rep="python ${tools_path}/tools_files/rep_v2.py"  # 替换工具
 alias ccut="python3 ${tools_path}/tools_files/ccut.py" # 补全cut不能去除末尾倒数多少列的问题，未开发完毕
 

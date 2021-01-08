@@ -55,5 +55,11 @@ def main(file):
 
 
 if __name__ == "__main__":
-    file = os.path.abspath(sys.argv[1])
-    main(file)
+    for path in sys.argv[1:]:
+        if os.path.isfile(path):
+            main(os.path.abspath(path))
+        elif os.path.isdir(path):
+            for x in [os.path.join(root, file)
+                      for root, dirs, files in os.walk(path)
+                      for file in files if file.endswith("pdf")]:
+                main(os.path.abspath(x))
