@@ -98,7 +98,8 @@ alias ca="${tools_path}/Shell/common/ccat "
 # 用于返回当前文件(夹)绝对路径
 pwdfile(){
 	if [ "`echo $@`" ]; then
-		for idx in $(seq $#); do eval echo `pwd`/"$"$idx; done
+		#for idx in $(seq $#); do eval echo `pwd`/"$"$idx; done
+		ls -trd $@|xargs -i echo `pwd`/{}
 	else
 		ls -trd *|xargs -i echo `pwd`/{}
 	fi

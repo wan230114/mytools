@@ -6,7 +6,7 @@
 # @ Author Email: 1170101471@qq.com
 # @ Created Date: 2020-11-19, 09:41:10
 # @ Modified By: Chen Jun
-# @ Last Modified: 2020-11-21, 00:23:01
+# @ Last Modified: 2021-01-11, 18:08:06
 #############################################
 
 # https://biopython-cn.readthedocs.io/zh_CN/latest/cn/chr09.html
@@ -38,9 +38,15 @@ def do(NM, fo=sys.stdout):
         except Exception as e:
             print("ERRO:", e)
             time.sleep(1)
-    res_title_id = re.findall(r"\((.*?)\)", res_title)
+    # Homo sapiens fucosyltransferase 1 (H blood group) (FUT1), transcript variant 1, mRNA
+    # Homo sapiens killer cell immunoglobulin like receptor, three Ig domains and long cytoplasmic tail 1 (KIR3DL1), transcript variant 1 (reference allele), mRNA
+    # res_title_id = re.findall(r"\((.*?)\)", res_title)
+    res_title_id = re.findall(
+        r"\((.*?)\)(?:, transcript variant 1|, mRNA)",
+        res_title)
     if res_title_id:
-        res_all = NM, res_title_id[-1], res_title
+        # res_all = NM, res_title_id[-1], res_title
+        res_all = NM, res_title_id[0], res_title
     else:
         res_all = NM, ".", res_title
     print(*res_all, sep="\t", file=fo)

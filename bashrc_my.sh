@@ -50,7 +50,7 @@ alias vbs="source ~/.bashrc"
 alias cr="crontab -e"
 
 ff_function(){
-find . -name $@
+find $PWD -name "$@"
 }
 alias ff=ff_function
 
@@ -67,3 +67,9 @@ alias vb1="vim ${tools_path}/bashrc_my.sh "
 alias vb2="vim ${tools_path}/bashrc_Tools.sh "
 alias vbb="vim ${tools_path}/Note.sh "
 alias cdcm="cd ${tools_path}/"
+
+#
+alias vc="vim ~/.ssh/config"
+
+# 
+alias sc='conda deactivate; conda activate '
