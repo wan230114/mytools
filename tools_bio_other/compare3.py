@@ -10,10 +10,10 @@ from matplotlib_venn import venn3
 # fi1_name, fi2_name = "merge_H3K27me3_YJ-A549-3-0uM--VS--YJ-A549-NC_filter_DOWN.genelist", "merge_H3K27me3_YJ-3-0--VS--YJ-NC_filter_DOWN.genelist"
 fi1_name, fi2_name, fi3_name = sys.argv[1:4]
 # fi1_name, fi2_name, fi3_name = ['A', 'B', 'C']
-out1, out2, out3 = fi1_name, fi2_name, fi3_name
-# out1 = os.path.splitext(os.path.basename(fi1_name))[0]
-# out2 = os.path.splitext(os.path.basename(fi2_name))[0]
-# out3 = os.path.splitext(os.path.basename(fi3_name))[0]
+# out1, out2, out3 = fi1_name, fi2_name, fi3_name
+out1 = os.path.splitext(os.path.basename(fi1_name))[0]
+out2 = os.path.splitext(os.path.basename(fi2_name))[0]
+out3 = os.path.splitext(os.path.basename(fi3_name))[0]
 
 Outname = out1 + '--VS--' + out2 + '--VS--' + out3
 
@@ -59,6 +59,15 @@ with open('diff0_all_' + Outname + '.txt', 'w') as fo:
 with open('comm_all_' + Outname + '.txt', 'w') as fo:
     comm_A_B_C = s1 & s2 & s3
     fo.write('\n'.join(sorted(comm_A_B_C)))
+with open('comm_A_B_' + Outname + '.txt', 'w') as fo:
+    comm_A_B = s1 & s2
+    fo.write('\n'.join(sorted(comm_A_B)))
+with open('comm_A_C_' + Outname + '.txt', 'w') as fo:
+    comm_A_C = s1 & s3
+    fo.write('\n'.join(sorted(comm_A_C)))
+with open('comm_B_C_' + Outname + '.txt', 'w') as fo:
+    comm_B_C = s2 & s3
+    fo.write('\n'.join(sorted(comm_B_C)))
 # print(sorted(union_A_B_C))
 # print(sorted(comm_A_B_C))
 # print(sorted(diff_A))
@@ -75,18 +84,21 @@ anno0 = '%s(%s) vs %s(%s) vs %s(%s)' % (
 # len(comm_A_B_C)/len(s2)*100 if len(s2) > 0 else 0,
 # len(comm_A_B_C)/len(s3)*100 if len(s2) > 0 else 0
 anno = (
-    'Union(ALL): %s\n'
-    'Comm: %s  (Comm/Union: %.2f%%)\n'
-    % (len(union_A_B_C), len(comm_A_B_C), len(comm_A_B_C)/len(union_A_B_C)*100,
-       ) +
-    'Diff: %s (A:%s B:%s C:%s) (Diff/Union: %.2f%%);\n'
-    % (
+    'Union(ALL): %s\n' % (len(union_A_B_C)) +
+    'Comm: %s (Comm/Union: %.2f%%) (A_B: %s  B_C: %s  A_C: %s)\n' % (
+        len(comm_A_B_C),
+        len(comm_A_B_C)/len(union_A_B_C)*100,
+        len(comm_A_B),
+        len(comm_B_C),
+        len(comm_A_C),
+    ) +
+    'Diff: %s (A:%s B:%s C:%s) (Diff/Union: %.2f%%);\n' % (
         len(diff_A_B_C),
         len(diff_A),
         len(diff_B),
         len(diff_C),
-        len(diff_A_B_C) / len(union_A_B_C)*100,
-        ) +
+        len(diff_A_B_C)/len(union_A_B_C)*100,
+    ) +
     'A: %s \nB: %s \nC: %s' % (out1, out2, out3))
 print(anno0 + '\n' + anno, file=open('venn_%s.stat.txt' % Outname, 'w'))
 plt.title(anno0)
