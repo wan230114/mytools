@@ -42,10 +42,10 @@ def fmain(keyword, speed=1, user="x"):
     ps_info_old = "STAT: moni start\n"
     shm = Array('i', [0])
     p = Process(target=moni_free.moni_free,
-                args=(shm, 10, keyword + ".moni.log"))
+                args=(shm, 10, "log." + keyword + ".moni.txt"))
     p.start()
     L_ps_info = []
-    CMD = 'ps %s jf|grep -v moni_ps' % user
+    CMD = 'ps -u %s jf|grep -v moni_ps' % user
     while True:
         # 判断结束
         if not ps_info_old:

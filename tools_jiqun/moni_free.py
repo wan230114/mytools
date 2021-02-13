@@ -6,13 +6,14 @@
 # @ Author Email: 1170101471@qq.com
 # @ Created Date: 2021-01-03, 03:36:10
 # @ Modified By: Chen Jun
-# @ Last Modified: 2021-01-09, 01:52:42
+# @ Last Modified: 2021-02-13, 00:32:01
 #############################################
 # %%
 import psutil
 import argparse
 import time
 import sys
+import os
 
 
 def fargv():
@@ -56,7 +57,7 @@ def get_used_stat():
 
 
 def moni_free(shm=[0], speed=2, out=sys.stdout):
-    out = open(out, "a") if out else sys.stdout        
+    out = open(out.replace(os.sep, "."), "a") if out else sys.stdout        
     while True:
         print(time.strftime("%Y-%m-%d %H:%M:%S",
                             time.localtime()),
