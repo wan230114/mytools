@@ -99,9 +99,9 @@ alias ca="${tools_path}/Shell/common/ccat "
 pwdfile(){
 	if [ "`echo $@`" ]; then
 		#for idx in $(seq $#); do eval echo `pwd`/"$"$idx; done
-		ls -trd $@|xargs -i echo `pwd`/{}
+		echo -e $@|while read x; do echo `pwd`/$x; done
 	else
-		ls -trd *|xargs -i echo `pwd`/{}
+        if [ "`ls|wc -l`" -gt "0" ] ;then ls -trd *|while read x; do echo `pwd`/$x; done; fi
 	fi
 }
 alias f=pwdfile  # 用于返回当前文件夹某文件或目录的路径, f [file/dir] [file/dir]...
@@ -109,7 +109,7 @@ realpath_func(){
     if [ "`echo $@`" ]; then
         for idx in $(seq $#); do eval "realpath \${$idx}"; done
     else
-        if [ "`ls|wc -l`" -gt "0" ] ;then ls -trd *|xargs -i realpath {};fi
+        if [ "`ls|wc -l`" -gt "0" ] ;then ls -trd *|while read x; do realpath $x; done;fi
     fi
 }
 alias r="realpath_func "
