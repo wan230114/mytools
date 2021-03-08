@@ -23,51 +23,46 @@ with open(fi1_name) as fi1, open(fi2_name) as fi2, open(fi3_name) as fi3:
     s2 = {x.strip().strip('"') for x in fi2.readlines()}
     s3 = {x.strip().strip('"') for x in fi3.readlines()}
 
-with open('union1_A_' + Outname + '.txt', 'w') as fo:
+with open(Outname + '__union1-A' +'.txt', 'w') as fo:
     union_A = s1
-    fo.write('\n'.join(sorted(union_A)))
-
-with open('union2_B_' + Outname + '.txt', 'w') as fo:
+    fo.write('\n'.join(sorted(union_A))+"\n")
+with open(Outname + '__union2-B' +'.txt', 'w') as fo:
     union_B = s2
-    fo.write('\n'.join(sorted(union_B)))
-
-with open('union3_C_' + Outname + '.txt', 'w') as fo:
+    fo.write('\n'.join(sorted(union_B))+"\n")
+with open(Outname + '__union3-C' +'.txt', 'w') as fo:
     union_C = s3
-    fo.write('\n'.join(sorted(union_C)))
-
-with open('union0_all_' + Outname + '.txt', 'w') as fo:
+    fo.write('\n'.join(sorted(union_C))+"\n")
+with open(Outname + '__union0-A-B-C' +'.txt', 'w') as fo:
     union_A_B_C = s1 | s2 | s3
-    fo.write('\n'.join(sorted(union_A_B_C)))
+    fo.write('\n'.join(sorted(union_A_B_C))+"\n")
 
 # %%
-with open('diff1_A_' + Outname + '.txt', 'w') as fo:
+with open(Outname + '__diff1-A' + '.txt', 'w') as fo:
     diff_A = s1 - s2 - s3
-    fo.write('\n'.join(sorted(diff_A)))
-
-with open('diff2_B_' + Outname + '.txt', 'w') as fo:
+    fo.write('\n'.join(sorted(diff_A))+"\n")
+with open(Outname + '__diff2-B' + '.txt', 'w') as fo:
     diff_B = s2 - s1 - s3
-    fo.write('\n'.join(sorted(diff_B)))
-
-with open('diff3_C_' + Outname + '.txt', 'w') as fo:
+    fo.write('\n'.join(sorted(diff_B))+"\n")
+with open(Outname + '__diff3-C' + '.txt', 'w') as fo:
     diff_C = s3 - s1 - s2
-    fo.write('\n'.join(sorted(diff_C)))
-
-with open('diff0_all_' + Outname + '.txt', 'w') as fo:
+    fo.write('\n'.join(sorted(diff_C))+"\n")
+with open(Outname + '__diff0-A-B-C' + '.txt', 'w') as fo:
     diff_A_B_C = diff_A | diff_B | diff_C
-    fo.write('\n'.join(sorted(diff_A_B_C)))
+    fo.write('\n'.join(sorted(diff_A_B_C))+"\n")
 
-with open('comm_all_' + Outname + '.txt', 'w') as fo:
-    comm_A_B_C = s1 & s2 & s3
-    fo.write('\n'.join(sorted(comm_A_B_C)))
-with open('comm_A_B_' + Outname + '.txt', 'w') as fo:
+with open(Outname + '__comm1-A-B' + '.txt', 'w') as fo:
     comm_A_B = s1 & s2
-    fo.write('\n'.join(sorted(comm_A_B)))
-with open('comm_A_C_' + Outname + '.txt', 'w') as fo:
+    fo.write('\n'.join(sorted(comm_A_B))+"\n")
+with open(Outname + '__comm2-A-C' + '.txt', 'w') as fo:
     comm_A_C = s1 & s3
-    fo.write('\n'.join(sorted(comm_A_C)))
-with open('comm_B_C_' + Outname + '.txt', 'w') as fo:
+    fo.write('\n'.join(sorted(comm_A_C))+"\n")
+with open(Outname + '__comm3-B-C' + '.txt', 'w') as fo:
     comm_B_C = s2 & s3
-    fo.write('\n'.join(sorted(comm_B_C)))
+    fo.write('\n'.join(sorted(comm_B_C))+"\n")
+with open(Outname + '__comm0-A-B-C' + '.txt', 'w') as fo:
+    comm_A_B_C = s1 & s2 & s3
+    fo.write('\n'.join(sorted(comm_A_B_C))+"\n")
+
 # print(sorted(union_A_B_C))
 # print(sorted(comm_A_B_C))
 # print(sorted(diff_A))
@@ -100,7 +95,7 @@ anno = (
         len(diff_A_B_C)/len(union_A_B_C)*100,
     ) +
     'A: %s \nB: %s \nC: %s' % (out1, out2, out3))
-print(anno0 + '\n' + anno, file=open('venn_%s.stat.txt' % Outname, 'w'))
+print(anno0 + '\n' + anno, file=open('%s__venn.doc.txt' % Outname, 'w'))
 plt.title(anno0)
 plt.text(0, -1.1, anno, ha='center', ma='left')
 venn3(subsets=[s1, s2, s3], set_labels=(
@@ -108,6 +103,6 @@ venn3(subsets=[s1, s2, s3], set_labels=(
 # venn2(subsets=[s1, s2])  #, set_labels=(out1, out2), set_colors=('r', 'g'))
 
 # %%
-plt.savefig('venn_%s.pdf' % Outname, dpi=200, bbox_inches='tight')
-plt.savefig('venn_%s.png' % Outname, dpi=200, bbox_inches='tight')
-plt.savefig('venn_%s.svg' % Outname, dpi=200, bbox_inches='tight')
+plt.savefig('%s__venn.pdf' % Outname, dpi=200, bbox_inches='tight')
+plt.savefig('%s__venn.png' % Outname, dpi=200, bbox_inches='tight')
+plt.savefig('%s__venn.svg' % Outname, dpi=200, bbox_inches='tight')
