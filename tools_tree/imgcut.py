@@ -5,7 +5,7 @@
 # @Qmail:  1170101471@qq.com
 # @Date:   2019-01-31 01:04:34
 # @Last Modified by:   JUN
-# @Last Modified time: 2019-03-08 10:57:04
+# @Last Modified time: 2021-03-09 00:12:04
 
 
 from PIL import Image
@@ -51,47 +51,57 @@ def fargv():
     return Targs
 
 
-def isCrust(Lx):
+def isCrust(L_tmp, Len):
+    """计算L_tmp中的值是否存在不为白色
+
+    Args:
+        L_tmp (np.array): [[x,y,z],[x,y,z],...]
+
+    Returns:
+        bool: True/False, 有杂色返回TRUE，都为白色时，返回FALSE
+    """
     # return sum(pix) < 25
     # print(pix)
-    Lall = []
-    for Li in Lx:
-        Lall.extend(Li)
-    # print(len(Lx))
-    return sum(Lall) < 765 * len(Lx) - 3
+    # Lall = []
+    # for Li in L_tmp:
+    #     Lall.extend(Li)
+    # print(len(L_tmp))
+    return L_tmp.sum() < (765 * Len - 3)
 
 
 def filter(img):
     L = numpy.array(img)
-    # print(len(L))
-    # print(len(L[0]))
-    a, b = img.size
+    w, h = img.size
     left, top, right, bottom = 0, 0, 0, 0
-    for x in range(0, a, 1):
-        Ly = [xx[x] for xx in L]
-        if isCrust(Ly):
-            left = x - 10
-            break
-    for x in range(a - 1, -1, -1):
-        Ly = [xx[x] for xx in L]
-        if isCrust(Ly):
-            # print(Ly)
-            right = x + 10
-            break
-    for y in range(0, b, 1):
-        Lx = L[y]
-        if isCrust(Lx):
-            top = y - 10
-            break
-    for y in range(b - 1, -1, -1):
-        Lx = L[y]
-        if isCrust(Lx):
-            bottom = y + 10
-            break
-    if bottom > b:
-        bottom = b
-    if right > a:
-        right = a
+    if not isCrust(L, L.size/3):
+        return None
+    else:
+        step = 1
+        kepp_black = 5
+        for x in range(0, w, step):
+            Ly = L[:, x, :]
+            if isCrust(Ly, Ly.size/3):
+                left = x - kepp_black
+                break
+        for x in range(w - 1, -1, -step):
+            Ly = L[:, x, :]
+            if isCrust(Ly, Ly.size/3):
+                right = x + kepp_black
+                break
+        for y in range(0, h, step):
+            Lx = L[y]
+            if isCrust(Lx, Lx.size/3):
+                top = y - kepp_black
+                break
+        for y in range(h - 1, -1, -step):
+            Lx = L[y]
+            if isCrust(Lx, Lx.size/3):
+                bottom = y + kepp_black
+                break
+        if bottom > h:
+            bottom = h
+        if right > w:
+            right = w
     rect = (left, top, right, bottom)
     Lrect = []
     for x in rect:
@@ -102,7 +112,7 @@ def filter(img):
     return rect
 
 
-def fmain(finame, foname, i, i_all):
+def fmain(finame, foname, i=1, i_all=1):
     str_num = ('%%0%dd' % len(str(i_all))) % i + \
         ('-%s' % (i_all))
     try:
@@ -115,11 +125,14 @@ def fmain(finame, foname, i, i_all):
             img = img.convert("RGB")
         print(str_num, '[裁剪开始: ', finame, "] 图片宽度和高度分别是{}".format(img.size))
         rect = filter(img)
-        region = img.crop(rect)
-        try:
-            region.save(foname)
+        if rect:
+            region = img.crop(rect)
             info = ''
-        except SystemError:
+            try:
+                region.save(foname)
+            except SystemError:
+                info = '\n   Warning: 图片全白'
+        else:
             info = '\n   Warning: 图片全白'
         print(str_num, '[裁剪完毕: ', finame, '-->', foname, ']',
               '\n   裁剪坐标是：', (0, 0) + img.size, '-->', rect,
@@ -156,7 +169,8 @@ def main():
         p.join()
     else:
         if isbak:
-            fopath = fipath + '.cut' + re.findall('\.[A-Za-z]*?$', fipath)[0]
+            a, b = os.path.splitext(fipath)
+            fopath = a + '.cut' + b
         else:
             fopath = fipath
         fmain(fipath, fopath)
@@ -164,3 +178,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    # fmain("baidu.png", "baidu.cut.png")
