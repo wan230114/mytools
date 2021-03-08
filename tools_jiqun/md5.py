@@ -6,47 +6,38 @@
 # @Last Modified by:   JUN
 # @Last Modified time: 2018-12-28 00:16:06
 
-shelp = """md5 --help
-用于获取当前文件夹下所有的md5值和大小信息，并输出到新文件
-
-命令：
-    python md5.py [x]
-    选项:
-    [x]  使用几个进程来运行，缺省默认2个进程
-
-示例：
-    python md5.py
-    python md5.py 6
-    python md5.py 8
-"""
 import os
-import sys
-import hashlib
-import datetime
 import time
 from multiprocessing import Pool
+import argparse
+# import sys
+# import hashlib
+# import datetime
 
 
-def fmain(filepath):
+def fargv():
+    parser = argparse.ArgumentParser(
+        description='用于获取当前文件夹下所有的md5值和大小信息，并输出到新文件')
+    parser.add_argument('-x', type=int, default=1,
+                        help='md5计算的进程数, 默认1')
+    parser.add_argument('-c', '--checksize', action='store_true',
+                        help='是否只开启 checksize 模式')
+    args = parser.parse_args()
+    return args.__dict__
+
+
+def md5_do(filepath):
     os.system('md5sum "%s" >>md5.txt' % filepath)
 
 
-def main():
+def do(x, checksize=False):
     t00 = time.time()
-    if len(sys.argv) == 1:
-        x = 2
-    elif len(sys.argv) == 2:
-        if sys.argv[1] == '--help':
-            print(shelp)
-            sys.exit()
-        else:
-            x = int(sys.argv[1])
 
     print('> \n正在获取当前文件夹所有文件路径...')
     t0 = time.time()
     # s_files = os.popen("""find -L ./ -type f |cat|awk '!/.\/md5.txt/'|sort""").read()
-    s_files = os.popen("""find -L ./ -type f|cat|awk '!/.\/md5.txt/'|awk '!/.\/checkSize.xls/'""").read()
-    os.system('>md5.txt')
+    s_files = os.popen(
+        """find -L ./ -type f|cat|awk '!/.\/md5.txt/'|awk '!/.\/checkSize.xls/'""").read()
     Lfiles = s_files.strip().split('\n')
     print('获取结束，耗时%s秒' % (time.time() - t0))
 
@@ -58,32 +49,42 @@ def main():
         for path in Lfiles:
             fo.write('\t'.join([str(os.path.getsize(path)), path]) + '\n')
     print('获取结束，耗时%s秒' % (time.time() - t0))
-
-    print('> \n正在以 %s 进程 计算所有文件的md5值...' % x)
-    t0 = time.time()
-    p = Pool(x)
-    for path in Lfiles:
-        # fmain(path)
-        p.apply_async(fmain, args=(path,))
-    p.close()
-    p.join()
-    print('计算结束，耗时%s秒' % (time.time() - t0))
-
-    print('> \n正在对md5.txt、checkSize.xls进行排序...')
-    t0 = time.time()
-    os.system('sort -k2 md5.txt -o md5.txt')
     os.system('sort -k2 checkSize.xls -o checkSize.xls')
     print('排序结束，耗时%s秒' % (time.time() - t0))
+    print('运行结束，已于当前文件夹写入 checkSize.xls ，耗时%s秒' % (time.time() - t00))
 
-    print('\n运行结束，已于当前文件夹写入 md5.txt checkSize.xls ，耗时%s秒' % (time.time() - t00))
+    if not checksize:
+        print('> \n正在以 %s 进程 计算所有文件的md5值...' % x)
+        os.system('>md5.txt')
+        t0 = time.time()
+        p = Pool(x)
+        for path in Lfiles:
+            # md5_do(path)
+            p.apply_async(md5_do, args=(path,))
+        p.close()
+        p.join()
+        print('计算结束，耗时%s秒' % (time.time() - t0))
+
+        print('> \n正在对md5.txt、checkSize.xls进行排序...')
+        t0 = time.time()
+        os.system('sort -k2 md5.txt -o md5.txt')
+        print('排序结束，耗时%s秒' % (time.time() - t0))
+        print('运行结束，已于当前文件夹写入 md5.txt ，耗时%s秒' % (time.time() - t00))
+
+
+def main():
+    kwargs = fargv()
+    # print(kwargs)
+    # print(*list(kwargs.keys()),sep=", ")
+    do(**kwargs)
 
 
 if __name__ == '__main__':
     main()
 
 
-def GetFileMd5(filename):
-    pass
+# def GetFileMd5(filename):
+#     pass
     # Linux下运算时间大约长到1.2倍，该函数被遗弃
     # if not os.path.isfile(filename):
     #     return
