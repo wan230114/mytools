@@ -1,8 +1,22 @@
 #!/usr/bin/env python3
 
 import sys
+import argparse
 
-finame, foname = sys.argv[1:3]
+
+parser = argparse.ArgumentParser(description='Process introduction.')
+parser.add_argument('finame', type=str,
+                    help='输入制表的tsv列表文件')
+parser.add_argument('foname', type=str,
+                    help='输出的html')
+parser.add_argument('-f', '--force', action='store_true',
+                    help='是否强制所有行使用表格，不判断只有第一列的行。')
+args = parser.parse_args()
+
+
+# finame, foname = sys.argv[1:3]
+finame, foname = args.finame, args.foname
+
 
 with open(finame) as fi:
     Llines = [line.strip().split() for line in fi.readlines()]
@@ -50,7 +64,7 @@ header = """<!DOCTYPE html>
         }
 
         img {
-            width: 600px;
+            width: 400px;
         }
     </style>
 </head>
@@ -61,12 +75,12 @@ with open(foname, 'w') as fo:
     fo.write("<body>\n")
     table_in = 0
     for Lline in Llines:
-        if len(Lline) == 1:
+        if len(Lline) == 1 and not args.force:
             if table_in == 1:
                 fo.write("</table>\n")
             fo.write("<p>%s</p>\n" % Lline[0])
             table_in = 0
-        elif len(Lline) > 1:
+        else:
             if table_in == 0:
                 fo.write("<table>\n")
             fo.write("<tr>")

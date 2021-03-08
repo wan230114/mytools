@@ -1,3 +1,1 @@
-#! /bin/bash
-tools_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-python3 -u ${tools_path}/../tools_jiqun/moni_ps.py $@
+../tools_jiqun/moni_ps.py

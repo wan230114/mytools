@@ -15,20 +15,17 @@ import argparse
 def fargv():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description='''  本程序用于生成html可视化文件夹中的png、pdf、svg文件
-    使用方法：
-      python3 imgdirView.py fidir houzui
-    快捷设置:
-      alias view='python3 /ifs/TJPROJ3/Plant/chenjun/mytools/tools_tree/imgdirView.py'
-    ''')
-    parser.add_argument('fidir', type=str,
+        description='本程序用于生成html可视化文件夹中的png、pdf、svg文件')
+    parser.add_argument('fidirs', type=str, default=[], nargs="+",
                         help='输入需要可视化的文件夹名，当前文件夹')
     parser.add_argument('houzui', type=str,
                         help='输入后缀名，末尾只能以png,pdf,svg结束，可以包含多个字符如 tre.png , option.tre.pdf , ')
+    parser.add_argument('-o', '--outname', type=str, default=None,
+                        help='输出想要的名字')
     parser.add_argument('-f', '--filter', type=str, default=[], nargs='*',
                         help='增加想要的文件名，可依次增加多个条件，类似于grep -v用法')
     parser.add_argument('-v', '--remove', type=str, default=[], nargs='*',
-                        help='排除不想要的文件名，可依次增加多个条件，类似于grep -v用法（此方法一定存在于f之后）')
+                        help='排除不想要的文件名，可依次增加多个条件，类似于grep -v用法（此方法生效于-f之后）')
     parser.add_argument('-c', '--clean', action='store_true', default=False,
                         help='是否只生成html而不压缩')
     args = parser.parse_args()
@@ -37,7 +34,7 @@ def fargv():
         parser.parse_args(['', '--help'])
         sys.exit()
     print("--------------------------")
-    print(f"输入参数是:\n1、输入文件夹: {args.fidir}\n"
+    print(f"输入参数是:\n1、输入文件夹: {args.fidirs}\n"
           f"2、过滤文件后缀名: {args.houzui}\n"
           f"3、筛选的文件名：{args.filter}\n"
           f"4、排除的文件名：{args.remove}")
@@ -45,17 +42,17 @@ def fargv():
     return args.__dict__
 
 
-def fmain(fidir, houzui, filter=[], remove=[], clean=False):
+def fmain(fidirs, houzui, filter=[], remove=[], clean=False, outname=None):
     softpath = os.path.split(os.path.realpath(__file__))[0]
-    if not os.path.isdir(fidir):
-        print('%s 文件夹不存在' % fidir)
-        sys.exit()
-    fidir = fidir.rstrip(os.sep).split(os.sep)[-1]
-    # L = os.listdir(fidir)
     L = []
-    for p, d, f in os.walk(fidir):
-        for ff in f:
-            L.append(os.path.join('.', p, ff))
+    for fidir in fidirs:
+        if not os.path.isdir(fidir):
+            print('%s 文件夹不存在' % fidir)
+            sys.exit()
+        fidir = fidir.rstrip(os.sep).split(os.sep)[-1]
+        for p, d, f in os.walk(fidir):
+            for ff in f:
+                L.append(os.path.join(p, ff))
     L = sorted([x for x in L if x.endswith(houzui)])
     if filter:
         S = set()
@@ -83,7 +80,7 @@ def fmain(fidir, houzui, filter=[], remove=[], clean=False):
              'png': 'mod-png.html',
              'svg': 'mod-svg.html',
              }
-    foname = '%s-%s.html' % (fidir, houzui)
+    foname = '%s-%s.html' % (fidir, houzui) if not outname else outname
     with open(foname, 'w') as fo:
         with open(os.path.join(softpath, 'mod', Dfile[houzui.split('.')[-1]])) as fi:
             s = fi.read()
@@ -106,13 +103,13 @@ def fmain(fidir, houzui, filter=[], remove=[], clean=False):
     sinput = ''.join(['\n请选择压缩模式\n'
                       '--> 将文件夹保持文件相对位置，压缩并下载至本地查看\n',
                       '    模式1：只压缩需要查看文件：\n',
-                      '        zip %s.zip $FilterFiles* ...\n' % fidir,
+                      '        zip %s.zip $FilterFiles* ...\n' % outname,
                       '    模式2：压缩整个文件夹：\n',
                       '        find -L %s -type f -name "*"|xargs zip %s.zip %s\n' % (
-                          fidir, fidir, foname),
+                          fidir, outname, foname),
                       '    模式3：压缩整个文件夹(不含软链接)：\n',
                       '        find %s -type f -name "*"|xargs zip %s.zip %s\n' % (
-                          fidir, fidir, foname),
+                          fidir, outname, foname),
                       '    模式其他：预自定义操作，请按Enter或输入其他任意字符退出\n\n请输入数字进行模式选择(1/2/3): '])
     if not clean:
         try:
@@ -120,14 +117,14 @@ def fmain(fidir, houzui, filter=[], remove=[], clean=False):
         except Exception:
             mond = ''
         if mond == "1":
-            os.system('zip %s.zip %s %s' % (fidir, foname, ' '.join(L)))
+            os.system('zip %s.zip %s %s' % (outname, foname, ' '.join(L)))
         if mond == "2":
             os.system('find -L %s -type f -name "*"|xargs zip %s.zip %s' %
-                      (fidir, foname, foname))
+                      (fidir, outname, foname))
         if mond == "3":
             os.system('find %s -type f -name "*"|xargs zip %s.zip %s' %
-                      (fidir, foname, foname))
-        print('\n请下载文件于本地查看: %s.zip' % fidir)
+                      (fidir, outname, foname))
+        print('\n请下载文件于本地查看: %s.zip' % outname)
     print('\nThank you for using imgdirView.py.')
 
 

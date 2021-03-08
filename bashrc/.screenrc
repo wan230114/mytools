@@ -29,6 +29,9 @@ caption always "%{= kw}%-w%{= kG}%{+b}[%n %t]%{-b}%{= kw}%+w %=%d %M %0c %{g}%H%
 #关闭闪屏
 vbell off
 
+# 退出vim后，vim中的内容会残留在屏幕上
+#altscreen on
+
 #Keboard binding
 # bind Alt+z to move to previous window
 bindkey ^[z prev
