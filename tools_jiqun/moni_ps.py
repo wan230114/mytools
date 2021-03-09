@@ -6,7 +6,7 @@
 # @ Author Email: 1170101471@qq.com
 # @ Created Date: 2021-03-02, 20:33:40
 # @ Modified By: Chen Jun
-# @ Last Modified: 2021-03-05, 14:26:15
+# @ Last Modified: 2021-03-09, 09:05:55
 #############################################
 
 import os
@@ -38,7 +38,7 @@ def fargv():
                         help='查看谁的进程，默认为当前用户')
     parser.add_argument('-S', '--Stat', action='store_true',
                         help='是否查看运行状态，默认为False')
-    parser.add_argument('--noFlush', action='store_false',
+    parser.add_argument('--noFlush', action='store_true',
                         help='是否使用缓存机制输出日志？适用于高速监控间隔对于IO资源的缓和利用。默认不使用，直接输出日志')
     args = parser.parse_args()
     # print(args)
@@ -82,8 +82,7 @@ def fmain(keyword, speed=1, user=getpass.getuser(), Stat=False, noFlush=False):
         if ps_info != ps_info_old:
             print(time.strftime(
                 "\n[Now_time] : %Y-%m-%d %H:%M:%S", time.localtime()),
-                flush=True)
-            print(ps_info, flush=FLUSH_STAT)
+                ps_info, sep="\n", flush=FLUSH_STAT)
         ps_info_old = ps_info
         time.sleep(speed)
     shm[0] = 1
@@ -97,6 +96,7 @@ def main():
         fmain(**fargv())
     except KeyboardInterrupt:
         print("Terminated: KeyboardInterrupt.", flush=True)
+        sys.exit(1)
 
 
 if __name__ == '__main__':
