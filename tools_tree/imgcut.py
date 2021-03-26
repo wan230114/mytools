@@ -76,8 +76,8 @@ def filter(img):
     if not isCrust(L, L.size/3):
         return None
     else:
-        step = 1
-        kepp_black = 5
+        step = 3
+        kepp_black = 10
         for x in range(0, w, step):
             Ly = L[:, x, :]
             if isCrust(Ly, Ly.size/3):

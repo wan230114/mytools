@@ -103,12 +103,14 @@ def compare3(fi1_name, fi2_name, fi3_name):
     # def venn_dispatch(data, func, fmt="{size}", hint_hidden=False, cmap="viridis", alpha=.4, figsize=(8, 8), fontsize=13, legend_loc="upper right", ax=None):
     venn({out1: s1, out2: s2, out3: s3},
          fmt="{percentage:.1f}%\n({size})",
+         figsize=(9, 9),
          #   alpha=.5,
          #  cmap=["r", "g", "b"]
          #  cmap="Accent"
          #  cmap="Set2"  # 蓝 绿 紫
          #  cmap="Set3"  # 蓝 绿 黄
-         cmap=list("rgy")  # 红 绿 黄
+         #  cmap=list("rgy")  # 红 绿 黄
+         cmap=list("rgb")  # 红 绿 黄
          )
     # venn3(subsets=[s1, s2, s3], set_labels=(
     #     "A", "B", "C"), set_colors=('r', 'b', 'g'))

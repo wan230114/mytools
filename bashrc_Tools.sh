@@ -66,7 +66,7 @@ else
 fi
 ifconfig|grep inet|awk '{print $2}'|grep -v "::"|sort|while read x; do echo http://$x:$port; done
 sh -c "echo http://\`curl ipv4.icanhazip.com 2>/dev/null\`:$port &"
-python3 -m http.server $port
+python3 -u -m http.server $port
 }
 alias s=s_func
 
@@ -99,7 +99,8 @@ alias ca="${tools_path}/Shell/common/ccat "
 pwdfile(){
 	if [ "`echo $@`" ]; then
 		#for idx in $(seq $#); do eval echo `pwd`/"$"$idx; done
-		echo -e $@|while read x; do echo `pwd`/$x; done
+		#echo -e $@|while read x; do echo `pwd`/$x; done
+        for x in `echo -e "$@"`; do echo `pwd`/$x; done
 	else
         if [ "`ls|wc -l`" -gt "0" ] ;then ls -trd *|while read x; do echo `pwd`/$x; done; fi
 	fi
@@ -115,7 +116,7 @@ realpath_func(){
 alias r="realpath_func "
 # 用于快速切换目录用
 ffcd(){
-if [ "$1" ]; then cd $1 && l; else cd . && l; fi
+if [ "$1" ]; then if sh -c "cd $1" ; then cd $1 && l; else cd `dirname $1` && l ; fi ; else cd . && l; fi
 }
 alias c=ffcd
 

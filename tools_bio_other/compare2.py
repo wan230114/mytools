@@ -80,10 +80,15 @@ def compare2(fi1_name, fi2_name):
     print(anno0 + '\n' + anno, file=open('%s__venn.doc.txt' % Outname, 'w'))
     plt.title(anno0)
     plt.text(0, -1, anno, ha='center', ma='left')
-    venn({out1: s1, out2: s2},
+    dt = {out1: s1, out2: s2}
+    if len(dt) != 2:
+        print("输入名相同，请更名后再试", file=sys.stderr)
+        sys.exit(1)
+    venn(dt,
          fmt="{percentage:.1f}%\n({size})",
-         #  cmap=["g", "b"]
-         cmap=["r", "g"]
+         figsize=(9, 9),
+         cmap=["g", "b"]
+         #  cmap=["r", "g"]
          )
     # venn2(subsets=[s1, s2], set_labels=("A", "B"), set_colors=('r', 'g'))
     # venn2(subsets=[s1, s2])  #, set_labels=(out1, out2), set_colors=('r', 'g'))

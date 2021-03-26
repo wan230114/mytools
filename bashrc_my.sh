@@ -50,7 +50,11 @@ alias vbs="source ~/.bashrc"
 alias cr="crontab -e"
 
 ff_function(){
-find $PWD -name "$@"
+if [ "$@" ]; then
+  find $PWD -name "$@"
+else
+  find -L .|grep -v -x -f <(find -L . -type d)|sort
+fi
 }
 alias ff=ff_function
 

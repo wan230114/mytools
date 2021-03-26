@@ -29,7 +29,7 @@ def fargv():
     parser = argparse.ArgumentParser(description='Process introduction.')
     if len(sys.argv) == 1:
         sys.argv.append("-h")
-    parser.add_argument('infiles', type=str, nargs="*",
+    parser.add_argument('infiles', type=str, nargs="+",
                         help='输入文件')
     parser.add_argument('-i', '--intable', type=str,
                         help='输入文件的文件列表')
@@ -46,7 +46,7 @@ def fmain(infiles, intable, outname, sort_cols=False):
     L = open(intable).read().split() if intable else infiles
     print(*L)
 
-    res = {}
+    res = OrderedDict()
     for file in L:
         df = pd.read_table(
             file,
@@ -54,9 +54,9 @@ def fmain(infiles, intable, outname, sort_cols=False):
         d = df.to_dict()
         d_res = {x: d[x].values() for x in d}
         res.update(d_res)
-    rows = set()
+    rows = OrderedDict()
     for k in res:
-        rows.update(res[k])
+        rows.update(OrderedDict(zip(res[k], [0]*len(res[k]))))
 
     L_rows = []
     L_res = []
@@ -71,7 +71,7 @@ def fmain(infiles, intable, outname, sort_cols=False):
     # print(df)
     # df = pd.concat([pd.DataFrame(L_rows, columns=["ID"]),
     #                 df], axis=1)
-    df["Sum"] = df.iloc[:, 1:].sum(axis=1)
+    df["Sum"] = df.sum(axis=1)
     cols = list([df.columns[-1]])+list(df.columns[0:-1]) if sort_cols else list([df.columns[-1]])
     df.sort_values(
         cols,
