@@ -1,5 +1,6 @@
 name: mytools
 channels:
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main
   - defaults
 dependencies:
   - _libgcc_mutex=0.1=main
@@ -77,6 +78,7 @@ dependencies:
     - pandas==1.1.0
     - pillow==7.2.0
     - prov==1.5.3
+    - psutil==5.8.0
     - pycparser==2.20
     - pydot==1.4.1
     - pydotplus==2.0.2
