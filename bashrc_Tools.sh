@@ -55,7 +55,7 @@ if [ "`echo $@`" ]; then
 else
 	port=8000
     while true; do
-        moni=`ps aux | grep -v grep | grep -P python.*http.server.*$port`
+        moni=`ps aux | \grep -v grep | \grep -P python.*http.server.*$port`
         if [ "`echo $moni`" ]; then
             echo $port 端口已被占用
             ((port++))
@@ -64,7 +64,7 @@ else
         fi
     done
 fi
-ifconfig|grep inet|awk '{print $2}'|grep -v "::"|sort|while read x; do echo http://$x:$port; done
+ifconfig|\grep inet|awk '{print $2}'|\grep -v "::"|sort|while read x; do echo http://$x:$port; done
 sh -c "echo http://\`curl ipv4.icanhazip.com 2>/dev/null\`:$port &"
 python3 -u -m http.server $port
 }
@@ -93,32 +93,6 @@ cat $@|sed ':label;N;s/ \\\n/ /;b label'|sed -e 's/[[:space:]][[:space:]]*/ /g'|
 alias cah=fcah  # 用于格式化打印脚本文件
 alias cag="iconv -f gbk -t utf-8 "  # 打印gbk文件为utf8输出
 alias ca="${tools_path}/Shell/common/ccat "
-
-###  路径管理工具  ###
-# 用于返回当前文件(夹)绝对路径
-pwdfile(){
-	if [ "`echo $@`" ]; then
-		#for idx in $(seq $#); do eval echo `pwd`/"$"$idx; done
-		#echo -e $@|while read x; do echo `pwd`/$x; done
-        for x in `echo -e "$@"`; do echo `pwd`/$x; done
-	else
-        if [ "`ls|wc -l`" -gt "0" ] ;then ls -trd *|while read x; do echo `pwd`/$x; done; fi
-	fi
-}
-alias f=pwdfile  # 用于返回当前文件夹某文件或目录的路径, f [file/dir] [file/dir]...
-realpath_func(){
-    if [ "`echo $@`" ]; then
-        for idx in $(seq $#); do eval "realpath \${$idx}"; done
-    else
-        if [ "`ls|wc -l`" -gt "0" ] ;then ls -trd *|while read x; do realpath $x; done;fi
-    fi
-}
-alias r="realpath_func "
-# 用于快速切换目录用
-ffcd(){
-if [ "$1" ]; then if sh -c "cd $1" ; then cd $1 && l; else cd `dirname $1` && l ; fi ; else cd . && l; fi
-}
-alias c=ffcd
 
 ###  文件磁盘管理工具  ###
 # asum统计某一列的和，用法示例: `asum 1 file`

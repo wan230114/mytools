@@ -65,13 +65,13 @@ def compare2(fi1_name, fi2_name):
     anno0 = '%s(%s) vs %s(%s)' % ("A", len(s1), "B", len(s2))
     anno = (
         'Union(ALL): %s (100.00%%) \nComm: %s '
-        '(C/U: %.2f%%; C/A: %.2f%%; C/B: %.2f%%;) \n' % (
+        '(Comm/Union: %.2f%%; Comm/A: %.2f%%; Comm/B: %.2f%%;) \n' % (
             len(union_A_B), len(com_A_B),
             len(com_A_B)/len(union_A_B)*100,
             len(com_A_B)/len(s1)*100 if len(s1) > 0 else 0,
             len(com_A_B)/len(s2)*100 if len(s2) > 0 else 0
         ) +
-        'Diff: %s (D/U: %.2f%%)  (A:%s  B:%s)\n' % (
+        'Diff: %s (Diff/Union: %.2f%%)  (A:%s  B:%s)\n' % (
             len(diff_A_B),
             len(diff_A_B) / len(union_A_B)*100,
             len(diff_A),
