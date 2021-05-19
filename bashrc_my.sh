@@ -84,7 +84,7 @@ pwdfile(){
 	if [ "`echo $@`" ]; then
 		#for idx in $(seq $#); do eval echo `pwd`/"$"$idx; done
 		#echo -e $@|while read x; do echo `pwd`/$x; done
-        for x in `echo -e "$@"`; do echo `pwd`/$x; done
+        for x in `echo -e "$@"`; do echo $(cd `dirname $x` && pwd)/$(basename $x); done
 	else
         if [ "`ls|wc -l`" -gt "0" ] ;then ls -trd *|while read x; do echo `pwd`/$x; done; fi
 	fi

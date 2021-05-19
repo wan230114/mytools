@@ -32,33 +32,34 @@ def compare2(fi1_name, fi2_name):
         s1 = {x.strip().strip('"') for x in fi1.readlines()}
         s2 = {x.strip().strip('"') for x in fi2.readlines()}
 
-    with open(Outname + '__diff1-A' + '.txt', 'w') as fo:
-        diff_A = s1 - s2
-        fo.write('\n'.join(diff_A)+"\n")
-
-    with open(Outname + '__diff2-B' + '.txt', 'w') as fo:
-        diff_B = s2 - s1
-        fo.write('\n'.join(diff_B)+"\n")
-
-    with open(Outname + '__diff0-A-B' + '.txt', 'w') as fo:
-        diff_A_B = s1.symmetric_difference(s2)
-        fo.write('\n'.join(diff_A_B)+"\n")
-
-    with open(Outname + '__comm0-A-B' + '.txt', 'w') as fo:
-        com_A_B = s1.intersection(s2)
-        fo.write('\n'.join(com_A_B)+"\n")
-
-    with open(Outname + '__union1-A' + '.txt', 'w') as fo:
+    with open(Outname + '__1.union-A' + '.txt', 'w') as fo:
         union_A = s1
         fo.write('\n'.join(union_A)+"\n")
 
-    with open(Outname + '__union2-B' + '.txt', 'w') as fo:
+    with open(Outname + '__2.union-B' + '.txt', 'w') as fo:
         union_B = s2
         fo.write('\n'.join(union_B)+"\n")
 
-    with open(Outname + '__union0-A-B' + '.txt', 'w') as fo:
-        union_A_B = s1 | s2
-        fo.write('\n'.join(union_A_B)+"\n")
+    union_A_B = s1 | s2
+
+    with open(Outname + '__3.comm-A-B' + '.txt', 'w') as fo:
+        com_A_B = s1.intersection(s2)
+        fo.write('\n'.join(com_A_B)+"\n")
+
+    with open(Outname + '__4.diff-A' + '.txt', 'w') as fo:
+        diff_A = s1 - s2
+        fo.write('\n'.join(diff_A)+"\n")
+
+    with open(Outname + '__5.diff-B' + '.txt', 'w') as fo:
+        diff_B = s2 - s1
+        fo.write('\n'.join(diff_B)+"\n")
+
+    diff_A_B = s1.symmetric_difference(s2)
+    # with open(Outname + '__diff0-A-B' + '.txt', 'w') as fo:
+    #     fo.write('\n'.join(diff_A_B)+"\n")
+
+    # with open(Outname + '__union0-A-B' + '.txt', 'w') as fo:
+    #     fo.write('\n'.join(union_A_B)+"\n")
 
     # %%  plot venn
     # help(venn2)
@@ -77,7 +78,7 @@ def compare2(fi1_name, fi2_name):
             len(diff_A),
             len(diff_B)) +
         'A: %s \nB: %s' % (out1, out2))
-    print(anno0 + '\n' + anno, file=open('%s__venn.doc.txt' % Outname, 'w'))
+    print(anno0 + '\n' + anno, file=open('%s__venn-Description.txt' % Outname, 'w'))
     plt.title(anno0)
     plt.text(0, -1, anno, ha='center', ma='left')
     dt = {out1: s1, out2: s2}
@@ -94,9 +95,9 @@ def compare2(fi1_name, fi2_name):
     # venn2(subsets=[s1, s2])  #, set_labels=(out1, out2), set_colors=('r', 'g'))
 
     # %%
-    plt.savefig('%s__venn.pdf' % Outname, dpi=200, bbox_inches='tight')
-    plt.savefig('%s__venn.png' % Outname, dpi=200, bbox_inches='tight')
-    plt.savefig('%s__venn.svg' % Outname, dpi=200, bbox_inches='tight')
+    plt.savefig('%s__venn-Plot.pdf' % Outname, dpi=200, bbox_inches='tight')
+    plt.savefig('%s__venn-Plot.png' % Outname, dpi=200, bbox_inches='tight')
+    plt.savefig('%s__venn-Plot.svg' % Outname, dpi=200, bbox_inches='tight')
 
 
 if __name__ == "__main__":

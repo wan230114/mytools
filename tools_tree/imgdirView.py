@@ -20,8 +20,8 @@ def fargv():
                         help='输入需要可视化的文件夹名，当前文件夹')
     parser.add_argument('houzui', type=str,
                         help='输入后缀名，末尾只能以png,pdf,svg结束，可以包含多个字符如 tre.png , option.tre.pdf , ')
-    parser.add_argument('-o', '--outname', type=str, default=None,
-                        help='输出想要的名字')
+    parser.add_argument('-n', '--name_out', type=str, default=None,
+                        help='输出想要的html前缀名字')
     parser.add_argument('-f', '--filter', type=str, default=[], nargs='*',
                         help='增加想要的文件名，可依次增加多个条件，类似于grep -v用法')
     parser.add_argument('-v', '--remove', type=str, default=[], nargs='*',
@@ -42,16 +42,17 @@ def fargv():
     return args.__dict__
 
 
-def fmain(fidirs, houzui, filter=[], remove=[], clean=False, outname=None):
+def fmain(fidirs, houzui, filter=[], remove=[], clean=False, name_out=None):
     softpath = os.path.split(os.path.realpath(__file__))[0]
     L = []
     for fidir in fidirs:
         if not os.path.isdir(fidir):
             print('%s 文件夹不存在' % fidir)
             sys.exit()
-        fidir = fidir.rstrip(os.sep).split(os.sep)[-1]
+        dirname = fidir.rstrip(os.sep).split(os.sep)[-1]
         for p, d, f in os.walk(fidir):
             for ff in f:
+                # L.append(os.path.join(p, ff))
                 L.append(os.path.join(p, ff))
     L = sorted([x for x in L if x.endswith(houzui)])
     if filter:
@@ -80,51 +81,15 @@ def fmain(fidirs, houzui, filter=[], remove=[], clean=False, outname=None):
              'png': 'mod-png.html',
              'svg': 'mod-svg.html',
              }
-    foname = '%s-%s.html' % (fidir, houzui) if not outname else outname
+    ourdir = os.path.dirname(fidir.rstrip(os.sep))
+    outdir = ourdir if ourdir else "."
+    foname = outdir + os.sep + (
+        name_out if name_out else '%s-%s' % (dirname, houzui)) + ".html"
     with open(foname, 'w') as fo:
         with open(os.path.join(softpath, 'mod', Dfile[houzui.split('.')[-1]])) as fi:
-            s = fi.read()
+            s=fi.read()
         fo.write(s % (str(L).strip('[]')))
     print('\nSuccess. write to: ' + foname)
-    # else:
-    #     fo.write('<html>\n\t<body>\n')
-    #     fo.write('\t\t<br><table border="5">\n')
-    #     for file in L:
-    #         if file.endswith('png'):
-    #             lineview = '<img src="%s" /></p>' % file
-    #         if file.endswith('svg'):
-    #             lineview = '<object data="%s" type="image/svg+xml"></object>' % file
-    #         fo.write('\t\t\t<tr>\n')
-    #         fo.write('\t\t\t\t<td valign="top">\n\t\t\t\t\t<p>%s</p>\n' % file)
-    #         fo.write('\t\t\t\t\t%s\n\t\t\t\t</td>\n' % lineview)
-    #         fo.write('\t\t\t</tr>\n')
-    #     fo.write('\t\t</table>\n')
-    #     fo.write('</body>\n</html>\n')
-    sinput = ''.join(['\n请选择压缩模式\n'
-                      '--> 将文件夹保持文件相对位置，压缩并下载至本地查看\n',
-                      '    模式1：只压缩需要查看文件：\n',
-                      '        zip %s.zip $FilterFiles* ...\n' % outname,
-                      '    模式2：压缩整个文件夹：\n',
-                      '        find -L %s -type f -name "*"|xargs zip %s.zip %s\n' % (
-                          fidir, outname, foname),
-                      '    模式3：压缩整个文件夹(不含软链接)：\n',
-                      '        find %s -type f -name "*"|xargs zip %s.zip %s\n' % (
-                          fidir, outname, foname),
-                      '    模式其他：预自定义操作，请按Enter或输入其他任意字符退出\n\n请输入数字进行模式选择(1/2/3): '])
-    if not clean:
-        try:
-            mond = input(sinput).strip()
-        except Exception:
-            mond = ''
-        if mond == "1":
-            os.system('zip %s.zip %s %s' % (outname, foname, ' '.join(L)))
-        if mond == "2":
-            os.system('find -L %s -type f -name "*"|xargs zip %s.zip %s' %
-                      (fidir, outname, foname))
-        if mond == "3":
-            os.system('find %s -type f -name "*"|xargs zip %s.zip %s' %
-                      (fidir, outname, foname))
-        print('\n请下载文件于本地查看: %s.zip' % outname)
     print('\nThank you for using imgdirView.py.')
 
 

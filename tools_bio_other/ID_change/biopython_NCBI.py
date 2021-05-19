@@ -6,8 +6,12 @@
 # @ Author Email: 1170101471@qq.com
 # @ Created Date: 2020-11-19, 09:41:10
 # @ Modified By: Chen Jun
-# @ Last Modified: 2021-01-11, 18:08:06
+# @ Last Modified: 2021-05-18, 11:26:15
 #############################################
+
+# Version： v1.1
+#  v1.0 基本功能完成
+#  v1.1 修正正则表达式，使得 MapGeneID Bug 修复
 
 # https://biopython-cn.readthedocs.io/zh_CN/latest/cn/chr09.html
 
@@ -40,9 +44,10 @@ def do(NM, fo=sys.stdout):
             time.sleep(1)
     # Homo sapiens fucosyltransferase 1 (H blood group) (FUT1), transcript variant 1, mRNA
     # Homo sapiens killer cell immunoglobulin like receptor, three Ig domains and long cytoplasmic tail 1 (KIR3DL1), transcript variant 1 (reference allele), mRNA
+    # NM_001013907    Hsp40) member B12 (Dnajb12      Rattus norvegicus DnaJ heat shock protein family (Hsp40) member B12 (Dnajb12), mRNA
     # res_title_id = re.findall(r"\((.*?)\)", res_title)
     res_title_id = re.findall(
-        r"\((.*?)\)(?:, transcript variant 1|, mRNA)",
+        r".*\((.*?)\)(?:, transcript variant 1|, mRNA)",
         res_title)
     if res_title_id:
         # res_all = NM, res_title_id[-1], res_title

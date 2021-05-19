@@ -7,7 +7,7 @@ import argparse
 parser = argparse.ArgumentParser(description='Process introduction.')
 parser.add_argument('finame', type=str,
                     help='输入制表的tsv列表文件')
-parser.add_argument('foname', type=str,
+parser.add_argument('-o', '--foname', type=str, default=None,
                     help='输出的html')
 parser.add_argument('-f', '--force', action='store_true',
                     help='是否强制所有行使用表格，不判断只有第一列的行。')
@@ -16,7 +16,7 @@ args = parser.parse_args()
 
 # finame, foname = sys.argv[1:3]
 finame, foname = args.finame, args.foname
-
+force = args.force
 
 with open(finame) as fi:
     Llines = [line.strip().split() for line in fi.readlines()]
@@ -70,26 +70,33 @@ header = """<!DOCTYPE html>
 </head>
 """
 
-with open(foname, 'w') as fo:
-    fo.write(header)
-    fo.write("<body>\n")
-    table_in = 0
-    for Lline in Llines:
-        if len(Lline) == 1 and not args.force:
-            if table_in == 1:
-                fo.write("</table>\n")
-            fo.write("<p>%s</p>\n" % Lline[0])
-            table_in = 0
-        else:
-            if table_in == 0:
-                fo.write("<table>\n")
-            fo.write("<tr>")
-            for x in Lline:
-                if x.endswith(".png"):
-                    fo.write('  <td><p>%s</p><img src="%s" /></td>' % (x, x))
-                elif x.endswith(".svg"):
-                    fo.write(
-                        '  <td><p>%s</p><object data="%s" type="image/svg+xml"></object></td>' % (x, x))
-            fo.write("</tr>\n")
-            table_in = 1
-    fo.write("</table>\n</body>")
+L_result = []
+if foname:
+    L_result.append(header)
+    L_result.append("<body>\n")
+table_in = 0
+for Lline in Llines:
+    if len(Lline) == 1 and not force:
+        if table_in == 1:
+            L_result.append("</table>\n")
+        L_result.append("<p>%s</p>\n" % Lline[0])
+        table_in = 0
+    else:
+        if table_in == 0:
+            L_result.append("<table>\n")
+        L_result.append("<tr>")
+        for x in Lline:
+            if x.endswith(".png"):
+                L_result.append('  <td><p>%s</p><img src="%s" /></td>' % (x, x))
+            elif x.endswith(".svg"):
+                L_result.append(
+                    '  <td><p>%s</p><object data="%s" type="image/svg+xml"></object></td>' % (x, x))
+        L_result.append("</tr>\n")
+        table_in = 1
+if table_in:
+    L_result.append("</table>\n")
+if foname:
+    L_result.append("</body>")
+
+foname = open(foname, "w") if foname else sys.stdout
+print(*L_result, sep="", end="", file=foname)

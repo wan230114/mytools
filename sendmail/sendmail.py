@@ -12,6 +12,7 @@
 import sys
 import smtplib
 import re
+import os
 import base64
 import socket
 import time
@@ -143,6 +144,10 @@ class Send:
         mailserver = "smtp.126.com"  # 邮箱服务器地址
         username_send = 'wan230114@126.com'  # 邮箱用户名
         password = 'cj1234567'  # 邮箱密码：需要使用授权码
+        cfg = os.path.expandvars('$HOME')+"/.config/pysend.cfg"
+        if os.path.exists(cfg):
+            mailserver, username_send, password = open(cfg).read().strip().split()
+            print("cfg reloaded.")
         try:
             print("正在发送邮件给%s" % self.recv)
 
