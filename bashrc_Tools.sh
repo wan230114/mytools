@@ -48,27 +48,6 @@ alias md5q="sh ${tools_path}/Shell/md5q.sh"  # 自动投递集群计算当前目
 # 6) sjm流程提取工具
 alias sjms="python3 ${tools_path}/tools_jiqun/sjms.py"
 
-# 7) server
-s_func(){
-if [ "`echo $@`" ]; then
-	port=$1;
-else
-	port=8000
-    while true; do
-        moni=`ps aux | \grep -v grep | \grep -P python.*http.server.*$port`
-        if [ "`echo $moni`" ]; then
-            echo $port 端口已被占用
-            ((port++))
-        else
-            break
-        fi
-    done
-fi
-ifconfig|\grep inet|awk '{print $2}'|\grep -v "::"|sort|while read x; do echo http://$x:$port; done
-sh -c "echo http://\`curl ipv4.icanhazip.com 2>/dev/null\`:$port &"
-python3 -u -m http.server $port
-}
-alias s=s_func
 
 #######################################################################
 ############################## myfunc #################################
@@ -104,7 +83,29 @@ alias asum=fasum
 #alias duc="du -bs ./*|sort -k1n|awk 'BEGIN{sum=0}{sum+=\$1;print \$0}END{print \"-----------\";print sum}'|getsize"
 alias d="duc"  # 已在bin内
 
+
 ###  网络工具  ###
+# 7) server
+s_func(){
+if [ "`echo $@`" ]; then
+	port=$1;
+else
+	port=8000
+    while true; do
+        moni=`ps aux | \grep -v grep | \grep -P python.*http.server.*$port`
+        if [ "`echo $moni`" ]; then
+            echo $port 端口已被占用
+            ((port++))
+        else
+            break
+        fi
+    done
+fi
+ifconfig|\grep inet|awk '{print $2}'|\grep -v "::"|sort|while read x; do echo http://$x:$port; done
+sh -c "echo http://\`curl ipv4.icanhazip.com 2>/dev/null\`:$port &"
+python3 -u -m http.server $port
+}
+alias s=s_func
 # 返回公网IP
 # wget --tries=0 --recursive --restrict-file-names=windows --no-parent 
 fg(){

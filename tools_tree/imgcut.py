@@ -37,7 +37,7 @@ def fargv():
       python3 imgcut.py testdir -f .filter.jpg --bak
       python3 imgcut.py testdir -f .filter.jpg -b
         """)
-    parser.add_argument('fipath', type=str,
+    parser.add_argument('fipath', type=str, nargs="+",
                         help='输入需要裁剪的文件路径或文件夹路径')
     parser.add_argument('--filter', '-f', type=str, default=None,
                         help='若输入文件(必选参数1)为文件夹路径，则此参数用于文件夹中过滤的后缀名, 可以为任意字符串如“resultbak.png”')
@@ -145,35 +145,36 @@ def main():
     # sys.argv = ['', 'testdir']
     # sys.argv = ['', 'testdir', '-f', 'bmp']
     # sys.argv = ['', '--help']
-    fipath, houzui, isbak = fargv()
+    fipaths, houzui, isbak = fargv()
     if not houzui:
         houzui = ""
-    if os.path.isdir(fipath):
-        # Lfiles = os.listdir(fipath)
-        Lfiles = ['%s/%s' % (a, file)
-                  for a, b, c in os.walk(fipath)
-                  for file in c
-                  if file.endswith('%s' % houzui)]
-        # print(Lfiles)
-        Lfiles = [x for x in Lfiles if x.endswith('%s' % houzui)]
-        # print(Lfiles)
-        p = Pool(5)
-        for i, fi in enumerate(Lfiles, start=1):
-            if isbak:
-                fo = fi + '.cut' + re.findall('\.[A-Za-z]*?$', fi)[0]
-            else:
-                fo = fi
-            p.apply_async(fmain, args=(fi, fo, i, len(Lfiles)))
-            # fmain(fipath + os.sep + fi, fipath + os.sep + fo)
-        p.close()
-        p.join()
-    else:
-        if isbak:
-            a, b = os.path.splitext(fipath)
-            fopath = a + '.cut' + b
+    for fipath in fipaths:
+        if os.path.isdir(fipath):
+            # Lfiles = os.listdir(fipath)
+            Lfiles = ['%s/%s' % (a, file)
+                    for a, b, c in os.walk(fipath)
+                    for file in c
+                    if file.endswith('%s' % houzui)]
+            # print(Lfiles)
+            Lfiles = [x for x in Lfiles if x.endswith('%s' % houzui)]
+            # print(Lfiles)
+            p = Pool(5)
+            for i, fi in enumerate(Lfiles, start=1):
+                if isbak:
+                    fo = fi + '.cut' + re.findall('\.[A-Za-z]*?$', fi)[0]
+                else:
+                    fo = fi
+                p.apply_async(fmain, args=(fi, fo, i, len(Lfiles)))
+                # fmain(fipath + os.sep + fi, fipath + os.sep + fo)
+            p.close()
+            p.join()
         else:
-            fopath = fipath
-        fmain(fipath, fopath)
+            if isbak:
+                a, b = os.path.splitext(fipath)
+                fopath = a + '.cut' + b
+            else:
+                fopath = fipath
+            fmain(fipath, fopath)
 
 
 if __name__ == '__main__':

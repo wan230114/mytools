@@ -91,6 +91,9 @@ for Lline in Llines:
             elif x.endswith(".svg"):
                 L_result.append(
                     '  <td><p>%s</p><object data="%s" type="image/svg+xml"></object></td>' % (x, x))
+            elif x.endswith(".pdf"):
+                L_result.append(
+                    '  <td><p>%s</p><object data="%s" type="application/pdf" style="width:660px;  height:680px;" ></object></td>' % (x, x))
         L_result.append("</tr>\n")
         table_in = 1
 if table_in:
