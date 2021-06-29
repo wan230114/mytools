@@ -150,7 +150,7 @@
     function showall2() {
         $('#sample').append('<h1>预览</h1>');
         for (var i = 0; i < arr.length; i++) {
-            $('#sample').append('<table border="2"><td valign="top"><p><a name="' + arr[i] + '">' + arr[i] + '</a></p><object data="' + arr[i] + '" type="image/svg+xml"></object></td></table>');
+            $('#sample').append('<table border="0"><td valign="top"><p><a name="' + arr[i] + '">' + arr[i] + '</a></p><object data="' + arr[i] + '" type="image/svg+xml"></object></td></table>');
         };
         $('#sample').append('');
         $('#spinner').hide();

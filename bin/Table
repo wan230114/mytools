@@ -15,7 +15,7 @@ def fargv():
     parser.add_argument('-i', '--inputpath', type=str, default='',
                         help='选择从文件读入，默认从标准输出读入')
     parser.add_argument('-F', '--field_separator', type=str, default=None,
-                        help='选择分隔符，默认为string.whitespace')
+                        help='选择分隔符，默认为\\t')
     # parser.add_argument('-t', '--title', action='store_true',
     #                     default=False,
     #                     help='是否')
@@ -30,7 +30,7 @@ def fmain(func, inputpath, field_separator):
             line = line.decode('utf8')
         except UnicodeDecodeError:
             line = line.decode('gbk')
-        Lline.append(line.strip(os.linesep).split(field_separator))
+        Lline.append(line.strip(os.linesep).split("\t"))
     Lline = []
     if not inputpath:
         while True:

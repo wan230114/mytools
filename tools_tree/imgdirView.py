@@ -1,11 +1,19 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# @Author: ChenJun
+# -*- coding:utf-8 -*-
+#############################################
+# @ Author: Chen Jun
 # @Email:  chenjun4663@novogene.com
 # @Qmail:  1170101471@qq.com
 # @Date:   2019-01-22 16:32:01
-# @Last Modified by:   JUN
 # @Last Modified time: 2019-05-16 01:13:17
+# @ Created Date: 2021-06-22, 17:53:19
+# @ Modified By: Chen Jun
+# @ Last Modified: 2021-06-29, 10:05:19
+#############################################
+
+#############################################
+# TODO: [ ] 修复多级目录下输出文件路径定义问题
+#############################################
 
 import os
 import sys
@@ -83,8 +91,9 @@ def fmain(fidirs, houzui, filter=[], remove=[], clean=False, name_out=None):
              }
     ourdir = os.path.dirname(fidir.rstrip(os.sep))
     outdir = ourdir if ourdir else "."
+    dirname_out = "view" if dirname == "." else dirname
     foname = outdir + os.sep + (
-        name_out if name_out else '%s-%s' % (dirname, houzui)) + ".html"
+        name_out if name_out else '%s-%s' % (dirname_out, houzui)) + ".html"
     with open(foname, 'w') as fo:
         with open(os.path.join(softpath, 'mod', Dfile[houzui.split('.')[-1]])) as fi:
             s=fi.read()
