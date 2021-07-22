@@ -1,23 +1,23 @@
 #! /bin/bash
 
-tools_path=`pwd`
+tools_path=$(pwd)
 #tools_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
-if [ "$1" == "-p" ]; then
+#read -p "input a val:" val echo $val
+cp -ir $(ls ./bashrc/.* -d | sed 1,2d) ~/
+
+if [ "$(grep "# >>> bashrc >>>" ~/.bashrc)" ]; then
     file=/dev/stdout
 else
     file=~/.bashrc
-    ls ./bashrc/.* -d|sed 1,2d|while read x; do if [ -e "$x" ];then echo Passed cp $x ; else cp -ir $x ~/;fi;  done
 fi
 
-echo >>$file
-echo "# >>> bashrc >>>"  >>$file
-echo "source ${tools_path}/bashrc_my.sh"  >>$file
-echo 'mymail="1170101471@qq.com"'  >>$file
-echo "source ${tools_path}/bashrc_Tools.sh"  >>$file
-echo "export PATH=${tools_path}/bin:\$PATH"  >>$file
+echo "
+# >>> bashrc >>>
+source ${tools_path}/bashrc_my.sh
+mymail=1170101471@qq.com
+source ${tools_path}/bashrc_Tools.sh
+export PATH=${tools_path}/bin:\$PATH
+" >>$file
 
 source ~/.bashrc
-
-#read -p "input a val:" val echo $val
-

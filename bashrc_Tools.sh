@@ -85,28 +85,6 @@ alias d="duc"  # 已在bin内
 
 
 ###  网络工具  ###
-# 7) server
-s_func(){
-if [ "`echo $@`" ]; then
-	port=$1;
-else
-	port=8000
-    while true; do
-        moni=`ps aux | \grep -v grep | \grep -P python.*http.server.*$port`
-        if [ "`echo $moni`" ]; then
-            echo $port 端口已被占用
-            ((port++))
-        else
-            break
-        fi
-    done
-fi
-ifconfig|\grep inet|awk '{print $2}'|\grep -v "::"|sort|while read x; do echo http://$x:$port; done
-sh -c "echo http://\`curl ipv4.icanhazip.com 2>/dev/null\`:$port &"
-python3 -u -m http.server $port
-}
-alias s=s_func
-# 返回公网IP
 # wget --tries=0 --recursive --restrict-file-names=windows --no-parent 
 fg(){
 echo $@|while read x;do ls `pwd`/$x|awk -v ip=`curl ipv4.icanhazip.com 2>/dev/null` -F "fileshare" '{print "wget "ip":8999"$2}';done

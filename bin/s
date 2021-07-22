@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# 返回公网IP
+if [ "$(echo $@)" ]; then
+    port=$1
+else
+    port=8000
+    while true; do
+        moni=$(ps aux | \grep -v grep | \grep -P python.*http.server.*$port)
+        if [ "$(echo $moni)" ]; then
+            echo $port 端口已被占用
+            ((port++))
+        else
+            break
+        fi
+    done
+fi
+ifconfig | \grep inet | awk '{print $2}' | \grep -v "::" | sort | while read x; do echo http://$x:$port; done
+sh -c "echo http://\`curl ipv4.icanhazip.com 2>/dev/null\`:$port &"
+python3 -u -m http.server $port

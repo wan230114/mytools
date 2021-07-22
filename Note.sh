@@ -6,6 +6,8 @@ blastall -d $db -i $qu  -m 8  -F F -p blastn
 hisat2 -p 10 --dta  -x $index  -1 $R1  -2 $R2 2>log.hisat2.${name}| samtools view -bS >${name}.bam
 
 
+wget -e robots=off -c -r -np -nd $link
+
 ### 常用统计句子
 less ORZ-input_trim.fastq|awk '{if(NR%4==2)print length($0)}'|sort|uniq -c
 
