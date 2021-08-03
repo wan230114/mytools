@@ -25,29 +25,31 @@ def fargv():
 
 
 def fmain(func, inputpath, field_separator):
-    def do(line, Lline):
+    def do(line, Llines):
         try:
             line = line.decode('utf8')
         except UnicodeDecodeError:
             line = line.decode('gbk')
-        Lline.append(line.strip(os.linesep).split("\t"))
-    Lline = []
+        Llines.append(line.strip("\r\n").split("\t"))
+    Llines = []
     if not inputpath:
         while True:
             line = sys.stdin.buffer.readline()
             if not line:
                 break
-            do(line, Lline)
+            do(line, Llines)
     else:
         with open(inputpath, 'rb') as fi:
             for line in fi:
                 if not line.strip():
                     continue
-                do(line, Lline)
+                do(line, Llines)
+    # from pprint import pprint
+    # pprint(Llines)
     if func == "T":
-        Lline = list(zip(*Lline))
-        for line in Lline:
-            print(*line, sep="\t")
+        Llines = list(zip(*Llines))
+        for Lline in Llines:
+            print(*Lline, sep="\t")
 
 
 def main():
