@@ -6,7 +6,7 @@
 # @ Author Email: 1170101471@qq.com
 # @ Created Date: 2021-06-16, 11:28:55
 # @ Modified By: Chen Jun
-# @ Last Modified: 2021-06-21, 16:28:33
+# @ Last Modified: 2021-08-06, 09:04:02
 #############################################
 
 import sys
@@ -25,11 +25,13 @@ def fargv():
                         help='纯净打印，不打印描述title')
     parser.add_argument('-S', '--Simplifys', type=int, default=None,
                         help='简化打印，限定最长长度字符数')
+    parser.add_argument('-a', '--align', type=str, default="l", choices=["l", "r", "c"],
+                        help='每一个单元格的位置。左对齐，右对齐，居中？')
     args = parser.parse_args()
     return args.__dict__
 
 
-def fmain(inputfile, sep, clean=False, Simplifys=True):
+def fmain(inputfile, sep, clean=False, Simplifys=True, align="l"):
     if Simplifys:
         def do(line, Lline):
             try:
@@ -74,10 +76,22 @@ def fmain(inputfile, sep, clean=False, Simplifys=True):
         sys.stdout.write(("#dim: %s x %s\n" % (len(Lline), len(D))))
         Lline.insert(0, ["#%s" % (x+1) for x in list(D)])
         # print(Lline[:2])
-    for line in Lline:
-        for i, x in enumerate(line):
-            sys.stdout.write(("%%-%ds  " % D[i]) % x.strip())
-        sys.stdout.write("\n")
+    if align == "c":
+        s2 = '{:^%d}  '
+        for line in Lline:
+            for i, x in enumerate(line):
+                # 我不知道为什么format的执行效率要比%s慢一点，所以这一块单独抽离出来
+                sys.stdout.write((s2 % D[i]).format(x.strip()))
+            sys.stdout.write("\n")
+    else:
+        if align == "l":
+            s2 = "%%-%ds  "  # s2 = '{:<%d}  '
+        elif align == "r":
+            s2 = "%%%ds  "  # s2 = '{:>%d}  '
+        for line in Lline:
+            for i, x in enumerate(line):
+                sys.stdout.write((s2 % D[i]) % x.strip())
+            sys.stdout.write("\n")
 
 
 def main():
