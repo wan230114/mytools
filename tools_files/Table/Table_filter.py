@@ -6,7 +6,7 @@
 # @ Author Email: 1170101471@qq.com
 # @ Created Date: 2021-06-17, 00:00:15
 # @ Modified By: Chen Jun
-# @ Last Modified: 2021-08-11, 12:53:35
+# @ Last Modified: 2021-08-13, 16:01:01
 #############################################
 
 import pandas as pd
@@ -18,8 +18,10 @@ def fargv():
     parser = argparse.ArgumentParser(description='Process introduction.')
     parser.add_argument('inputfile', type=str, nargs="?",
                         help='输入需要运行的inputfile')
-    parser.add_argument('-c', '--Cols', type=str, nargs="+", required=True,
-                        help='需要挑选的行, 如"colname1 colname2 colname3')
+    parser.add_argument('-c', '--Cols', type=str, nargs="+", default=[],
+                        help='需要挑选的列, 如"colname1 colname2 colname3')
+    parser.add_argument('-cn', '--ColsNums', type=str, default="",
+                        help='需要挑选的列, 如"1,3,4-6,8')
     parser.add_argument('-si', '--sepInfile', type=str, default="\t",
                         help='输入的文件的分隔符, default: “\\t”')
     parser.add_argument('-o', '--outfile', type=str, default=None,
@@ -52,12 +54,14 @@ def pd_read_table_str(infile, dtype={}, **kwargs):
 # %%
 
 
-def fmain(inputfile, Cols, sepInfile="\t", sepOutfile="\t",
+def fmain(inputfile, Cols=[], ColsNums="", sepInfile="\t", sepOutfile="\t",
           filter=None, sepfilter=",",
           outfile=None, Header=False):
+    # %%
     r"""
     inputfile = "./a.txt"
     Cols = ["A", "B"]
+    ColsNums = "1,2-3"
     sepInfile = "\t"
     sepOutfile = "\t"
     # filter = None
@@ -66,15 +70,31 @@ def fmain(inputfile, Cols, sepInfile="\t", sepOutfile="\t",
     outfile = None
     Header = False
     """
-    df = pd_read_table_str(inputfile)
+    L_ColsNums = []
+    if ColsNums:
+        for x in ColsNums.split(","):
+            if "-" in x:
+                a, b = x.split("-")
+                L_ColsNums.extend(range(int(a), int(b)+1))
+            else:
+                L_ColsNums.append(int(x))
+        L_ColsNums = [x-1 for x in L_ColsNums if x-1 > 0]
+    df = pd_read_table_str(inputfile, sep=sepInfile)
     filters = [x.split(sepfilter) for x in filter]
-    # 筛选需要选择的列
+    # 筛选列数据
     for Col, File in filters:
-        df = df[df[Col].isin([line.strip("\r\n") for line in open(File) if line.strip()])]
-    df = df[Cols]
+        df = df[df[Col].isin([line.strip("\r\n")
+                              for line in open(File) if line.strip()])]
+    # 筛选需要选择的列
+    if L_ColsNums:
+        Cols2 = list(df.columns[L_ColsNums])
+        Cols2.extend(list(df.columns[df.columns.isin(Cols)]))
+        Cols = list(df.columns[df.columns.isin(Cols2)])
+    df = df[Cols] if Cols else df
     outfile = outfile if outfile else sys.stdout
     # print(outfile, bool(outfile))
     df.to_csv(outfile, index=False, sep=sepOutfile, header=Header)
+# %%
 
 
 def main():
