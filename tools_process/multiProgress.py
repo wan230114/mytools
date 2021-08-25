@@ -107,22 +107,22 @@ class RunSh(object):
                         if retry < retry_raw else '')
                     retry -= 1
                     t1 = datetime.now()
-                    fprint(folog, isretry + '>>>[CMD Start Run. %s-%s  %s]\t%s' %
+                    fprint(folog, isretry + '>>>[CMD Start Run. %s-%s  %s]   %s' %
                            (lineNUM, ('%%0%dd' % num_len_line) % num_line,
                             t1.strftime('%Y-%m-%d_%H:%M:%S'), line))
                     stat = os.system(line)
                     t2 = datetime.now()
                     if stat:
-                        fprint(folog, '\n[CMD Run Failed.   %s-%s  %s (Time: %s)]\t%s\n' %
+                        fprint(folog, '\n\033[1;5;37;41m[CMD Run Failed.   %s-%s  %s (Time: %s)]   %s\033[0m\n' %
                                (lineNUM, ('%%0%dd' % num_len_line) % num_line,
                                 t2.strftime('%Y-%m-%d_%H:%M:%S'),
                                 t2-t1, line))
                         time.sleep(interval_time)
                     else:
-                        fprint(folog, '[CMD Run Success.  %s-%s  %s (Time: %s)]\t%s' %
+                        fprint(folog, '\033[1;37;42m[CMD Run Success.  %s-%s  %s (Time: %s)]\033[0m' %
                                (lineNUM, ('%%0%dd' % num_len_line) % num_line,
                                 t2.strftime('%Y-%m-%d_%H:%M:%S'),
-                                t2-t1, line))
+                                t2-t1))
         except Exception as ex:
             msg = "Error :%s" % ex
             fprint(folog, msg)

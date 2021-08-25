@@ -1,10 +1,10 @@
-sleep 1 && rm 666 # 1
-sleep 1 && rm 666 # 2
-sleep 1 && rm 666 # 3
-sleep 1 && rm 666 # 4
-sleep 1 && rm 666 # 5
-sleep 1 && rm 666 # 6
-sleep 1 && rm 666 # 7
-sleep 1 && rm 666 # 8
-sleep 1 && rm 666 # 9
-sleep 1 && rm 666 # 10
+sleep 1 && echo 1
+sleep 1 && echo 2
+sleep 1 && echo 3
+sleep 1 && echo 4
+sleep 1 && echo 5
+sleep 1 && echo 6
+sleep 1 && echo 7
+sleep 1 && echo 8
+sleep 1 && echo 9
+sleep 1 && rm 10
