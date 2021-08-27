@@ -6,7 +6,7 @@
 # @ Author Email: 1170101471@qq.com
 # @ Created Date: 2021-08-27, 23:25:12
 # @ Modified By: Chen Jun
-# @ Last Modified: 2021-08-27, 23:25:25
+# @ Last Modified: 2021-08-27, 23:57:43
 #############################################
 
 """
@@ -36,7 +36,7 @@ import psutil
 
 
 def getsize(size):
-    D = {0: '', 1: 'K', 2: 'M', 3: 'G', 4: 'T'}
+    D = {0: '', 1: 'K', 2: 'M', 3: 'G', 4: 'T', 5: "P"}
     try:
         for x in D:
             if int(size) < 1024**(x + 1):
@@ -87,16 +87,8 @@ def get_speed_main(s_Value):
 
 
 def main(sc):
-    s_Value = Manager().Value(c_char_p, "compt...")
-
     sc.nodelay(1)
-
-    d = psutil.disk_io_counters(perdisk=True)
-    oldr, oldw = [], []
-    for disk in d:
-        oldr.append(d[disk].read_bytes)
-        oldw.append(d[disk].write_bytes)
-
+    s_Value = Manager().Value(c_char_p, "compt...")
     p = Process(target=get_speed_main, args=(s_Value,))
     p.start()
     while True:
