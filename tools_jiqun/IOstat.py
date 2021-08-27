@@ -1,6 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
+#############################################
+# @ Author: Chen Jun
+# @ Author Email: 1170101471@qq.com
+# @ Created Date: 2021-08-27, 23:25:12
+# @ Modified By: Chen Jun
+# @ Last Modified: 2021-08-27, 23:25:25
+#############################################
+
 """
 psutil.disk_io_counters(perdisk=False, nowrap=True)
 返回全系统磁盘 I/O 统计作为命名的 Tuple，包括以下字段：
@@ -17,18 +25,16 @@ write_merged_count （Linux）： 合并的写作数量 （见iostats 文书）)
 """
 
 # %%
-import psutil
+from ctypes import c_char_p
+from multiprocessing import Process, Manager
+import os
 import time
-# print('Disk: ', psutil.disk_io_counters())
-# print('Network: ', psutil.net_io_counters())
-# psutil.disk_io_counters()
-# psutil.disk_io_counters(perdisk=True)
-# d = psutil.disk_io_counters(perdisk=True)
-# for disk in d:
-#     print(d[disk].write_bytes)
-
+import curses
+import psutil
 
 # %%
+
+
 def getsize(size):
     D = {0: '', 1: 'K', 2: 'M', 3: 'G', 4: 'T'}
     try:
@@ -37,54 +43,80 @@ def getsize(size):
                 hsize = str('%.3f' % (int(size) / 1024**x)) + D[x]
                 return hsize
     except ValueError:
-        # print(size, 'have eero')
         return size
 
 
-def disk_stat():
-    d = psutil.disk_io_counters()
-    # print("read_count:",
-    #       "write_count:",
-    #       "read_bytes:",
-    #       "write_bytes:",
-    #       "read_time:",
-    #       "write_time:",
-    #       "read_merged_count:",
-    #       "write_merged_count:",
-    #       "busy_time:",
-    #       sep="\t")
-    # print('Disk: ',
-    #     d.read_count, getsize(d.read_count),
-    #     d.write_count, getsize(d.write_count),
-    #     d.read_bytes, getsize(d.read_bytes),
-    #     d.write_bytes, getsize(d.write_bytes),
-    #     d.read_time, getsize(d.read_time),
-    #     d.write_time, getsize(d.write_time),
-    #     d.read_merged_count, getsize(d.read_merged_count),
-    #     d.write_merged_count, getsize(d.write_merged_count),
-    #     d.busy_time, getsize(d.busy_time),
-    # )
-    return d
-
-
-
-d = psutil.disk_io_counters(perdisk=True)
-
-oldr, oldw = [], []
-for disk in d:
-    oldr.append(d[disk].read_bytes)
-    oldw.append(d[disk].write_bytes)
-
-while True:
+def get_speed(oldr, oldw, time0):
     d = psutil.disk_io_counters(perdisk=True)
     newr, neww = [], []
     for disk in d:
         newr.append(d[disk].read_bytes)
         neww.append(d[disk].write_bytes)
     # print(d.keys(), oldr, newr, oldw, neww, sep="\n")
+    time1 = time.time()
+    T = time1 - time0
+    s = ["统计间隔时间：%.3fs\n" % T]
     for name, o, n, o2, n2 in zip(d.keys(), oldr, newr, oldw, neww):
-        print(name, " r:", n-o, getsize(n-o), "/ s",
-              " w:",  n2-o2, getsize(n2-o2), "/ s")
-    print("\n")
+        sp1 = (n-o)/T
+        sp2 = (n2-o2)/T
+        s_new = ["%5s  " % name,
+                 "  r: %-10s" % (getsize(sp1)+"/s"),
+                 "  w: %-10s" % (getsize(sp2)+"/s"),
+                 "\n"]
+        s += s_new
     oldr, oldw = newr, neww
-    time.sleep(1)
+    return ''.join([str(x) for x in s]), oldr, oldw
+
+
+def get_speed_main(s_Value):
+    try:
+        d = psutil.disk_io_counters(perdisk=True)
+        oldr, oldw = [], []
+        for disk in d:
+            oldr.append(d[disk].read_bytes)
+            oldw.append(d[disk].write_bytes)
+        while True:
+            time0 = time.time()
+            time.sleep(1)
+            s, oldr, oldw = get_speed(oldr, oldw, time0)
+            # print(s)
+            s_Value.value = s
+            # print(s_Value)
+    except KeyboardInterrupt:
+        pass
+
+
+def main(sc):
+    s_Value = Manager().Value(c_char_p, "compt...")
+
+    sc.nodelay(1)
+
+    d = psutil.disk_io_counters(perdisk=True)
+    oldr, oldw = [], []
+    for disk in d:
+        oldr.append(d[disk].read_bytes)
+        oldw.append(d[disk].write_bytes)
+
+    p = Process(target=get_speed_main, args=(s_Value,))
+    p.start()
+    while True:
+        s = str(s_Value.value)
+        sc.addstr(0, 0, time.strftime(r"%Y-%m-%d %H:%M:%S")+"\n"+s)
+        sc.addstr(os.get_terminal_size().lines-1, 0, "[按 `q` 退出程序]")
+        sc.refresh()
+        if sc.getch() == ord('q'):
+            break
+        time.sleep(0.07)
+    p.kill()
+    p.join()
+
+
+if __name__ == '__main__':
+    try:
+        curses.wrapper(main)
+    except KeyboardInterrupt:
+        pass
+
+
+# [multiprocessing - How to share a string amongst multiple processes using Managers() in Python? - Stack Overflow](https://stackoverflow.com/questions/21290960/how-to-share-a-string-amongst-multiple-processes-using-managers-in-python)
+# [教你在windows上用Python获得控制台大小(宽高)-百度经验](https://jingyan.baidu.com/article/c1a3101e659268de656deb1d.html)
