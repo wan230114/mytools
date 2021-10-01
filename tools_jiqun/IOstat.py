@@ -6,7 +6,7 @@
 # @ Author Email: 1170101471@qq.com
 # @ Created Date: 2021-08-27, 23:25:12
 # @ Modified By: Chen Jun
-# @ Last Modified: 2021-08-27, 23:57:43
+# @ Last Modified: 2021-09-03, 19:45:53
 #############################################
 
 """
@@ -33,7 +33,8 @@ import curses
 import psutil
 
 # %%
-
+global QUIT
+QUIT  = 0
 
 def getsize(size):
     D = {0: '', 1: 'K', 2: 'M', 3: 'G', 4: 'T', 5: "P"}
@@ -84,6 +85,8 @@ def get_speed_main(s_Value):
             # print(s_Value)
     except KeyboardInterrupt:
         pass
+    except Exception:
+        pass
 
 
 def main(sc):
@@ -97,16 +100,24 @@ def main(sc):
         sc.addstr(os.get_terminal_size().lines-1, 0, "[按 `q` 退出程序]")
         sc.refresh()
         if sc.getch() == ord('q'):
+            QUIT = 1
             break
         time.sleep(0.07)
     p.kill()
     p.join()
+    QUIT = 1
+
 
 
 if __name__ == '__main__':
+    # while not QUIT:
+    os.system("clear")
     try:
         curses.wrapper(main)
+        # input(QUIT)
     except KeyboardInterrupt:
+        pass
+    except Exception:
         pass
 
 
