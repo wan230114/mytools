@@ -6,7 +6,7 @@
 # @ Author Email: 1170101471@qq.com
 # @ Created Date: 2021-04-20, 23:08:09
 # @ Modified By: Chen Jun
-# @ Last Modified: 2021-04-22, 10:48:44
+# @ Last Modified: 2021-12-08, 17:59:12
 #############################################
 
 # ref: [[python]自动化将markdown文件转成html文件 - Ron Ngai - 博客园](https: // www.cnblogs.com/rond/p/5897625.html)
@@ -171,7 +171,11 @@ def main(in_file):
 
     # html = html.replace('<a', '<a id="md_a" ')
     for tag in soup.find_all("a"):
-        tag.attrs.setdefault("id", []).append("md_a")
+        # print(tag, tag.attrs)
+        try:
+            tag.attrs.setdefault("id", []).append("md_a")
+        except AttributeError:
+            tag.attrs["id"] = [tag.attrs["id"], "md_a"]
 
     for tag in soup.find_all("ol"):
         tag.attrs.setdefault("class", []).append("md_ol")

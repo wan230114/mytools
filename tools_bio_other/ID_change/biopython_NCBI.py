@@ -6,7 +6,7 @@
 # @ Author Email: 1170101471@qq.com
 # @ Created Date: 2020-11-19, 09:41:10
 # @ Modified By: Chen Jun
-# @ Last Modified: 2021-05-18, 11:26:15
+# @ Last Modified: 2021-11-22, 17:33:05
 #############################################
 
 # Version： v1.1
@@ -47,7 +47,7 @@ def do(NM, fo=sys.stdout):
     # NM_001013907    Hsp40) member B12 (Dnajb12      Rattus norvegicus DnaJ heat shock protein family (Hsp40) member B12 (Dnajb12), mRNA
     # res_title_id = re.findall(r"\((.*?)\)", res_title)
     res_title_id = re.findall(
-        r".*\((.*?)\)(?:, transcript variant 1|, mRNA)",
+        r".*\((.*?)\)(?:, transcript variant |, .*mRNA)",
         res_title)
     if res_title_id:
         # res_all = NM, res_title_id[-1], res_title

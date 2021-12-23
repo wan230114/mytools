@@ -32,7 +32,7 @@ class RunSh(object):
         self.folog = 'log.%s.%s' % (
             datetime.now().strftime('%Y-%m-%d_%H-%M-%S'), os.getpid())
         self.__dict__.update(self.fargv())
-        self.logdir = self.file_sh + '.' + self.folog
+        self.logdir = os.path.basename(self.file_sh) + '.' + self.folog
         print("  4、日志文件夹: %s" % self.logdir)
         # open(self.folog, 'w+').close()
 
@@ -80,10 +80,15 @@ class RunSh(object):
         for i, L_cmd in enumerate(Ldatas, start=1):
             # print(i, L_cmd)
             # self.sh(i, L_cmd, Ldatas_len, self.folog)
-            args = L_cmd, lineNUM, folog_pre, retry, interval_time = (
+            args = (
+                L_cmd,
+                lineNUM,
+                folog_pre,
+                retry,
+                interval_time) = (
                 L_cmd,
                 '(%s/%s)' % (Ldatas_len % i, len(Ldatas)),
-                self.logdir+os.sep+self.file_sh+Ldatas_len % i,
+                self.logdir+os.sep+os.path.basename(self.file_sh)+Ldatas_len % i,
                 self.retry,
                 self.interval_time)
             with open(folog_pre, 'w') as fo:
