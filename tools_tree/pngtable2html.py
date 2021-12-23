@@ -69,6 +69,9 @@ header = """<!DOCTYPE html>
         img {
             width: 400px;
         }
+        object {
+            width: 400px;
+        }
     </style>
 </head>
 """
