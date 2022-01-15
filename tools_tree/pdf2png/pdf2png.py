@@ -51,7 +51,7 @@ def pdf_image(pdfPath, imgPath, zoom_x, zoom_y, rotation_angle):
 
 def main(file):
     outpre = os.path.splitext(file)[0]
-    print('in :', file, '\nout:', outpre)
+    print(f'in : {file}\nout: {outpre}*.png')
     pdf_image(file, outpre, 5, 5, 0)
 
 
