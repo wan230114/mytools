@@ -6,10 +6,12 @@
 # @ Author Email: 1170101471@qq.com
 # @ Created Date: 2021-06-17, 00:00:15
 # @ Modified By: Chen Jun
-# @ Last Modified: 2021-08-13, 16:01:01
+# @ Last Modified: 2021-10-14, 17:25:58
 #############################################
 
-# 下一步改进计划： 增加选择模式，对于标题，设置取第一行，或者可以自定义输入，或者用顺序数字自动填充（和列数相同）
+# 下一步改进计划： 
+# - [x] 增加选择模式，对于标题，设置取第一行，或者可以自定义输入，或者用顺序数字自动填充（和列数相同）
+# - [ ] 可以输入没有标题的矩阵，列数自动按递增数字定义
 
 import pandas as pd
 import sys
@@ -30,8 +32,8 @@ def fargv():
                         help='outfile, 输出文件路径。 默认输出到标准输出')
     parser.add_argument('-so', '--sepOutfile', type=str, default="\t",
                         help='输出的文件的分隔符, 默认 “\\t”')
-    parser.add_argument('-f', '--filter', type=str, nargs="+", default=[],
-                        help='挑选某一列，格式为 col,file，如"colname1,file1 colname2,file2 colname3,file3')
+    parser.add_argument('-f', '--filters', type=str, nargs="+", default=[],
+                        help='挑选某一列，格式为 col file col file ... ，如"colname1 file1 colname2 file2 colname3 file3')
     parser.add_argument('-sf', '--sepfilter', type=str, default=",",
                         help='filter参数的每个值中间的分隔符, 默认 “,”')
     parser.add_argument('-H', '--Header', action="store_true",
@@ -57,7 +59,7 @@ def pd_read_table_str(infile, dtype={}, **kwargs):
 
 
 def fmain(inputfile, Cols=[], ColsNums="", sepInfile="\t", sepOutfile="\t",
-          filter=None, sepfilter=",",
+          filters=None, sepfilter=",",
           outfile=None, Header=False):
     # %%
     r"""
@@ -66,8 +68,8 @@ def fmain(inputfile, Cols=[], ColsNums="", sepInfile="\t", sepOutfile="\t",
     ColsNums = "1,2-3"
     sepInfile = "\t"
     sepOutfile = "\t"
-    # filter = None
-    filter = ["A,./filter.A"]
+    # filters = None
+    filters = ["A", "./filter.A"]
     sepfilter = ","
     outfile = None
     Header = False
@@ -82,7 +84,7 @@ def fmain(inputfile, Cols=[], ColsNums="", sepInfile="\t", sepOutfile="\t",
                 L_ColsNums.append(int(x))
         L_ColsNums = [x-1 for x in L_ColsNums if x-1 > 0]
     df = pd_read_table_str(inputfile, sep=sepInfile)
-    filters = [x.split(sepfilter) for x in filter]
+    filters = list(zip(filters[::2], filters[1::2]))
     # 筛选列数据
     for Col, File in filters:
         df = df[df[Col].isin([line.strip("\r\n")

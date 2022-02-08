@@ -23,7 +23,7 @@ import sys
 import argparse
 import time
 from datetime import datetime
-from multiprocessing import Pool
+from multiprocessing import Pool, Array
 
 
 class RunSh(object):
@@ -32,7 +32,9 @@ class RunSh(object):
         self.folog = 'log.%s.%s' % (
             datetime.now().strftime('%Y-%m-%d_%H-%M-%S'), os.getpid())
         self.__dict__.update(self.fargv())
-        self.logdir = self.file_sh + '.' + self.folog
+        self.logdir = os.path.basename(self.file_sh) + '.' + self.folog
+        # self._shm = Array('i', [0, 0])
+        # self._shm = [0, 0]
         print("  4、日志文件夹: %s" % self.logdir)
         # open(self.folog, 'w+').close()
 
@@ -80,10 +82,16 @@ class RunSh(object):
         for i, L_cmd in enumerate(Ldatas, start=1):
             # print(i, L_cmd)
             # self.sh(i, L_cmd, Ldatas_len, self.folog)
-            args = L_cmd, lineNUM, folog_pre, retry, interval_time = (
+            args = (
+                L_cmd,
+                lineNUM,
+                folog_pre,
+                retry,
+                interval_time) = (
                 L_cmd,
                 '(%s/%s)' % (Ldatas_len % i, len(Ldatas)),
-                self.logdir+os.sep+self.file_sh+Ldatas_len % i,
+                self.logdir+os.sep +
+                    os.path.basename(self.file_sh)+Ldatas_len % i,
                 self.retry,
                 self.interval_time)
             with open(folog_pre, 'w') as fo:
@@ -91,6 +99,15 @@ class RunSh(object):
             p.apply_async(self.sh, args=args)
         p.close()
         p.join()
+        # print(self._shm)
+        # print(
+        #     f'\n[CMD complete stat: '
+        #     f'{self._shm[0]}/{self._shm[1]+self._shm[0]} '
+        #     f'{self._shm[0]/self._shm[1]+self._shm[0]}')
+        # if self._shm[1]:
+        #     print('\033[1;5;37;41m[ALL CMD not complete.\033[0m\n')
+        # else:
+        #     print('\033[1;37;42m[ALL CMD complete.\033[0m')
 
     def sh(self, L_cmd, lineNUM, folog_pre, retry, interval_time=0):
         try:
@@ -112,17 +129,20 @@ class RunSh(object):
                             t1.strftime('%Y-%m-%d_%H:%M:%S'), line))
                     stat = os.system(line)
                     t2 = datetime.now()
+                    # print("self._shm:", self._shm)
                     if stat:
-                        fprint(folog, '\n\033[1;5;37;41m[CMD Run Failed.   %s-%s  %s (Time: %s)]   %s\033[0m\n' %
+                        # self._shm[0] += 1
+                        fprint(folog, '\n\033[1;5;37;41m[CMD Run Failed.   %s-%s  %s (Time: %s)]  CMD: %s\033[0m\n' %
                                (lineNUM, ('%%0%dd' % num_len_line) % num_line,
                                 t2.strftime('%Y-%m-%d_%H:%M:%S'),
                                 t2-t1, line))
                         time.sleep(interval_time)
                     else:
-                        fprint(folog, '\033[1;37;42m[CMD Run Success.  %s-%s  %s (Time: %s)]\033[0m' %
+                        # self._shm[1] += 1
+                        fprint(folog, '\033[1;37;42m[CMD Run Success.  %s-%s  %s (Time: %s)]  CMD: %s\033[0m' %
                                (lineNUM, ('%%0%dd' % num_len_line) % num_line,
                                 t2.strftime('%Y-%m-%d_%H:%M:%S'),
-                                t2-t1))
+                                t2-t1, line))
         except Exception as ex:
             msg = "Error :%s" % ex
             fprint(folog, msg)

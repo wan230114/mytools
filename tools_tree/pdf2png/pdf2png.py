@@ -37,20 +37,21 @@ def pdf_image(pdfPath, imgPath, zoom_x, zoom_y, rotation_angle):
     # 打开PDF文件
     pdf = fitz.open(pdfPath)
     # 逐页读取PDF
+    mod = "%%0%dd" % len(str(pdf.pageCount))
     for pg in range(0, pdf.pageCount):
         page = pdf[pg]
         # 设置缩放和旋转系数
         trans = fitz.Matrix(zoom_x, zoom_y).preRotate(rotation_angle)
         pm = page.getPixmap(matrix=trans, alpha=False)
         # 开始写图像
-        pgnum = str(pg) if pg > 0 else ""
+        pgnum = mod % pg if pdf.pageCount > 1 else ""
         pm.writePNG(imgPath+pgnum+".png")
     pdf.close()
 
 
 def main(file):
     outpre = os.path.splitext(file)[0]
-    print('in :', file, '\nout:', outpre)
+    print(f'in : {file}\nout: {outpre}*.png')
     pdf_image(file, outpre, 5, 5, 0)
 
 

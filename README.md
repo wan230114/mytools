@@ -34,6 +34,8 @@ source /home/chenjun/mytools/bashrc_Tools.sh
 cp -ir $(ls ./bashrc/.* -d | sed 1,2d) ~/
 ```
 
+一些特殊工具，需要的环境创建: [./env_create.md](./env_create.md)
+
 ## 3. 功能简介
 ### 3.1 适用系统
 centos、ubuntu、macOS

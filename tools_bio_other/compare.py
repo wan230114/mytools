@@ -41,7 +41,7 @@ def comp(*args, outdir=None):
         out = os.path.splitext(os.path.basename(fi_name))[0]
         with open(fi_name) as fi:
             s = {x.strip().strip('"') for x in fi.readlines()}
-            datas[out] = s
+            datas[out] = {x for x in s if x}
 
     Outname = outdir if outdir else '--VS--'.join(datas)
     print(f"result to: {Outname}")

@@ -9,6 +9,8 @@ parser.add_argument('finame', type=str,
                     help='输入制表的tsv列表文件')
 parser.add_argument('-o', '--foname', type=str, default=None,
                     help='输出的html')
+parser.add_argument('-s', '--sep', type=str, default=None,
+                    help='sep')
 parser.add_argument('-f', '--force', action='store_true',
                     help='是否强制所有行使用表格，不判断只有第一列的行。')
 args = parser.parse_args()
@@ -17,9 +19,10 @@ args = parser.parse_args()
 # finame, foname = sys.argv[1:3]
 finame, foname = args.finame, args.foname
 force = args.force
+sep = args.sep
 
 with open(finame) as fi:
-    Llines = [line.strip().split() for line in fi.readlines()]
+    Llines = [line.strip().split(sep) for line in fi.readlines()]
 
 header = """<!DOCTYPE html>
 <html>
@@ -66,6 +69,9 @@ header = """<!DOCTYPE html>
         img {
             width: 400px;
         }
+        object {
+            width: 400px;
+        }
     </style>
 </head>
 """
@@ -94,6 +100,9 @@ for Lline in Llines:
             elif x.endswith(".pdf"):
                 L_result.append(
                     '  <td><p>%s</p><object data="%s" type="application/pdf" style="width:660px;  height:680px;" ></object></td>' % (x, x))
+            else:
+                L_result.append(
+                    '  <td><p>%s</p></td>' % (x))
         L_result.append("</tr>\n")
         table_in = 1
 if table_in:
