@@ -6,9 +6,10 @@
 # @ Author Email: 1170101471@qq.com
 # @ Created Date: 2021-06-16, 11:28:55
 # @ Modified By: Chen Jun
-# @ Last Modified: 2021-08-06, 09:04:02
+# @ Last Modified: 2022-02-08, 10:05:48
 #############################################
 
+# v0.0.1 增加 comment 参数，过滤注释行
 # 下一步改进计划， 当列过短时，会破坏标题与结果的对齐，需改进
 # 还有，有时候行显示不完全，很奇怪了，在一次paste的管道后接该命令
 
@@ -24,7 +25,9 @@ def fargv():
                         help='输入需要运行的inputfile')
     parser.add_argument('-s', '--sep', type=str, default="\t",
                         help='表格分隔符')
-    parser.add_argument('-c', '--clean', action='store_true',
+    parser.add_argument('-c', '--comment', type=str, default=b"#",
+                        help='''注释行开头标识符, shell中可以参考次语法 $'xxx', 如 : `echo $'#' $'!' !`''')
+    parser.add_argument('-p', '--printclean', action='store_true',
                         help='纯净打印，不打印描述title')
     parser.add_argument('-S', '--Simplifys', type=int, default=None,
                         help='简化打印，限定最长长度字符数')
@@ -34,7 +37,7 @@ def fargv():
     return args.__dict__
 
 
-def fmain(inputfile, sep, clean=False, Simplifys=True, align="l"):
+def fmain(inputfile, sep, comment=b"#", printclean=False, Simplifys=True, align="l"):
     if Simplifys:
         def do(line, Lline):
             try:
@@ -61,6 +64,8 @@ def fmain(inputfile, sep, clean=False, Simplifys=True, align="l"):
             line = sys.stdin.buffer.readline()
             if not line:
                 break
+            if line.startswith(comment):
+                continue
             do(line, Lline)
     else:
         with open(inputfile, 'rb') as fi:
@@ -75,7 +80,7 @@ def fmain(inputfile, sep, clean=False, Simplifys=True, align="l"):
             LEN = 2 if LEN < 2 else LEN
             if LEN > D.get(i, 0):
                 D[i] = LEN
-    if not clean:
+    if not printclean:
         sys.stdout.write(("#dim: %s x %s\n" % (len(Lline), len(D))))
         Lline.insert(0, ["#%s" % (x+1) for x in list(D)])
         # print(Lline[:2])
