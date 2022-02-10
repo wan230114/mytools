@@ -25,7 +25,7 @@ def fargv():
                         help='输入需要运行的inputfile')
     parser.add_argument('-s', '--sep', type=str, default="\t",
                         help='表格分隔符')
-    parser.add_argument('-c', '--comment', type=str, default=b"#",
+    parser.add_argument('-c', '--comment', type=str, default="#",
                         help='''注释行开头标识符, shell中可以参考次语法 $'xxx', 如 : `echo $'#' $'!' !`''')
     parser.add_argument('-p', '--printclean', action='store_true',
                         help='纯净打印，不打印描述title')
@@ -37,7 +37,8 @@ def fargv():
     return args.__dict__
 
 
-def fmain(inputfile, sep, comment=b"#", printclean=False, Simplifys=True, align="l"):
+def fmain(inputfile, sep, comment="#", printclean=False, Simplifys=True, align="l"):
+    comment = comment.encode()
     if Simplifys:
         def do(line, Lline):
             try:
