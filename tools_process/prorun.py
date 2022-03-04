@@ -134,7 +134,8 @@ class RunSh(object):
                 for chunk in stat_res_fail:
                     # print(chunk)
                     print(chunk[3], file=fo1)
-                    print("bash -evx", chunk[3], file=fo2)
+                    print(f"bash -exv {chunk[1]}.sh "
+                          f">{chunk[1]}.sh.log 2>&1", file=fo2)
         else:
             print("\033[1mAll job has Done.\033[0m")
         p.close()

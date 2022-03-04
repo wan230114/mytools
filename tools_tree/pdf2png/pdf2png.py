@@ -44,7 +44,7 @@ def pdf_image(pdfPath, imgPath, zoom_x, zoom_y, rotation_angle):
         trans = fitz.Matrix(zoom_x, zoom_y).preRotate(rotation_angle)
         pm = page.getPixmap(matrix=trans, alpha=False)
         # 开始写图像
-        pgnum = mod % pg if pdf.pageCount > 1 else ""
+        pgnum = mod % (pg+1) if pdf.pageCount > 1 else ""
         pm.writePNG(imgPath+pgnum+".png")
     pdf.close()
 
