@@ -17,21 +17,17 @@ example:
 """
 
 # %%
-import numpy as np
-import pandas as pd
-from os.path import splitext, basename
 import sys
 import argparse
-from collections import OrderedDict
 
 
 def fargv():
     parser = argparse.ArgumentParser(description='Process introduction.')
     if len(sys.argv) == 1:
         sys.argv.append("-h")
-    parser.add_argument('infiles', type=str, nargs="+",
+    parser.add_argument('infiles', type=str, nargs="*", default=None,
                         help='输入文件')
-    parser.add_argument('-i', '--intable', type=str,
+    parser.add_argument('-i', '--intable', type=str, default=None,
                         help='输入文件的文件列表')
     parser.add_argument('-o', '--outname', type=str,
                         help='输出文件')
@@ -42,6 +38,11 @@ def fargv():
 
 
 def fmain(infiles, intable, outname, sort_cols=False):
+    # import numpy as np
+    import pandas as pd
+    from os.path import splitext, basename
+    from collections import OrderedDict
+    assert infiles or intable, "未输入对比文件"
     outname = outname if outname else "des.xls"
     L = open(intable).read().split() if intable else infiles
     print(*L)
