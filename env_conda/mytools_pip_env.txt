@@ -66,13 +66,14 @@ simplejson==3.17.2
 six==1.15.0
 soupsieve==2.0.1
 starlette==0.13.6
+tabulate==0.8.9
 toml==0.10.2
 traitlets @ file:///tmp/build/80754af9/traitlets_1602787416690/work
 traits==6.1.1
 urllib3==1.25.10
 uvicorn==0.11.8
 uvloop==0.14.0
-venn==0.1.3
+git+https://github.com/wan230114/pyvenn
 wcwidth @ file:///tmp/build/80754af9/wcwidth_1593447189090/work
 websockets==8.1
 zipp==3.1.0
