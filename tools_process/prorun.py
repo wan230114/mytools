@@ -1,10 +1,14 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
+# -*- coding:utf-8 -*-
+
+#############################################
 # @Author: ChenJun
 # @Email:  chenjun4663@novogene.com
 # @Qmail:  1170101471@qq.com
-# @Date:   2019-01-08 17:59:50
-# @Last Modified by:   JUN
-# @Last Modified time: 2019-02-20 08:58:14
+# @ Created Date: 2019-01-08 17:59:50
+# @ Modified By: Chen Jun
+# @ Last Modified: 2022-03-04, 01:40:14
+#############################################
 
 """
 version: 2.0, 完成对任务的执行状态统计。
@@ -30,16 +34,21 @@ from datetime import datetime
 from multiprocessing import Pool
 
 
+def print_flush(*args, **kwargs):
+    kwargs.update({"flush": True})
+    print(*args, **kwargs)
+
+
 class RunSh(object):
 
     def __init__(self):
-        self.folog = 'log.%s.%s' % (
+        self.folog = 'prorun.log.%s.%s' % (
             datetime.now().strftime('%Y-%m-%d_%H-%M-%S'), os.getpid())
         self.__dict__.update(self.fargv())
         self.logdir = os.path.basename(self.file_sh) + '.' + self.folog
         # self._shm = Array('i', [0, 0])
         # self._shm = [0, 0]
-        print("  4、日志文件夹: %s" % self.logdir)
+        print_flush("  4、日志文件夹: %s" % self.logdir)
         # open(self.folog, 'w+').close()
 
     def fargv(self):
@@ -64,18 +73,18 @@ class RunSh(object):
             parser.parse_args(['', '--help'])
             sys.exit()
         args = parser.parse_args()
-        print("输入参数是:\n"
-              "  1、文件: %(file_sh)s\n"
-              "  2、每个进程运行的行数: %(lineNUM)s\n"
-              "  3、进程数: %(thread)s"
-              % args.__dict__, flush=True)
+        print_flush("输入参数是:\n"
+                    "  1、文件: %(file_sh)s\n"
+                    "  2、每个进程运行的行数: %(lineNUM)s\n"
+                    "  3、进程数: %(thread)s"
+                    % args.__dict__)
         return args.__dict__
 
     def fmain(self):
         if not os.path.exists(self.logdir):
             os.mkdir(self.logdir)
         if not self.file_sh.endswith('.sh'):
-            print('WARNING: 输入文件不是sh文件, 请注意输入文件是否正确', flush=True)
+            print_flush('WARNING: 输入文件不是sh文件, 请注意输入文件是否正确')
         with open(self.file_sh) as fi:
             L_CMDs = []
             Llines = fi.read().strip().split('\n')
@@ -83,16 +92,16 @@ class RunSh(object):
             for i in range(0, len(Llines), self.lineNUM):
                 L_CMD = Llines[i:i+self.lineNUM]
                 L_CMDs.append(L_CMD)
-        # fprint(self.folog,'\n'.join([str(x) for x in L_CMDs]))
-        print('runstart>>>', flush=True)
+        # print_logs(self.folog,'\n'.join([str(x) for x in L_CMDs]))
+        print_flush('runstart>>>')
         L_CMDs_len = '%%0%dd' % len(str(int(len(L_CMDs))))
         p = Pool(self.thread)
         L_p = []
         for i, L_CMD in enumerate(L_CMDs, start=1):
-            # print(i, L_CMD)
+            # print_flush(i, L_CMD)
             # self.sh(i, L_CMD, L_CMDs_len, self.folog)
             L_CMD = L_CMD
-            lineNUM = f'{len(L_CMDs)}-{L_CMDs_len % i}'
+            lineNUM = f'{L_CMDs_len % i}-{len(L_CMDs)}'
             folog_pre = os.path.join(
                 self.logdir,
                 os.path.basename(os.path.splitext(self.file_sh)[0]) +
@@ -114,30 +123,29 @@ class RunSh(object):
         # from pprint import pprint
         # pprint(stat_res)
         stat_res_fail = []
-        print("\033[1mJobs run stat:\033[0m")
+        print_flush("\033[1mJobs run stat:\033[0m")
         for chunks in stat_res:
             for chunk in chunks:
                 if chunk[0] > 0:
                     stat_res_fail.append(chunk)
-                    print(f"\033[31;5m {chunk[1]} Run Failed.\033[0m")
-        print(f"\033[1m %.3f%% (%s/%s)\033[0m" % (
-            len(stat_res_fail)/len(stat_res)*100,
+                    print_flush(f"\033[31;5m {chunk[1]} Run Failed.\033[0m")
+        print_flush("\033[1m %.3f%% (%s/%s)\033[0m" % (
+            (len(stat_res)-len(stat_res_fail))/len(stat_res)*100,
             len(stat_res)-len(stat_res_fail),
             len(stat_res)
         ))
         if stat_res_fail:
-            print("\033[1mSome jobs fail.\033[0m")
-            out_fail_sh = os.path.basename(
-                os.path.splitext(self.file_sh)[0])
+            print_flush("\033[1mSome jobs fail.\033[0m")
+            out_fail_sh = os.path.basename(self.file_sh)
             with open(out_fail_sh+".prorun-Failed-cmd.sh", "w") as fo1, \
                     open(out_fail_sh+".prorun-Failed.sh", "w") as fo2:
                 for chunk in stat_res_fail:
-                    # print(chunk)
-                    print(chunk[3], file=fo1)
-                    print(f"bash -exv {chunk[1]}.sh "
-                          f">{chunk[1]}.sh.log 2>&1", file=fo2)
+                    # print_flush(chunk)
+                    print_flush(chunk[3], file=fo1)
+                    print_flush(f"bash -exv {chunk[1]}.sh "
+                                f">{chunk[1]}.sh.log 2>&1", file=fo2)
         else:
-            print("\033[1mAll job has Done.\033[0m")
+            print_flush("\033[1mAll job has Done.\033[0m")
         p.close()
         p.join()
         # print(self._shm)
@@ -150,13 +158,15 @@ class RunSh(object):
         # else:
         #     print('\033[1;37;42m[ALL CMD complete.\033[0m')
 
-    def sh(self, L_CMD, lineNUM, folog_pre, retry, interval_time=0, split_env=False):
+    def sh(self, L_CMD, lineNUM, folog_pre, retry, interval_time=0,
+           split_env=False):
         try:
-            # print('hello')
+            # print_flush('hello')
             folog = folog_pre + '.stat.txt'
-            num_len_line = len(str(len(L_CMD)))
             retry_raw = retry
             L_CMD = L_CMD if split_env else ['\n'.join(L_CMD)]
+            num_len = len(L_CMD)
+            num_len_line = len(str(len(L_CMD)))
             stats = []
             for num_line, line in enumerate(L_CMD, start=1):
                 stat = 1
@@ -167,40 +177,41 @@ class RunSh(object):
                         if retry < retry_raw else '')
                     retry -= 1
                     t1 = datetime.now()
-                    run_number = "%s-%s" % (
-                        lineNUM, ('%%0%dd' % num_len_line) % num_line)
-                    fprint(folog, isretry + '>>>[CMD Start Run. %s  %s]   %s' %
-                           (run_number,
-                            t1.strftime('%Y-%m-%d_%H:%M:%S'), line))
+                    run_split_number = (".%s-%s" % (
+                        ('%%0%dd' % num_len_line) % num_line, num_len)
+                        if num_len > 1 else "")
+                    run_number = f"{lineNUM}{run_split_number}"
+                    print_logs(folog, isretry + '>>>[CMD Start Run. %s  %s]   %s' %
+                               (run_number,
+                                t1.strftime('%Y-%m-%d_%H:%M:%S'), line))
                     with open(f"{folog_pre}.{run_number}.sh", "w") as fo:
-                        print(line, file=fo)
+                        print_flush(line, file=fo)
                     stat = os.system(
                         f"bash -exv {folog_pre}.{run_number}.sh "
                         f">{folog_pre}.{run_number}.sh.log 2>&1")
                     t2 = datetime.now()
-                    # print("self._shm:", self._shm)
+                    # print_flush("self._shm:", self._shm)
                     if stat:
                         # self._shm[0] += 1
-                        fprint(folog, '\n\033[1;5;37;41m[CMD Run Failed.   %s  %s (Time: %s)]  CMD: %s \033[0m\n' %
-                               (run_number,
-                                t2.strftime('%Y-%m-%d_%H:%M:%S'),
-                                t2-t1, line))
+                        print_logs(folog, '\n\033[1;5;37;41m[CMD Run Failed.   %s  %s (Time: %s)]  CMD: %s \033[0m\n' %
+                                   (run_number,
+                                    t2.strftime('%Y-%m-%d_%H:%M:%S'),
+                                    t2-t1, line))
                         time.sleep(interval_time)
                     else:
                         # self._shm[1] += 1
-                        fprint(folog, '\033[1;37;42m[CMD Run Success.  %s  %s (Time: %s)]  CMD: %s \033[0m' %
-                               (run_number,
-                                t2.strftime('%Y-%m-%d_%H:%M:%S'),
-                                t2-t1, line))
-                else:
+                        print_logs(folog, '\033[1;37;42m[CMD Run Success.  %s  %s (Time: %s)]  CMD: %s \033[0m' %
+                                   (run_number,
+                                    t2.strftime('%Y-%m-%d_%H:%M:%S'),
+                                    t2-t1, line))
                     stats.append([stat, folog_pre, folog, line])
             return stats
         except Exception as ex:
             msg = "Error :%s" % ex
-            fprint(folog, msg)
+            print_logs(folog, msg)
 
 
-def fprint(fo, *t):
+def print_logs(fo, *t):
     with open(fo, 'a') as fo:
         s = ' '.join([str(x) for x in t])
         fo.write(s + '\n')
