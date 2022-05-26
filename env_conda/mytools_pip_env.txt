@@ -21,12 +21,12 @@ h11==0.9.0
 httplib2==0.18.1
 httptools==0.1.1
 idna==2.10
-importlib-metadata @ file:///tmp/build/80754af9/importlib-metadata_1593446406207/work
-ipython @ file:///tmp/build/80754af9/ipython_1598883821407/work
+importlib-metadata
+ipython
 ipython-genutils==0.2.0
 isodate==0.6.0
 itsdangerous==1.1.0
-jedi @ file:///tmp/build/80754af9/jedi_1598371611696/work
+jedi
 kiwisolver==1.2.0
 lxml==4.5.2
 Markdown==3.2.2
@@ -43,7 +43,7 @@ parso==0.7.0
 pexpect==4.8.0
 pickleshare==0.7.5
 Pillow==7.2.0
-prompt-toolkit @ file:///tmp/build/80754af9/prompt-toolkit_1602688806899/work
+prompt-toolkit
 prov==1.5.3
 psutil==5.8.0
 ptyprocess==0.6.0
@@ -52,7 +52,7 @@ pycparser==2.20
 pydot==1.4.1
 pydotplus==2.0.2
 pyflakes==2.2.0
-Pygments @ file:///tmp/build/80754af9/pygments_1600458456400/work
+Pygments
 PyMuPDF==1.17.4
 pyOpenSSL==19.1.0
 pyparsing==2.4.7
@@ -68,12 +68,12 @@ soupsieve==2.0.1
 starlette==0.13.6
 tabulate==0.8.9
 toml==0.10.2
-traitlets @ file:///tmp/build/80754af9/traitlets_1602787416690/work
+traitlets
 traits==6.1.1
 urllib3==1.25.10
 uvicorn==0.11.8
 uvloop==0.14.0
 git+https://github.com/wan230114/pyvenn
-wcwidth @ file:///tmp/build/80754af9/wcwidth_1593447189090/work
+wcwidth
 websockets==8.1
 zipp==3.1.0
