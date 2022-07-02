@@ -25,13 +25,18 @@ def fargv():
 
 
 def fmain(func, inputpath, field_separator):
+    Llines = []
+    maxLen = [0]
     def do(line, Llines):
         try:
             line = line.decode('utf8')
         except UnicodeDecodeError:
             line = line.decode('gbk')
-        Llines.append(line.strip("\r\n").split("\t"))
-    Llines = []
+        Lline = line.strip("\r\n").split("\t")
+        Len = len(Lline)
+        if Len > maxLen[0]:
+            maxLen[0] = Len
+        Llines.append(Lline)
     if not inputpath:
         while True:
             line = sys.stdin.buffer.readline()
@@ -44,6 +49,10 @@ def fmain(func, inputpath, field_separator):
                 if not line.strip():
                     continue
                 do(line, Llines)
+    s = ''
+    for Lline in Llines:
+        for i in range(maxLen[0] - len(Lline)):
+            Lline.append(s)
     # from pprint import pprint
     # pprint(Llines)
     if func == "T":
