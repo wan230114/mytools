@@ -9,6 +9,6 @@ else
 	dirname="./*"
 fi
 
-du -bs $dirname|sort -k1n|awk 'BEGIN{sum=0}{sum+=$1;print $0}END{print "-----------";print sum}'|${tools_path}/getsize
+getDirSize.py $dirname| ${tools_path}/getsize
 #getPathSize $dirname|sort -k1n|awk 'BEGIN{sum=0}{sum+=$1;print $0}END{print "-----------";print sum}'|${tools_path}/getsize
 
