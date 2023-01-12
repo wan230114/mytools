@@ -33,7 +33,7 @@ export LSCOLORS=gxfxaxdxcxegedabagacad
 
 ## 30黑,31红,32绿, 33黄,34蓝,35洋红,36青,37白
 ## 30 black, 31 red, 32 green, 33 yellow, 34 blue, 35 magenta, 36 cyan, 37 white
-PS1="\[\e[1;32m\][\u@\h:\[\e[1;36m\] \t \[\e[31m\]\"\w/\"]\n\[\e[32m\]$ \[\e[m\]"
+PS1="\[\e[1;32m\][\u@\h:\[\e[1;36m\] \"\D{%Y-%m-%d} \t\" \[\e[31m\]\"\w/\"]\n\[\e[32m\]$ \[\e[m\]"
 PS1=`echo ${PS1}|sed 's#"\\\\w/"#"$PWD/"#'`  # "~/" --> "/home/user/"
 
 ##################  常用命令  ########################

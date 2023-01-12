@@ -6,7 +6,7 @@
 # @ Author Email: 1170101471@qq.com
 # @ Created Date: 2022-11-05, 15:51:46
 # @ Modified By: Chen Jun
-# @ Last Modified: 2022-11-05, 17:44:48
+# @ Last Modified: 2023-01-13, 01:31:21
 #############################################
 
 # %%
@@ -25,7 +25,9 @@ def get_directory_size(directory):
         for entry in os.scandir(directory):
             if "./pipeline-framework-learning/nextflow/demo1/work/6b/5e053f613a047bb06dd279bc38e3f2/1week-input-2_1.fq.gz" == entry.path:
                 print(entry.path)
-            if entry.is_file():
+            if entry.is_symlink():
+                pass
+            elif entry.is_file():
                 # if it's a file, use stat() function
                 # total += entry.stat().st_size
                 total += os.lstat(entry.path).st_size
@@ -35,6 +37,9 @@ def get_directory_size(directory):
                     total += get_directory_size(entry.path)
                 except FileNotFoundError:
                     pass
+    except FileNotFoundError:
+        # if `directory` isn't find, return 0
+        return 0
     except NotADirectoryError:
         # if `directory` isn't a directory, get the file size then
         return os.path.getsize(directory)

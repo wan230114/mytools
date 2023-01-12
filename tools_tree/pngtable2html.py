@@ -11,6 +11,8 @@ parser.add_argument('-o', '--foname', type=str, default=None,
                     help='输出的html')
 parser.add_argument('-s', '--sep', type=str, default=None,
                     help='sep')
+parser.add_argument('-w', '--width', type=str, default=400,
+                    help='width images')
 parser.add_argument('-f', '--force', action='store_true',
                     help='是否强制所有行使用表格，不判断只有第一列的行。')
 args = parser.parse_args()
@@ -20,6 +22,7 @@ args = parser.parse_args()
 finame, foname = args.finame, args.foname
 force = args.force
 sep = args.sep
+width = args.width
 
 with open(finame) as fi:
     Llines = [line.strip().split(sep) for line in fi.readlines()]
@@ -67,14 +70,14 @@ header = """<!DOCTYPE html>
         }
 
         img {
-            width: 400px;
+            width: %spx;
         }
         object {
-            width: 400px;
+            width: %spx;
         }
     </style>
 </head>
-"""
+""" % (width, width)
 
 L_result = []
 if foname:

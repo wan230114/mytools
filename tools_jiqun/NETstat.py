@@ -6,7 +6,7 @@
 # @ Author Email: 1170101471@qq.com
 # @ Created Date: 2021-08-27, 23:25:12
 # @ Modified By: Chen Jun
-# @ Last Modified: 2021-10-13, 17:18:29
+# @ Last Modified: 2022-09-16, 02:06:58
 #############################################
 
 # 待修改
@@ -33,12 +33,10 @@ import curses
 import psutil
 
 # %%
-
-
-
-# %%
 global QUIT
 QUIT  = 0
+speed = 1
+
 
 def getsize(size):
     D = {0: '', 1: 'K', 2: 'M', 3: 'G', 4: 'T', 5: "P"}
@@ -88,7 +86,7 @@ def get_speed_main(s_Value):
             oldw.append(d[disk].bytes_sent)
         while True:
             time0 = time.time()
-            time.sleep(1)
+            time.sleep(speed)
             s, oldr, oldw = get_speed(oldr, oldw, time0)
             s_Value.value = s
             # print(s_Value)
