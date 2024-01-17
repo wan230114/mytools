@@ -24,11 +24,11 @@ def fargv():
                         help='输入需要运行的inputfile')
     parser.add_argument('-s', '--sep', type=str, default="\t",
                         help='表格分隔符')
-    parser.add_argument('-l', '--headlines', type=int, default=10000,
+    parser.add_argument('-n', '--headlines', type=int, default=10000,
                         help='仅打印前10000行。设置为0时，打印所有')
-    parser.add_argument('-n', '--number', action='store_true',
+    parser.add_argument('--number', action='store_true',
                         help='纯净打印，不打印描述title')
-    parser.add_argument('-c', '--comment', type=str, default="#",
+    parser.add_argument('-c', '--comment', type=str, default="##",
                         help='''注释行开头标识符, shell中可以参考次语法 $'xxx', 如 : `echo $'#' $'!' !`''')
     parser.add_argument('-p', '--printclean', action='store_true',
                         help='纯净打印，不打印描述title')

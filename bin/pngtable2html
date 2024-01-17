@@ -1,1 +1,1 @@
-pngtable2html.py <(echo $@|sed 's# #\t#g') /dev/stdout|sed 1,48d
+pngtable2html.py <(echo $@|sed 's# #\n#g') -o view.html -w 1400  -f

@@ -35,6 +35,8 @@ def fargv():
                         help='是否使用去除该进程的父进程，只遍历其下子进程')
     parser.add_argument('-s', '--sigle', type=int, default=-1,
                         help='kill发送的信号值，默认不指定(系统默认为15)')
+    parser.add_argument('--sudo', action='store_true',
+                        help='执行sudo kill')
     parser.add_argument('-u', '--user', type=str, default="x",
                         help='查看谁的进程，默认为当前用户')
     args = parser.parse_args()
@@ -44,7 +46,7 @@ def fargv():
 
 def fmain(keyword, view=False, all=False, children=False,
           sigle=-1, return_mode=False, user="x",
-          CMD=None):
+          CMD=None, sudo=False):
     user = "-u " + user if user != "x" else user
     CMD = 'ps %s jf' % user if not CMD else CMD
     CMD_res = os.popen(CMD).read()
@@ -85,12 +87,12 @@ def fmain(keyword, view=False, all=False, children=False,
         print('准备使用`kill PIDs`命令杀死以下PID的进程')
         print(Lpid)
         if input('是否删除以上进程(y/[n])？') == 'y':
-            os.system('kill ' + ' '.join(Lpid))
+            os.system('%s kill %s' % ("sudo" if sudo else "", ' '.join(Lpid)))
     else:
         print('准备使用`kill -s %s PIDs`命令杀死以下PID的进程' % sigle)
         print(Lpid)
         if input('是否删除以上进程(y/[n])？') == 'y':
-            os.system('kill -s %s ' % sigle + ' '.join(Lpid))
+            os.system('%s kill -s %s ' % ("sudo" if sudo else "", sigle + ' '.join(Lpid)))
 
 
 def main():

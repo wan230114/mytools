@@ -201,14 +201,16 @@ class fas():
                 Pold = 1  # 当为正常ATGC时==1
                 Pgap = 0
                 while True:
+                    i = ""
                     line = fi.readline()
                     Nrow += 1
+                    break_stat = 0
                     if not line:  # 考虑是否读取到最后一行
-                        break
+                        break_stat = 1
                     if line.startswith(b'>'):  # 是基因则进入下一次判断
                         fi.seek(-len(line), 1)
                         Nrow -= 1
-                        break
+                        break_stat = 1
                     # 【】逐个字符读取，文件查错，计算gap，
                     Lerr = []  # 记录行数Nrow,第几个碱基Ntemp，是什么字符i
                     perr = 0  # 是否有错
@@ -216,6 +218,13 @@ class fas():
                     NgapBEGIN = 0
                     NgapEND = 0
                     line_decode = line.rstrip().decode().upper()  # 统一转换大写，减少遍历时间
+
+                    if break_stat:
+                        NgapEND = Ncount + Ncount_tmp
+                        self.Lgap.append([geneName, NgapBEGIN, NgapEND])
+                        break
+
+
                     for i in line_decode:
                         Ncount_tmp += 1
                         if i not in geneBase:   # {'A', 'G', 'T', 'C'} #如此设计可以减少一个遍历N的计算量
@@ -351,11 +360,11 @@ class fas():
 
         if self.Lgap:
             print("\n\n文件gap信息汇总：")
-            print('gene       ——gene的名字')
+            print('chr        ——chr的名字')
             print('start      ——gap的起始位置')
             print('end        ——gap的终止位置')
             print("-----------------------------")
-            print('gene\tstart\tend')
+            print('chr\tstart\tend')
             for Li in self.Lgap:
                 print('\t'.join([str(x) for x in Li]))
             print("-----------------------------")

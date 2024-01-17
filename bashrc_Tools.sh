@@ -102,3 +102,6 @@ alias IPa=fIPinfo
 
 # unrar解压快捷方式定义
 alias unrar2="while read x; do dirname=\`echo \$x|sed 's/.rar\$//'\`; mkdir \$dirname; unrar x -y \$x \$dirname; done"
+
+# docker
+alias docker_images='docker images --format "{{.ID}}\t{{.CreatedAt}}\t{{.Size}}\t{{.Repository}}:{{.Tag}}"'

@@ -6,7 +6,7 @@
 # @ Author Email: 1170101471@qq.com
 # @ Created Date: 2021-03-02, 20:33:40
 # @ Modified By: Chen Jun
-# @ Last Modified: 2021-03-09, 09:05:55
+# @ Last Modified: 2023-02-15, 10:31:33
 #############################################
 
 import os
@@ -80,9 +80,9 @@ def fmain(keyword, speed=1, user=getpass.getuser(), Stat=False, noFlush=False):
         # print(ps_info)
         # os.popen("ks -v %s|cat" % keyword).read()
         if ps_info != ps_info_old:
-            print(time.strftime(
-                "\n[Now_time] : %Y-%m-%d %H:%M:%S", time.localtime()),
-                ps_info, sep="\n", flush=FLUSH_STAT)
+            nowtime = datetime.datetime.now()
+            print("\n[Now_time]: %s , used time: %s" % (nowtime, nowtime - time_start),
+                  ps_info, sep="\n", flush=FLUSH_STAT)
         ps_info_old = ps_info
         time.sleep(speed)
     shm[0] = 1
