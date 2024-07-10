@@ -78,7 +78,6 @@ alias cdcm="cd ${tools_path}/"
 alias vc="vim ~/.ssh/config"
 
 # 
-alias sc='conda deactivate; conda activate '
 
 ###  路径管理工具  ###
 # 用于返回当前文件(夹)绝对路径
