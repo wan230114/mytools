@@ -1,0 +1,1 @@
+../tools_docker/docker_images_format.sh

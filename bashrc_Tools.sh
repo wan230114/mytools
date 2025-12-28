@@ -76,7 +76,7 @@ alias ca="${tools_path}/Shell/common/ccat "
 ###  文件磁盘管理工具  ###
 # asum统计某一列的和，用法示例: `asum 1 file`
 fasum(){
-sh -c "awk 'BEGIN{sum=0}{sum+=\$$1; print \$0}END{print \"-----------\";print sum}' $2"
+awk 'BEGIN{sum=0}{sum+=$1;}END{print sum}' $1
 }
 alias asum=fasum
 #alias getsize="python3 ${tools_path}/tools_jiqun/getsize.py"  # 指定文件的某一列转换为计算机存储单位
@@ -102,3 +102,4 @@ alias IPa=fIPinfo
 
 # unrar解压快捷方式定义
 alias unrar2="while read x; do dirname=\`echo \$x|sed 's/.rar\$//'\`; mkdir \$dirname; unrar x -y \$x \$dirname; done"
+alias proxy='export http_proxy=http://127.0.0.1:8118; export https_proxy=$http_proxy; curl www.google.com'

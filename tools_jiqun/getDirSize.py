@@ -6,95 +6,233 @@
 # @ Author Email: 1170101471@qq.com
 # @ Created Date: 2022-11-05, 15:51:46
 # @ Modified By: Chen Jun
-# @ Last Modified: 2023-01-13, 01:31:21
+# @ Last Modified: 2025-11-02, 13:15:22
 #############################################
 
-# %%
+"""
+跨平台目录大小计算器
+无需依赖系统du命令，精确模拟du -bs行为
+
+用法:
+    python get_dir_size.py [选项] <目录路径>...
+
+选项:
+    -h, --help      显示帮助信息
+    -H, --human     以人类可读格式显示大小
+    -f, --follow    跟随符号链接
+
+示例:
+    python get_dir_size.py /path/to/dir
+    python get_dir_size.py -H /path/to/dir1 /path/to/dir2
+"""
+
 import os
+import sys
 import argparse
-import glob
-
-# %%
+from typing import Set, Tuple
 
 
-def get_directory_size(directory):
-    """Returns the `directory` size in bytes."""
-    total = 0
-    try:
-        # print("[+] Getting the size of", directory)
-        for entry in os.scandir(directory):
-            if "./pipeline-framework-learning/nextflow/demo1/work/6b/5e053f613a047bb06dd279bc38e3f2/1week-input-2_1.fq.gz" == entry.path:
-                print(entry.path)
-            if entry.is_symlink():
-                pass
-            elif entry.is_file():
-                # if it's a file, use stat() function
-                # total += entry.stat().st_size
-                total += os.lstat(entry.path).st_size
-            elif entry.is_dir():
-                # if it's a directory, recursively call this function
-                try:
-                    total += get_directory_size(entry.path)
-                except FileNotFoundError:
-                    pass
-    except FileNotFoundError:
-        # if `directory` isn't find, return 0
+def calculate_size(
+    path: str,
+    follow_symlinks: bool = False,
+    visited_inodes: Set[Tuple[int, int]] = None
+) -> int:
+    """
+    精确模拟du -bs命令行为计算路径大小
+    完全基于os.walk，确保与du -bs行为一致
+    
+    Args:
+        path: 要计算大小的路径
+        follow_symlinks: 是否跟随符号链接
+        visited_inodes: 已访问的inode集合，用于硬链接检测
+        
+    Returns:
+        int: 路径大小（字节）
+    """
+    if visited_inodes is None:
+        visited_inodes = set()
+    
+    # 首先检查路径是否存在
+    if not os.path.exists(path):
         return 0
-    except NotADirectoryError:
-        # if `directory` isn't a directory, get the file size then
-        return os.path.getsize(directory)
-    except PermissionError:
-        # if for whatever reason we can't open the folder, return 0
-        return 0
-    return total
-
-
-def getSize(inputPaths, m1=False, m2=False, sortNames=False):
-    # %%
-    path_all = []
-    if inputPaths:
-        path_all = [path for paths in inputPaths for path in glob.glob(paths)]
-    else:
-        path_all = glob.glob('./*')
-    path_all
-    # %%
-    if m1:
-        paths_str = ' '.join(map(lambda x: '"'+x+'"', path_all))
-        if sortNames:
-            os.system(
-                """du -bs %s|sort -k1 |awk 'BEGIN{sum=0}{sum+=$1;print $0}END{print "-----------";print sum}'""" % paths_str)
+    
+    # 检查是否为符号链接
+    if os.path.islink(path):
+        if follow_symlinks:
+            # 跟随符号链接
+            try:
+                real_path = os.path.realpath(path)
+                return calculate_size(real_path, follow_symlinks, visited_inodes)
+            except OSError:
+                return 0
         else:
-            os.system(
-                """du -bs %s|sort -k1n|awk 'BEGIN{sum=0}{sum+=$1;print $0}END{print "-----------";print sum}'""" % paths_str)
+            # 不跟随符号链接，返回0
+            return 0
+    
+    # 检查是否为文件
+    if os.path.isfile(path):
+        try:
+            stat_info = os.stat(path)
+            
+            # 硬链接处理
+            if stat_info.st_nlink > 1:
+                inode_key = (stat_info.st_dev, stat_info.st_ino)
+                if inode_key in visited_inodes:
+                    return 0
+                visited_inodes.add(inode_key)
+            
+            return stat_info.st_size
+        except (OSError, PermissionError):
+            return 0
+    
+    # 检查是否为目录
+    if os.path.isdir(path):
+        total_size = 0
+        
+        # 使用os.walk遍历目录，设置followlinks参数
+        try:
+            for root, dirs, files in os.walk(path, followlinks=follow_symlinks):
+                for filename in files:
+                    file_path = os.path.join(root, filename)
+                    
+                    # 跳过符号链接
+                    if not follow_symlinks and os.path.islink(file_path):
+                        continue
+                    
+                    try:
+                        # 计算文件大小
+                        stat_info = os.stat(file_path)
+                        
+                        # 硬链接处理
+                        if stat_info.st_nlink > 1:
+                            inode_key = (stat_info.st_dev, stat_info.st_ino)
+                            if inode_key in visited_inodes:
+                                continue
+                            visited_inodes.add(inode_key)
+                        
+                        total_size += stat_info.st_size
+                    except (OSError, PermissionError):
+                        continue
+        except (OSError, PermissionError):
+            pass
+        
+        return total_size
+    
+    return 0
+
+
+def human_readable_size(size_bytes: int) -> str:
+    """
+    将字节大小转换为人类可读格式
+    
+    Args:
+        size_bytes: 字节大小
+        
+    Returns:
+        str: 人类可读的大小
+    """
+    if size_bytes == 0:
+        return "0 B"
+    
+    size_units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
+    unit_index = 0
+    size = float(size_bytes)
+    
+    while size >= 1024 and unit_index < len(size_units) - 1:
+        size /= 1024
+        unit_index += 1
+    
+    if unit_index == 0:
+        return f"{size_bytes} {size_units[unit_index]}"
     else:
-        L = []
-        for path in path_all:
-            L.append([get_directory_size(path), path])
-
-        for x in sorted(L, key=lambda x: x[0]):
-            print(*x, sep="\t")
-        print("-----------")
-        print(sum([x[0] for x in L]))
+        return f"{size:.2f} {size_units[unit_index]}"
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        # formatter_class=argparse.RawDescriptionHelpFormatter,
-        formatter_class=argparse.RawTextHelpFormatter,
-        description=('路径大小获取'),)
-    parser.add_argument('inputPaths', type=str, nargs="*", default=None,
-                        help=('输入路径'))
-    parser.add_argument('-n', "--sortNames", action='store_true',
-                        help='按文件名排序，否则按大小排序')
-    # 参数组，只能选择其中一个
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument('-m1', action='store_true',
-                       help=('模式1，默认 du -bs 方式获得文件大小'))
-    group.add_argument('-m2', action='store_true',
-                       help=('模式2，使用Python内计算获得大小'))
+def get_du_equivalent(
+    path: str,
+    follow_symlinks: bool = False,
+    visited_inodes: Set[Tuple[int, int]] = None
+) -> int:
+    """
+    获取路径的du命令等效大小
+    
+    Args:
+        path: 要计算大小的路径
+        follow_symlinks: 是否跟随符号链接
+        visited_inodes: 已访问的inode集合，用于硬链接检测
+        
+    Returns:
+        int: 路径大小（字节）
+    """
+    if visited_inodes is None:
+        visited_inodes = set()
+    return calculate_size(
+        path, 
+        follow_symlinks=follow_symlinks,
+        visited_inodes=visited_inodes
+    )
+
+
+def main():
+    """
+    主函数，解析命令行参数并执行目录大小计算
+    """
+    parser = argparse.ArgumentParser(description="跨平台目录大小计算器")
+    parser.add_argument(
+        "paths", 
+        metavar="<路径>", 
+        nargs="+",
+        help="要计算大小的目录或文件路径"
+    )
+    parser.add_argument(
+        "-H", 
+        "--human", 
+        action="store_true",
+        help="以人类可读格式显示大小"
+    )
+    parser.add_argument(
+        "-f", 
+        "--follow", 
+        action="store_true",
+        help="跟随符号链接"
+    )
     args = parser.parse_args()
-    # print(args)
-    inputPaths = args.inputPaths
-    getSize(inputPaths, m1=args.m1, m2=args.m2, sortNames=args.sortNames)
+    
+    # 创建一个共享的inode集合，用于正确检测多个路径之间的硬链接关系
+    shared_visited_inodes = set()
+    
+    # 存储所有路径的大小信息，用于排序和汇总
+    results = []
+    
+    for path in args.paths:
+        try:
+            size = get_du_equivalent(
+                path,
+                follow_symlinks=args.follow,
+                visited_inodes=shared_visited_inodes
+            )
+            results.append((size, path))
+        except Exception as e:
+            print(f"错误: {path}: {str(e)}", file=sys.stderr)
+    
+    # 按大小排序结果
+    results.sort(key=lambda x: x[0])
+    
+    # 输出排序后的结果
+    for size, path in results:
+        if args.human:
+            print(f"{human_readable_size(size)}	{path}")
+        else:
+            print(f"{size}	{path}")
+    
+    # 计算并输出总大小
+    total_size = sum(size for size, _ in results)
+    print("-----------")
+    if args.human:
+        print(human_readable_size(total_size))
+    else:
+        print(total_size)
 
-# %%
+
+if __name__ == '__main__':
+    main()

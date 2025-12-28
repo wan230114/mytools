@@ -106,3 +106,5 @@ ffcd(){
 }
 alias c=ffcd
 
+alias ..="cd ../"
+alias ...="cd ../../"
