@@ -5,8 +5,8 @@ if [ "$(echo $@)" ]; then
 else
     port=8000
     while true; do
-        moni=$(ps aux | \grep -v grep | \grep -P python.*http.server.*$port)
-        if [ "$(echo $moni)" ]; then
+        moni=$(ss -tuln | grep $port)
+        if [ "$moni" ]; then
             echo $port 端口已被占用
             ((port++))
         else
