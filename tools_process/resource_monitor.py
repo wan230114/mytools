@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Resource Monitor (Clean Output & Raw Mode Fix)
+Resource Monitor (Auto Export & Unified Plotting)
 Requires: pip install docker
 """
 import subprocess
@@ -10,6 +10,7 @@ import sys
 import threading
 import warnings
 import textwrap
+import json
 from datetime import datetime
 from collections import deque
 import numpy as np
@@ -18,14 +19,14 @@ import uuid
 import tempfile
 from pathlib import Path
 
-# --- 优化1: 屏蔽 Matplotlib 的配置警告 ---
+# --- 屏蔽 Matplotlib 的配置警告 ---
 warnings.filterwarnings("ignore")
 try:
     import matplotlib.pyplot as plt
     import matplotlib.dates as mdates
     import matplotlib.gridspec as gridspec
 except ImportError:
-    pass # 延迟报错，或者在下面处理
+    pass
 
 # 检查 Docker SDK
 try:
@@ -34,52 +35,24 @@ try:
 except ImportError:
     DOCKER_AVAILABLE = False
 
-# 确保有 plt
 if 'matplotlib.pyplot' in sys.modules:
     plt.style.use('seaborn-v0_8-white')
 
 class ResourceMonitor:
-    def __init__(self, command, sampling_interval=0.5, max_samples=10000):
-        self.original_command = command.copy()
+    def __init__(self, command=None, sampling_interval=0.5, max_samples=10000):
+        self.original_command = command if command else []
         self.sampling_interval = sampling_interval
         self.max_samples = max_samples
         
         self.is_docker = False
-        self.command_to_run = command
+        self.command_to_run = list(self.original_command)
         self.cid_file = None
         self.monitor_uuid = str(uuid.uuid4())[:8]
+        self.docker_client = None
         
-        # Docker 识别与参数注入
-        if len(command) > 0 and command[0] == 'docker':
-            if not DOCKER_AVAILABLE:
-                self._log("Error: pip install docker required.")
-                sys.exit(1)
-            
-            self.is_docker = True
-            try:
-                self.docker_client = docker.from_env()
-                self.docker_client.ping()
-            except Exception as e:
-                self._log(f"Docker Connection Error: {e}")
-                sys.exit(1)
-
-            # 策略 A: CIDFile (针对 docker run)
-            if 'run' in command:
-                try:
-                    tmp_dir = tempfile.gettempdir()
-                    self.cid_file = os.path.join(tmp_dir, f"monitor_{self.monitor_uuid}.cid")
-                    
-                    run_idx = command.index('run')
-                    self.command_to_run = command[:run_idx+1] + \
-                                          ['--cidfile', self.cid_file] + \
-                                          command[run_idx+1:]
-                    self._log(f"⚓ Strategy: CIDFile Injection -> {self.cid_file}")
-                except ValueError:
-                    pass
-            
-            # 策略 B: Label 注入 (备用)
-            if not self.cid_file and any(x in command for x in ['run', 'exec', 'create']):
-                pass # 简化逻辑，保持专注
+        # 只有在提供了命令且非导入模式时才初始化 Docker 检查
+        if self.original_command and len(self.original_command) > 0 and self.original_command[0] == 'docker':
+            self._init_docker()
 
         # 数据存储
         self.timestamps = deque(maxlen=max_samples)
@@ -91,12 +64,40 @@ class ResourceMonitor:
         self.monitor_thread = None
         self.container_obj = None
         self.cpu_count = psutil.cpu_count(logical=True)
+        self.start_time = None
+        self.end_time = None
+
+    def _init_docker(self):
+        if not DOCKER_AVAILABLE:
+            self._log("Error: pip install docker required.")
+            sys.exit(1)
+        
+        self.is_docker = True
+        try:
+            self.docker_client = docker.from_env()
+            self.docker_client.ping()
+        except Exception as e:
+            self._log(f"Docker Connection Error: {e}")
+            sys.exit(1)
+
+        # 策略 A: CIDFile (针对 docker run)
+        if 'run' in self.original_command:
+            try:
+                tmp_dir = tempfile.gettempdir()
+                self.cid_file = os.path.join(tmp_dir, f"monitor_{self.monitor_uuid}.cid")
+                
+                try:
+                    run_idx = self.original_command.index('run')
+                    self.command_to_run = self.original_command[:run_idx+1] + \
+                                          ['--cidfile', self.cid_file] + \
+                                          self.original_command[run_idx+1:]
+                    self._log(f"⚓ Strategy: CIDFile Injection -> {self.cid_file}")
+                except ValueError:
+                    pass
+            except Exception:
+                pass
 
     def _log(self, msg):
-        """
-        --- 优化2: 日志输出到 stderr 并修复 Raw Mode 换行问题 ---
-        使用 \r\n 确保在 docker -it 模式下光标能正确回退到行首
-        """
         sys.stderr.write(f"{msg}\r\n")
         sys.stderr.flush()
 
@@ -108,31 +109,25 @@ class ResourceMonitor:
                     with open(self.cid_file, 'r') as f:
                         cid = f.read().strip()
                         if cid: return cid
-                except:
-                    pass
+                except: pass
             time.sleep(0.1)
         return None
 
     def _get_target_container(self):
         if self.container_obj: return self.container_obj
-
         cid = None
         if self.cid_file: cid = self._wait_for_cid()
-        
         if cid:
             try:
                 container = self.docker_client.containers.get(cid)
-                # 使用优化后的日志输出
                 self._log(f"✅ Locked Container ID: {cid[:12]}")
                 self.container_obj = container
                 return container
             except Exception as e:
                 self._log(f"Error getting container {cid}: {e}")
-        
         return None
 
     def _calculate_stats(self, stats):
-        # ... (保持原有的计算逻辑不变) ...
         cpu_pct = 0.0
         mem_mb = 0.0
         try:
@@ -154,8 +149,7 @@ class ResourceMonitor:
             used_mem = usage - cache
             if used_mem < 0: used_mem = usage
             mem_mb = used_mem / (1024 * 1024)
-        except KeyError:
-            pass
+        except KeyError: pass
         return cpu_pct, mem_mb
 
     def _monitor_loop(self, pid):
@@ -188,13 +182,14 @@ class ResourceMonitor:
             time.sleep(self.sampling_interval)
 
     def execute(self):
+        if not self.command_to_run:
+            self._log("No command to execute.")
+            return 1
+
         self.start_time = time.perf_counter()
         try:
             env = os.environ.copy()
             env['PYTHONUNBUFFERED'] = '1'
-            
-            # 使用 sys.stderr 打印启动信息
-            # self._log(f"Running: {' '.join(self.command_to_run)}")
             
             self.process = subprocess.Popen(
                 self.command_to_run,
@@ -233,14 +228,64 @@ class ResourceMonitor:
         if not self.timestamps: return {}
         cpu_l = list(self.cpu_percentages)
         mem_l = list(self.memory_usages)
+        
+        if self.start_time and self.end_time:
+            duration = self.end_time - self.start_time
+        elif len(self.timestamps) > 1:
+            duration = (self.timestamps[-1] - self.timestamps[0]).total_seconds()
+        else:
+            duration = 0
+
         return {
-            'duration': self.end_time - self.start_time,
+            'duration': duration,
             'samples': len(self.timestamps),
             'max_cpu': max(cpu_l) if cpu_l else 0,
             'avg_cpu': np.mean(cpu_l) if cpu_l else 0,
             'max_mem': max(mem_l) if mem_l else 0,
             'avg_mem': np.mean(mem_l) if mem_l else 0
         }
+
+    def save_to_json(self, filename):
+        data = {
+            'command': self.original_command,
+            'is_docker': self.is_docker,
+            'timestamps': [ts.isoformat() for ts in self.timestamps],
+            'cpu_percentages': list(self.cpu_percentages),
+            'memory_usages': list(self.memory_usages),
+            'metadata': {
+                'cpu_count': self.cpu_count,
+                'start_time': self.start_time,
+                'end_time': self.end_time
+            }
+        }
+        try:
+            with open(filename, 'w') as f:
+                json.dump(data, f, indent=2)
+            self._log(f"Data saved to: {filename}")
+        except Exception as e:
+            self._log(f"Error saving data: {e}")
+
+    def load_from_json(self, filename):
+        try:
+            with open(filename, 'r') as f:
+                data = json.load(f)
+            
+            self.original_command = data.get('command', [])
+            self.is_docker = data.get('is_docker', False)
+            self.timestamps = deque([datetime.fromisoformat(ts) for ts in data.get('timestamps', [])])
+            self.cpu_percentages = deque(data.get('cpu_percentages', []))
+            self.memory_usages = deque(data.get('memory_usages', []))
+            
+            meta = data.get('metadata', {})
+            self.cpu_count = meta.get('cpu_count', psutil.cpu_count(logical=True))
+            self.start_time = meta.get('start_time')
+            self.end_time = meta.get('end_time')
+            
+            self._log(f"Loaded {len(self.timestamps)} samples from {filename}")
+            return True
+        except Exception as e:
+            self._log(f"Error loading data: {e}")
+            return False
 
     def plot(self, output_file):
         if len(self.timestamps) < 2:
@@ -312,6 +357,7 @@ class ResourceMonitor:
             cur_y -= 0.05 * gap
 
         cmd_str = ' '.join(self.original_command)
+        if not cmd_str: cmd_str = "Imported Data"
         wrapped = "\n".join(textwrap.wrap(cmd_str, width=150))
         fig.text(0.5, 0.1, f"Command:\n{wrapped}", ha='center', va='top', 
                  fontsize=9, fontfamily='monospace', color='#555',
@@ -322,7 +368,6 @@ class ResourceMonitor:
         if output_file:
             Path(output_file).parent.mkdir(parents=True, exist_ok=True)
             plt.savefig(output_file, dpi=300, facecolor='white', bbox_inches='tight')
-            # 同样使用 _log 输出保存信息
             self._log(f"Chart saved to: {output_file}")
         else:
             plt.tight_layout()
@@ -331,31 +376,71 @@ class ResourceMonitor:
 
 def main():
     if len(sys.argv) < 2:
-        sys.stderr.write("Usage: python resource_monitor.py <command> [args...]\n")
+        sys.stderr.write("Usage:\n")
+        sys.stderr.write("  Monitor: python monitor.py [--output plot.png] <command>\n")
+        sys.stderr.write("  Replay:  python monitor.py --plot-data data.json [--output plot.png]\n")
         sys.exit(1)
     
     command = []
     interval = 0.5
-    output = None
+    output_file = None
+    import_file = None
     
+    # 解析参数
     i = 1
     while i < len(sys.argv):
-        if sys.argv[i] == '--interval':
+        arg = sys.argv[i]
+        if arg == '--interval':
             interval = float(sys.argv[i+1]); i += 2
-        elif sys.argv[i] == '--output':
-            output = sys.argv[i+1]; i += 2
+        elif arg == '--output':
+            output_file = sys.argv[i+1]; i += 2
+        elif arg == '--plot-data': # 仅用于导入回放
+            import_file = sys.argv[i+1]; i += 2
         else:
-            command.append(sys.argv[i]); i += 1
+            command.append(arg); i += 1
             
+    # --- 模式 1: 仅绘图模式 (从文件加载) ---
+    if import_file:
+        mon = ResourceMonitor()
+        if mon.load_from_json(import_file):
+            if not output_file: 
+                # 如果没有指定输出文件名，默认用原json名改为png
+                base_name = os.path.splitext(import_file)[0]
+                output_file = f"{base_name}.png"
+            mon.plot(output_file)
+        else:
+            sys.exit(1)
+        sys.exit(0)
+
+    # --- 模式 2: 监控模式 (默认同时导出数据和图片) ---
+    if not command:
+        sys.stderr.write("Error: No command specified for monitoring.\n")
+        sys.exit(1)
+
     if command[0] in ['python', 'python3'] and '-u' not in command:
         command.insert(1, '-u')
         
     mon = ResourceMonitor(command, interval)
     ret = mon.execute()
     
-    if output or len(mon.timestamps) > 2:
-        if not output: output = f"monitor_{int(time.time())}.png"
-        mon.plot(output)
+    # 自动生成文件名 (如果用户未指定)
+    if not output_file:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        cmd_slug = Path(command[0]).stem
+        output_file = f"monitor_{cmd_slug}_{timestamp}.png"
+    
+    # 生成对应的数据文件名 (image.png -> image.json)
+    base_name = os.path.splitext(output_file)[0]
+    json_file = f"{base_name}.json"
+
+    # 1. 始终导出数据
+    if len(mon.timestamps) > 0:
+        mon.save_to_json(json_file)
+
+    # 2. 始终生成图片
+    if len(mon.timestamps) > 2:
+        mon.plot(output_file)
+        
     sys.exit(ret)
 
 if __name__ == "__main__":
