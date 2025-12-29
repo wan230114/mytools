@@ -1,400 +1,362 @@
 #!/usr/bin/env python3
 """
-Advanced Resource Monitor
+Resource Monitor (Clean Output & Raw Mode Fix)
+Requires: pip install docker
 """
 import subprocess
 import psutil
 import time
 import sys
 import threading
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
+import warnings
+import textwrap
 from datetime import datetime
 from collections import deque
 import numpy as np
 import os
+import uuid
+import tempfile
 from pathlib import Path
 
-# 导入配置
+# --- 优化1: 屏蔽 Matplotlib 的配置警告 ---
+warnings.filterwarnings("ignore")
+try:
+    import matplotlib.pyplot as plt
+    import matplotlib.dates as mdates
+    import matplotlib.gridspec as gridspec
+except ImportError:
+    pass # 延迟报错，或者在下面处理
+
+# 检查 Docker SDK
 try:
     import docker
     DOCKER_AVAILABLE = True
-    docker_client = docker.from_env()
 except ImportError:
     DOCKER_AVAILABLE = False
-    docker_client = None
 
-# 图表样式配置
-plt.style.use('seaborn-v0_8-darkgrid')
-plt.rcParams['font.size'] = 10
-plt.rcParams['axes.titlesize'] = 12
-plt.rcParams['axes.labelsize'] = 10
-plt.rcParams['legend.fontsize'] = 9
-plt.rcParams['figure.titlesize'] = 14
+# 确保有 plt
+if 'matplotlib.pyplot' in sys.modules:
+    plt.style.use('seaborn-v0_8-white')
 
 class ResourceMonitor:
     def __init__(self, command, sampling_interval=0.5, max_samples=10000):
-        self.command = command
+        self.original_command = command.copy()
         self.sampling_interval = sampling_interval
         self.max_samples = max_samples
         
+        self.is_docker = False
+        self.command_to_run = command
+        self.cid_file = None
+        self.monitor_uuid = str(uuid.uuid4())[:8]
+        
+        # Docker 识别与参数注入
+        if len(command) > 0 and command[0] == 'docker':
+            if not DOCKER_AVAILABLE:
+                self._log("Error: pip install docker required.")
+                sys.exit(1)
+            
+            self.is_docker = True
+            try:
+                self.docker_client = docker.from_env()
+                self.docker_client.ping()
+            except Exception as e:
+                self._log(f"Docker Connection Error: {e}")
+                sys.exit(1)
+
+            # 策略 A: CIDFile (针对 docker run)
+            if 'run' in command:
+                try:
+                    tmp_dir = tempfile.gettempdir()
+                    self.cid_file = os.path.join(tmp_dir, f"monitor_{self.monitor_uuid}.cid")
+                    
+                    run_idx = command.index('run')
+                    self.command_to_run = command[:run_idx+1] + \
+                                          ['--cidfile', self.cid_file] + \
+                                          command[run_idx+1:]
+                    self._log(f"⚓ Strategy: CIDFile Injection -> {self.cid_file}")
+                except ValueError:
+                    pass
+            
+            # 策略 B: Label 注入 (备用)
+            if not self.cid_file and any(x in command for x in ['run', 'exec', 'create']):
+                pass # 简化逻辑，保持专注
+
         # 数据存储
         self.timestamps = deque(maxlen=max_samples)
         self.cpu_percentages = deque(maxlen=max_samples)
         self.memory_usages = deque(maxlen=max_samples)
         
-        # 进程跟踪
         self.process = None
-        self.process_stats = {}
-        self.cpu_count = psutil.cpu_count(logical=True)
-        
-        # 控制标志
         self.running = False
-        self.start_time = None
-        self.end_time = None
         self.monitor_thread = None
+        self.container_obj = None
+        self.cpu_count = psutil.cpu_count(logical=True)
+
+    def _log(self, msg):
+        """
+        --- 优化2: 日志输出到 stderr 并修复 Raw Mode 换行问题 ---
+        使用 \r\n 确保在 docker -it 模式下光标能正确回退到行首
+        """
+        sys.stderr.write(f"{msg}\r\n")
+        sys.stderr.flush()
+
+    def _wait_for_cid(self, timeout=5.0):
+        start = time.time()
+        while time.time() - start < timeout:
+            if os.path.exists(self.cid_file):
+                try:
+                    with open(self.cid_file, 'r') as f:
+                        cid = f.read().strip()
+                        if cid: return cid
+                except:
+                    pass
+            time.sleep(0.1)
+        return None
+
+    def _get_target_container(self):
+        if self.container_obj: return self.container_obj
+
+        cid = None
+        if self.cid_file: cid = self._wait_for_cid()
         
-        # Docker相关
-        self.docker_container = None
-    
-    def _get_process_tree(self, pid):
-        """获取进程树"""
-        try:
-            process = psutil.Process(pid)
-            processes = [process]
+        if cid:
             try:
-                processes.extend(process.children(recursive=True))
-            except (psutil.NoSuchProcess, psutil.AccessDenied):
-                pass
-            return processes
-        except (psutil.NoSuchProcess, psutil.AccessDenied):
-            return []
-    
-    def _monitor_resources(self, pid):
-        """监控资源使用的线程函数"""
+                container = self.docker_client.containers.get(cid)
+                # 使用优化后的日志输出
+                self._log(f"✅ Locked Container ID: {cid[:12]}")
+                self.container_obj = container
+                return container
+            except Exception as e:
+                self._log(f"Error getting container {cid}: {e}")
+        
+        return None
+
+    def _calculate_stats(self, stats):
+        # ... (保持原有的计算逻辑不变) ...
+        cpu_pct = 0.0
+        mem_mb = 0.0
+        try:
+            cpu_stats = stats['cpu_stats']
+            precpu_stats = stats['precpu_stats']
+            cpu_delta = cpu_stats['cpu_usage']['total_usage'] - precpu_stats['cpu_usage']['total_usage']
+            system_delta = cpu_stats.get('system_cpu_usage', 0) - precpu_stats.get('system_cpu_usage', 0)
+            if system_delta > 0.0 and cpu_delta > 0.0:
+                online_cpus = cpu_stats.get('online_cpus', self.cpu_count)
+                cpu_pct = (cpu_delta / system_delta) * online_cpus * 100.0
+
+            mem_stats = stats['memory_stats']
+            usage = mem_stats.get('usage', 0)
+            stats_v1 = mem_stats.get('stats', {})
+            if 'total_inactive_file' in stats_v1: cache = stats_v1.get('total_inactive_file', 0)
+            elif 'inactive_file' in stats_v1: cache = stats_v1.get('inactive_file', 0)
+            else: cache = 0
+            
+            used_mem = usage - cache
+            if used_mem < 0: used_mem = usage
+            mem_mb = used_mem / (1024 * 1024)
+        except KeyError:
+            pass
+        return cpu_pct, mem_mb
+
+    def _monitor_loop(self, pid):
+        if not self.is_docker:
+            psutil.cpu_percent()
+            proc = psutil.Process(pid)
+
         while self.running:
             try:
-                # 获取当前进程树
-                processes = self._get_process_tree(pid)
-                
-                # 计算CPU和内存使用
-                total_cpu = 0.0
-                total_memory = 0.0
-                current_time = time.time()
-                
-                for proc in processes:
+                cpu_val, mem_val = 0.0, 0.0
+                if self.is_docker:
+                    container = self._get_target_container()
+                    if container:
+                        try:
+                            stats = container.stats(stream=False)
+                            cpu_val, mem_val = self._calculate_stats(stats)
+                        except: pass
+                else:
                     try:
-                        # CPU计算
-                        cpu_times = proc.cpu_times()
-                        current_cpu = cpu_times.user + cpu_times.system
-                        
-                        if proc.pid in self.process_stats:
-                            time_diff = current_time - self.process_stats[proc.pid]['last_check']
-                            cpu_diff = current_cpu - self.process_stats[proc.pid]['cpu_time']
-                            
-                            if time_diff > 0:
-                                cpu_percent = (cpu_diff / time_diff) * 100.0
-                                cpu_percent = min(cpu_percent, 100.0 * self.cpu_count)
-                                total_cpu += cpu_percent
-                        
-                        # 更新CPU统计
-                        self.process_stats[proc.pid] = {
-                            'cpu_time': current_cpu,
-                            'last_check': current_time
-                        }
-                        
-                        # 内存计算
-                        mem_info = proc.memory_info()
-                        total_memory += mem_info.rss / (1024 * 1024)  # 转换为MB
-                        
-                    except (psutil.NoSuchProcess, psutil.AccessDenied):
-                        if proc.pid in self.process_stats:
-                            del self.process_stats[proc.pid]
-                
-                # 记录数据
+                        procs = [proc] + proc.children(recursive=True)
+                        for p in procs:
+                            cpu_val += p.cpu_percent(interval=None)
+                            mem_val += p.memory_info().rss / (1024 * 1024)
+                    except: pass
+
                 self.timestamps.append(datetime.now())
-                self.cpu_percentages.append(total_cpu)
-                self.memory_usages.append(total_memory)
-                
-            except Exception as e:
-                print(f"Monitoring error: {e}", file=sys.stderr)
-            
+                self.cpu_percentages.append(cpu_val)
+                self.memory_usages.append(mem_val)
+            except: pass
             time.sleep(self.sampling_interval)
-    
-    def execute_with_monitoring(self):
-        """执行命令并监控资源使用"""
+
+    def execute(self):
         self.start_time = time.perf_counter()
-        
         try:
-            # 启动子进程
             env = os.environ.copy()
             env['PYTHONUNBUFFERED'] = '1'
             
+            # 使用 sys.stderr 打印启动信息
+            # self._log(f"Running: {' '.join(self.command_to_run)}")
+            
             self.process = subprocess.Popen(
-                self.command,
+                self.command_to_run,
                 stdout=sys.stdout,
                 stderr=sys.stderr,
                 universal_newlines=True,
                 env=env
             )
             
-            # 启动监控线程
             self.running = True
             self.monitor_thread = threading.Thread(
-                target=self._monitor_resources,
+                target=self._monitor_loop,
                 args=(self.process.pid,)
             )
             self.monitor_thread.daemon = True
             self.monitor_thread.start()
             
-            # 等待进程完成
             return_code = self.process.wait()
             
         except Exception as e:
-            print(f"Execution error: {e}", file=sys.stderr)
+            self._log(f"Execution Error: {e}")
             return_code = 1
         finally:
             self.running = False
             if self.monitor_thread:
                 self.monitor_thread.join(timeout=2.0)
             self.end_time = time.perf_counter()
+            
+            if self.cid_file and os.path.exists(self.cid_file):
+                try: os.remove(self.cid_file)
+                except: pass
         
         return return_code
-    
-    def get_statistics(self):
-        """获取统计信息"""
-        if not self.timestamps:
-            return {}
-        
-        stats = {
-            'total_time': self.end_time - self.start_time,
-            'cpu_cores': self.cpu_count,
-            'sample_count': len(self.timestamps)
+
+    def get_stats(self):
+        if not self.timestamps: return {}
+        cpu_l = list(self.cpu_percentages)
+        mem_l = list(self.memory_usages)
+        return {
+            'duration': self.end_time - self.start_time,
+            'samples': len(self.timestamps),
+            'max_cpu': max(cpu_l) if cpu_l else 0,
+            'avg_cpu': np.mean(cpu_l) if cpu_l else 0,
+            'max_mem': max(mem_l) if mem_l else 0,
+            'avg_mem': np.mean(mem_l) if mem_l else 0
         }
-        
-        if self.cpu_percentages:
-            cpu_list = list(self.cpu_percentages)
-            stats.update({
-                'max_cpu': max(cpu_list),
-                'avg_cpu': np.mean(cpu_list)
-            })
-        
-        if self.memory_usages:
-            memory_list = list(self.memory_usages)
-            stats.update({
-                'max_memory': max(memory_list),
-                'avg_memory': np.mean(memory_list)
-            })
-        
-        return stats
-    
-    def plot_resource_usage(self, output_file=None):
-        """绘制资源使用图表（优化版本）"""
+
+    def plot(self, output_file):
         if len(self.timestamps) < 2:
-            print("Warning: Insufficient data points to generate chart")
+            self._log("Not enough data to plot.")
             return
+
+        ts = list(self.timestamps)
+        cpu = list(self.cpu_percentages)
+        mem = list(self.memory_usages)
+        stats = self.get_stats()
         
-        # 准备数据
-        timestamps = list(self.timestamps)
-        cpu_data = list(self.cpu_percentages)
-        memory_data = list(self.memory_usages)
-        stats = self.get_statistics()
+        max_mem = stats['max_mem']
+        if max_mem >= 1024: unit, scale = 'GB', 1024.0
+        elif max_mem < 1.0 and max_mem > 0: unit, scale = 'KB', 1.0/1024.0
+        else: unit, scale = 'MB', 1.0
+        mem_scaled = [x/scale for x in mem]
         
-        # 创建图表
-        fig, ax = plt.subplots(figsize=(12, 8))
+        fig = plt.figure(figsize=(16, 8))
+        gs = gridspec.GridSpec(1, 2, width_ratios=[6, 1], wspace=0.02)
         
-        # 设置标题
-        duration = (timestamps[-1] - timestamps[0]).total_seconds()
-        if duration <= 60:
-            duration_str = f"{duration:.0f}s"
-        else:
-            duration_str = f"{duration/60:.1f}m"
+        ax = fig.add_subplot(gs[0])
+        ax_stat = fig.add_subplot(gs[1])
+        c_cpu, c_mem = '#1f77b4', '#d62728'
         
-        # 创建图表标题
-        title_text = f"Resource Usage Monitor"
-        ax.set_title(title_text, fontsize=16, fontweight='bold', pad=20)
+        ax.plot(ts, cpu, color=c_cpu, lw=2, label='CPU', alpha=0.9)
+        ax.fill_between(ts, 0, cpu, color=c_cpu, alpha=0.1)
+        ax.set_ylabel('CPU (%)', color=c_cpu, fontweight='bold')
+        ax.tick_params(axis='y', labelcolor=c_cpu)
+        ax.set_ylim(0, max(100, max(cpu)*1.1))
+        ax.grid(True, ls='--', alpha=0.3, zorder=0)
         
-        # 绘制CPU使用率
-        color_cpu = '#1f77b4'
-        line_cpu, = ax.plot(timestamps, cpu_data, 
-                          color=color_cpu, 
-                          linewidth=2.5,
-                          alpha=0.8,
-                          label='CPU Usage (%)',
-                          marker='o',
-                          markersize=3)
-        ax.set_xlabel('Time', fontsize=12, fontweight='bold')
-        ax.set_ylabel('CPU Usage (%)', color=color_cpu, fontsize=12, fontweight='bold')
-        ax.tick_params(axis='y', labelcolor=color_cpu)
-        ax.grid(True, alpha=0.3, linestyle='--')
-        ax.set_ylim(bottom=0)
-        
-        # 在CPU线下方添加填充
-        ax.fill_between(timestamps, 0, cpu_data, color=color_cpu, alpha=0.2)
-        
-        # 设置x轴时间格式
-        ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
-        plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha='right')
-        
-        # 创建第二个y轴用于内存
         ax2 = ax.twinx()
-        color_memory = '#d62728'
-        line_memory, = ax2.plot(timestamps, memory_data, 
-                               color=color_memory, 
-                               linewidth=2.5,
-                               alpha=0.8,
-                               label='Memory Usage (MB)',
-                               marker='s',
-                               markersize=3)
-        ax2.set_ylabel('Memory Usage (MB)', color=color_memory, fontsize=12, fontweight='bold')
-        ax2.tick_params(axis='y', labelcolor=color_memory)
+        ax2.plot(ts, mem_scaled, color=c_mem, lw=2, label='Memory', alpha=0.9)
+        ax2.fill_between(ts, 0, mem_scaled, color=c_mem, alpha=0.1)
+        ax2.set_ylabel(f'Memory ({unit})', color=c_mem, fontweight='bold')
+        ax2.tick_params(axis='y', labelcolor=c_mem)
         ax2.set_ylim(bottom=0)
         
-        # 在内存线下方添加填充
-        ax2.fill_between(timestamps, 0, memory_data, color=color_memory, alpha=0.1)
+        for s in ['top']: ax.spines[s].set_visible(False); ax2.spines[s].set_visible(False)
+        ax.spines['left'].set_color(c_cpu); ax.spines['left'].set_lw(2)
+        ax2.spines['right'].set_color(c_mem); ax2.spines['right'].set_lw(2)
         
-        # 合并图例
-        lines = [line_cpu, line_memory]
-        labels = [l.get_label() for l in lines]
-        ax.legend(lines, labels, loc='upper left', fontsize=10, framealpha=0.9, ncol=2)
+        ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+        ax.set_xlim(ts[0], ts[-1])
+        title = "Resource Usage Monitor" + (" (Docker)" if self.is_docker else "")
+        ax.set_title(title, fontsize=16, fontweight='bold', pad=15)
         
-        # 添加统计信息到图表内部
-        if stats:
-            # 格式化运行时间
-            elapsed = stats['total_time']
-            hours = int(elapsed // 3600)
-            minutes = int((elapsed % 3600) // 60)
-            seconds = elapsed % 60
-            
-            if hours > 0:
-                time_str = f"{hours:02d}:{minutes:02d}:{seconds:05.2f}"
-            elif minutes > 0:
-                time_str = f"{minutes:02d}:{seconds:05.2f}"
-            else:
-                time_str = f"{seconds:05.2f}s"
-            
-            # 创建统计信息文本
-            stats_text = (
-                f"Duration: {time_str}\n"
-                f"CPU Cores: {stats['cpu_cores']}\n"
-                f"Max CPU: {stats.get('max_cpu', 0):.1f}%\n"
-                f"Avg CPU: {stats.get('avg_cpu', 0):.1f}%\n"
-                f"Max Mem: {stats.get('max_memory', 0):.1f} MB\n"
-                f"Avg Mem: {stats.get('avg_memory', 0):.1f} MB\n"
-                f"Samples: {stats['sample_count']}"
-            )
-            
-            # 在图表右上角添加统计信息框
-            props = dict(boxstyle='round', facecolor='white', alpha=0.9, edgecolor='gray')
-            ax.text(0.98, 0.98, stats_text,
-                   transform=ax.transAxes,
-                   fontsize=9,
-                   fontfamily='monospace',
-                   verticalalignment='top',
-                   horizontalalignment='right',
-                   bbox=props)
+        ax_stat.axis('off')
+        h, r = divmod(stats['duration'], 3600)
+        m, s = divmod(r, 60)
+        lines = [
+            ("STATISTICS", 1.5, '#333', True),
+            (f"Duration: {int(h):02d}:{int(m):02d}:{int(s):02d}", 1.0, 'black', False),
+            (f"Samples:  {stats['samples']}", 2.0, 'black', False),
+            ("CPU Usage", 1.5, c_cpu, True),
+            (f"Max: {stats['max_cpu']:.1f}%", 1.0, 'black', False),
+            (f"Avg: {stats['avg_cpu']:.1f}%", 2.0, 'black', False),
+            (f"Memory ({unit})", 1.5, c_mem, True),
+            (f"Max: {stats['max_mem']/scale:.2f}", 1.0, 'black', False),
+            (f"Avg: {stats['avg_mem']/scale:.2f}", 1.0, 'black', False),
+        ]
         
-        # 在图表下方添加命令信息
-        cmd_text = f"Command: {' '.join(self.command)}"
-        plt.figtext(0.5, 0.01, cmd_text,
-                   fontsize=9,
-                   fontfamily='monospace',
-                   ha='center',
-                   va='bottom',
-                   bbox=dict(boxstyle="round,pad=0.5", facecolor="whitesmoke", alpha=0.8))
+        cur_y = 0.90
+        for txt, gap, col, bold in lines:
+            fw = 'bold' if bold else 'normal'
+            fs = 12 if bold else 10
+            ax_stat.text(0.15, cur_y, txt, color=col, fontweight=fw, fontsize=fs, fontfamily='monospace')
+            if bold: ax_stat.axhline(y=cur_y-0.015, xmin=0.15, xmax=0.85, color=col, lw=1, alpha=0.5)
+            cur_y -= 0.05 * gap
+
+        cmd_str = ' '.join(self.original_command)
+        wrapped = "\n".join(textwrap.wrap(cmd_str, width=150))
+        fig.text(0.5, 0.1, f"Command:\n{wrapped}", ha='center', va='top', 
+                 fontsize=9, fontfamily='monospace', color='#555',
+                 bbox=dict(boxstyle='round', facecolor='#f8f9fa', ec='#ddd'))
+
+        plt.subplots_adjust(top=0.92, bottom=0.15, left=0.08, right=0.95)
         
-        plt.tight_layout(rect=[0, 0.05, 1, 0.95])  # 为底部命令留出空间
-        
-        # 保存或显示图表
         if output_file:
-            # 确保目录存在
-            output_path = Path(output_file)
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            
-            plt.savefig(output_file, dpi=300, bbox_inches='tight', facecolor='white')
-            print(f"Chart saved to: {output_file}")
+            Path(output_file).parent.mkdir(parents=True, exist_ok=True)
+            plt.savefig(output_file, dpi=300, facecolor='white', bbox_inches='tight')
+            # 同样使用 _log 输出保存信息
+            self._log(f"Chart saved to: {output_file}")
         else:
+            plt.tight_layout()
             plt.show()
-        
         plt.close()
 
-
 def main():
-    """主函数"""
     if len(sys.argv) < 2:
-        print("""
-        Resource Usage Monitor
-        ======================
-        
-        Usage: python resource_monitor.py <command> [args...]
-        
-        Examples:
-          python resource_monitor.py python3 -u script.py
-          python resource_monitor.py ./program arg1 arg2
-          python resource_monitor.py sleep 5
-        
-        Options:
-          --output FILE     Output chart filename
-          --interval SEC    Sampling interval (default: 0.5)
-        """)
+        sys.stderr.write("Usage: python resource_monitor.py <command> [args...]\n")
         sys.exit(1)
     
-    # 解析命令行参数
     command = []
-    sampling_interval = 0.5
-    output_file = None
+    interval = 0.5
+    output = None
     
     i = 1
     while i < len(sys.argv):
-        if sys.argv[i] == '--interval' and i + 1 < len(sys.argv):
-            sampling_interval = float(sys.argv[i + 1])
-            i += 2
-        elif sys.argv[i] == '--output' and i + 1 < len(sys.argv):
-            output_file = sys.argv[i + 1]
-            i += 2
+        if sys.argv[i] == '--interval':
+            interval = float(sys.argv[i+1]); i += 2
+        elif sys.argv[i] == '--output':
+            output = sys.argv[i+1]; i += 2
         else:
-            command.append(sys.argv[i])
-            i += 1
-    
-    if not command:
-        print("Error: No command specified")
-        sys.exit(1)
-    
-    # 自动为Python命令添加无缓冲参数
-    if command[0] in ['python', 'python3', 'py'] and '-u' not in command:
+            command.append(sys.argv[i]); i += 1
+            
+    if command[0] in ['python', 'python3'] and '-u' not in command:
         command.insert(1, '-u')
-        print("Note: Added -u flag for unbuffered output")
-    
-    # 创建监控器
-    monitor = ResourceMonitor(command, sampling_interval)
-    
-    # 执行命令
-    return_code = monitor.execute_with_monitoring()
-    
-    # 打印简要统计
-    stats = monitor.get_statistics()
-    if stats:
-        print("\n" + "="*60)
-        print("RESOURCE USAGE SUMMARY")
-        print("="*60)
-        print(f"Command: {' '.join(command)}")
-        print(f"Duration: {stats['total_time']:.2f}s")
-        print(f"CPU: {stats.get('avg_cpu', 0):.1f}% avg, {stats.get('max_cpu', 0):.1f}% max")
-        print(f"Memory: {stats.get('avg_memory', 0):.1f} MB avg, {stats.get('max_memory', 0):.1f} MB max")
-        print(f"Samples: {stats['sample_count']}")
-        print("="*60)
-    
-    # 生成图表
-    if len(monitor.timestamps) >= 2:
-        if not output_file:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            cmd_name = Path(command[0]).stem
-            output_file = f"resource_monitor_{cmd_name}_{timestamp}.png"
         
-        monitor.plot_resource_usage(output_file)
+    mon = ResourceMonitor(command, interval)
+    ret = mon.execute()
     
-    sys.exit(return_code)
-
+    if output or len(mon.timestamps) > 2:
+        if not output: output = f"monitor_{int(time.time())}.png"
+        mon.plot(output)
+    sys.exit(ret)
 
 if __name__ == "__main__":
     main()
