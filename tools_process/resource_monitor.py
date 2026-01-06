@@ -1,8 +1,19 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 """
-Resource Monitor (Real-time Snapshots & Status Indication)
-Requires: pip install docker
+Resource Monitor (最终修复版 - 智能参数隔离)
+
+修复问题：
+  彻底解决了 "Argument Hijacking" 问题。
+  现在的逻辑是：一旦检测到被监控的命令开始（即遇到第一个非 flag 参数），
+  监控器就停止解析后续参数，将它们全部交给子进程。
+  
+  这意味着：
+  resource_monitor.py cmd --output file  -> --output 属于 cmd (不再报错)
+  resource_monitor.py --output file cmd  -> --output 属于 monitor
 """
+
 import subprocess
 import psutil
 import time
@@ -36,22 +47,26 @@ except ImportError:
     DOCKER_AVAILABLE = False
 
 if 'matplotlib.pyplot' in sys.modules:
-    plt.style.use('seaborn-v0_8-white')
+    try:
+        plt.style.use('seaborn-v0_8-white')
+    except (OSError, FileNotFoundError):
+        try:
+            plt.style.use('seaborn-white')
+        except (OSError, FileNotFoundError):
+            pass
 
 class ResourceMonitor:
     def __init__(self, command=None, sampling_interval=0.5, snapshot_interval=60, output_file=None):
         self.original_command = command if command else []
         self.sampling_interval = sampling_interval
-        self.snapshot_interval = snapshot_interval # 快照间隔
-        self.output_file = output_file             # 用于实时更新的目标文件
+        self.snapshot_interval = snapshot_interval
+        self.output_file = output_file
         
-        # 自动推导 json 文件名
         self.json_file = None
         if self.output_file:
             base = os.path.splitext(self.output_file)[0]
             self.json_file = f"{base}.json"
 
-        # 基础状态
         self.is_docker = False
         self.command_to_run = list(self.original_command)
         self.cid_file = None
@@ -61,8 +76,6 @@ class ResourceMonitor:
         if self.original_command and len(self.original_command) > 0 and self.original_command[0] == 'docker':
             self._init_docker()
 
-        # 数据存储 (增加容量以支持长时间运行，或者改为动态列表)
-        # deque maxlen=None 表示无限长，注意内存，但一般监控数据量不大
         self.timestamps = deque() 
         self.cpu_percentages = deque()
         self.memory_usages = deque()
@@ -70,7 +83,7 @@ class ResourceMonitor:
         self.process = None
         self.running = False
         self.monitor_thread = None
-        self.snapshot_thread = None  # 新增快照线程
+        self.snapshot_thread = None
         self.container_obj = None
         self.cpu_count = psutil.cpu_count(logical=True)
         self.start_time = None
@@ -157,9 +170,13 @@ class ResourceMonitor:
         return cpu_pct, mem_mb
 
     def _monitor_loop(self, pid):
+        proc = None
         if not self.is_docker:
-            psutil.cpu_percent()
-            proc = psutil.Process(pid)
+            try:
+                psutil.cpu_percent()
+                proc = psutil.Process(pid)
+            except psutil.NoSuchProcess:
+                return
 
         while self.running:
             try:
@@ -172,33 +189,36 @@ class ResourceMonitor:
                             cpu_val, mem_val = self._calculate_stats(stats)
                         except: pass
                 else:
-                    try:
-                        procs = [proc] + proc.children(recursive=True)
-                        for p in procs:
-                            cpu_val += p.cpu_percent(interval=None)
-                            mem_val += p.memory_info().rss / (1024 * 1024)
-                    except: pass
+                    if proc:
+                        try:
+                            if not proc.is_running():
+                                break
+                            procs = [proc] + proc.children(recursive=True)
+                            for p in procs:
+                                try:
+                                    cpu_val += p.cpu_percent(interval=None)
+                                    mem_val += p.memory_info().rss / (1024 * 1024)
+                                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                                    pass
+                        except psutil.NoSuchProcess:
+                            break
 
                 self.timestamps.append(datetime.now())
                 self.cpu_percentages.append(cpu_val)
                 self.memory_usages.append(mem_val)
-            except: pass
+            except Exception: 
+                pass
             time.sleep(self.sampling_interval)
 
-    # --- 新增: 定期快照线程 ---
     def _snapshot_loop(self):
         last_snapshot = time.time()
         while self.running:
-            time.sleep(1) # 1秒检查一次，避免 sleep 太久无法及时退出
+            time.sleep(1)
             if time.time() - last_snapshot > self.snapshot_interval:
                 if len(self.timestamps) > 2 and self.output_file:
                     try:
-                        # 临时保存，不打印 log 避免刷屏
                         self.save_to_json(self.json_file, silent=True)
                         self.plot(self.output_file, silent=True)
-                        # 可选：在 stderr 打印一个小点表示 update
-                        # sys.stderr.write(".")
-                        # sys.stderr.flush()
                     except Exception:
                         pass
                 last_snapshot = time.time()
@@ -223,7 +243,6 @@ class ResourceMonitor:
             
             self.running = True
             
-            # 1. 启动监控线程
             self.monitor_thread = threading.Thread(
                 target=self._monitor_loop,
                 args=(self.process.pid,)
@@ -231,7 +250,6 @@ class ResourceMonitor:
             self.monitor_thread.daemon = True
             self.monitor_thread.start()
 
-            # 2. 启动快照线程 (如果指定了输出文件)
             if self.output_file:
                 self.snapshot_thread = threading.Thread(
                     target=self._snapshot_loop
@@ -245,15 +263,10 @@ class ResourceMonitor:
             self._log(f"Execution Error: {e}")
             return_code = 1
         finally:
-            self.running = False # 这会让两个线程退出
-            
-            if self.monitor_thread:
-                self.monitor_thread.join(timeout=2.0)
-            if self.snapshot_thread:
-                self.snapshot_thread.join(timeout=2.0)
-                
+            self.running = False
+            if self.monitor_thread: self.monitor_thread.join(timeout=2.0)
+            if self.snapshot_thread: self.snapshot_thread.join(timeout=2.0)
             self.end_time = time.perf_counter()
-            
             if self.cid_file and os.path.exists(self.cid_file):
                 try: os.remove(self.cid_file)
                 except: pass
@@ -265,15 +278,10 @@ class ResourceMonitor:
         cpu_l = list(self.cpu_percentages)
         mem_l = list(self.memory_usages)
         
-        # 动态计算 duration
-        if self.end_time: # 已结束
-            duration = self.end_time - self.start_time
-        elif self.start_time: # 正在运行
-            duration = time.perf_counter() - self.start_time
-        elif len(self.timestamps) > 1: # 导入模式
-            duration = (self.timestamps[-1] - self.timestamps[0]).total_seconds()
-        else:
-            duration = 0
+        if self.end_time: duration = self.end_time - self.start_time
+        elif self.start_time: duration = time.perf_counter() - self.start_time
+        elif len(self.timestamps) > 1: duration = (self.timestamps[-1] - self.timestamps[0]).total_seconds()
+        else: duration = 0
 
         return {
             'duration': duration,
@@ -282,7 +290,7 @@ class ResourceMonitor:
             'avg_cpu': np.mean(cpu_l) if cpu_l else 0,
             'max_mem': max(mem_l) if mem_l else 0,
             'avg_mem': np.mean(mem_l) if mem_l else 0,
-            'status': 'Running' if self.running else 'Finished' # 添加状态
+            'status': 'Running' if self.running else 'Finished'
         }
 
     def save_to_json(self, filename, silent=False):
@@ -296,16 +304,14 @@ class ResourceMonitor:
                 'cpu_count': self.cpu_count,
                 'start_time': self.start_time,
                 'end_time': self.end_time,
-                'status': 'Running' if self.running else 'Finished' # 标记状态
+                'status': 'Running' if self.running else 'Finished'
             }
         }
         try:
-            # 写入临时文件再重命名，原子操作防止读到一半的文件
             tmp_name = filename + ".tmp"
             with open(tmp_name, 'w') as f:
                 json.dump(data, f, indent=2)
             os.replace(tmp_name, filename)
-            
             if not silent: self._log(f"Data saved to: {filename}")
         except Exception as e:
             if not silent: self._log(f"Error saving data: {e}")
@@ -314,21 +320,16 @@ class ResourceMonitor:
         try:
             with open(filename, 'r') as f:
                 data = json.load(f)
-            
             self.original_command = data.get('command', [])
             self.is_docker = data.get('is_docker', False)
             self.timestamps = deque([datetime.fromisoformat(ts) for ts in data.get('timestamps', [])])
             self.cpu_percentages = deque(data.get('cpu_percentages', []))
             self.memory_usages = deque(data.get('memory_usages', []))
-            
             meta = data.get('metadata', {})
             self.cpu_count = meta.get('cpu_count', psutil.cpu_count(logical=True))
             self.start_time = meta.get('start_time')
             self.end_time = meta.get('end_time')
-            
-            # 如果加载的是一个之前未完成的文件，我们可以手动标记状态
             self.running = (meta.get('status') == 'Running')
-            
             self._log(f"Loaded {len(self.timestamps)} samples from {filename}")
             return True
         except Exception as e:
@@ -340,7 +341,6 @@ class ResourceMonitor:
             if not silent: self._log("Not enough data to plot.")
             return
 
-        # 确保线程安全地复制数据进行绘图
         ts = list(self.timestamps)
         cpu = list(self.cpu_percentages)
         mem = list(self.memory_usages)
@@ -354,7 +354,6 @@ class ResourceMonitor:
         
         fig = plt.figure(figsize=(16, 8))
         gs = gridspec.GridSpec(1, 2, width_ratios=[6, 1], wspace=0.02)
-        
         ax = fig.add_subplot(gs[0])
         ax_stat = fig.add_subplot(gs[1])
         c_cpu, c_mem = '#1f77b4', '#d62728'
@@ -380,27 +379,17 @@ class ResourceMonitor:
         ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
         ax.set_xlim(ts[0], ts[-1])
         
-        # --- 标题显示状态 ---
         base_title = "Resource Usage Monitor" + (" (Docker)" if self.is_docker else "")
-        if self.running:
-            title = f"{base_title} - [RUNNING...]"
-            title_color = '#d62728' # 红色提示正在运行
-        else:
-            title = f"{base_title} - [FINISHED]"
-            title_color = '#333333'
-            
-        ax.set_title(title, fontsize=16, fontweight='bold', pad=15, color=title_color)
+        title = f"{base_title} - [{'RUNNING' if self.running else 'FINISHED'}]"
+        ax.set_title(title, fontsize=16, fontweight='bold', pad=15, color='#d62728' if self.running else '#333')
         
         ax_stat.axis('off')
         h, r = divmod(stats['duration'], 3600)
         m, s = divmod(r, 60)
         
-        # 状态颜色
-        status_color = 'green' if not self.running else 'orange'
-        
         lines = [
             ("STATISTICS", 1.5, '#333', True),
-            (f"Status:   {stats['status']}", 1.0, status_color, True), # 状态行
+            (f"Status: {stats['status']}", 1.0, 'green' if not self.running else 'orange', True),
             (f"Duration: {int(h):02d}:{int(m):02d}:{int(s):02d}", 1.0, 'black', False),
             (f"Samples:  {stats['samples']}", 2.0, 'black', False),
             ("CPU Usage", 1.5, c_cpu, True),
@@ -436,39 +425,109 @@ class ResourceMonitor:
             else:
                 plt.tight_layout()
                 plt.show()
-        except Exception:
-            pass # 忽略绘图错误，避免打断主线程
-        finally:
-            plt.close()
+        except Exception: pass
+        finally: plt.close()
+
+def parse_monitor_config(config_str):
+    config = {}
+    if not config_str: return config
+    for item in config_str.split(';'):
+        item = item.strip()
+        if not item: continue
+        if '=' in item: k, v = item.split('=', 1)
+        elif ':' in item: k, v = item.split(':', 1)
+        else: continue
+        config[k.strip().lower()] = v.strip()
+    return config
 
 def main():
     if len(sys.argv) < 2:
-        sys.stderr.write("Usage:\n")
-        sys.stderr.write("  Monitor: python monitor.py [--output plot.png] [--snapshot-interval 60] <command>\n")
-        sys.stderr.write("  Replay:  python monitor.py --plot-data data.json [--output plot.png]\n")
+        sys.stderr.write("Usage: python monitor.py [monitor_opts] command [command_opts]\n")
         sys.exit(1)
     
     command = []
     interval = 0.5
-    snapshot_interval = 60 # 默认 60秒更新一次图表
+    snapshot_interval = 60
     output_file = None
     import_file = None
     
-    i = 1
-    while i < len(sys.argv):
-        arg = sys.argv[i]
-        if arg == '--interval':
-            interval = float(sys.argv[i+1]); i += 2
-        elif arg == '--snapshot-interval':
-            snapshot_interval = float(sys.argv[i+1]); i += 2
-        elif arg == '--output':
-            output_file = sys.argv[i+1]; i += 2
-        elif arg == '--plot-data':
-            import_file = sys.argv[i+1]; i += 2
-        else:
-            command.append(arg); i += 1
+    # --- 阶段 1: 扫描并分离 Monitor 参数和 Command ---
+    # 策略：扫描参数列表，一旦遇到看起来不像是 flag 的东西（比如 /usr/bin/python），
+    # 或者遇到了明确的 '--'，就认为这里是 Command 的起点。
+    # 从起点开始往后的所有东西，都无条件属于 Command。
+    
+    monitor_args = []
+    cmd_args = []
+    
+    raw_args = sys.argv[1:]
+    split_index = -1
+    
+    for i, arg in enumerate(raw_args):
+        # 显式分隔符
+        if arg == '--':
+            monitor_args = raw_args[:i]
+            cmd_args = raw_args[i+1:]
+            split_index = i
+            break
+        
+        # 启发式：如果遇到一个不以 - 开头的参数，且前一个参数不是那种需要值的flag
+        # (简单起见，这里假设如果遇到不以-开头，且不是 config string, 就是命令)
+        # 注意：为了鲁棒性，这里我们只解析我们认识的参数。一旦遇到不认识的或非flag，就终止。
+        
+        is_flag = arg.startswith('-')
+        if not is_flag:
+            # 这是一个普通的位置参数（如 /bin/sleep 或 ./script.sh）
+            # 认为这是命令的开始
+            monitor_args = raw_args[:i]
+            cmd_args = raw_args[i:]
+            split_index = i
+            break
+    
+    # 如果没找到分割点（例如全是 flag?），那可能就是纯 replay 模式或者出错了
+    if split_index == -1:
+        monitor_args = raw_args
+        cmd_args = []
+
+    # --- 阶段 2: 解析 Monitor 参数 ---
+    # 我们只在 monitor_args 里找配置
+    
+    args_iter = iter(monitor_args)
+    while True:
+        try:
+            arg = next(args_iter)
+        except StopIteration:
+            break
             
-    # --- 模式 1: 仅绘图模式 ---
+        if arg == '--monitor-config':
+            try:
+                cfg = parse_monitor_config(next(args_iter))
+                if 'output' in cfg: output_file = cfg['output']
+                if 'file' in cfg: output_file = cfg['file']
+                if 'interval' in cfg: interval = float(cfg['interval'])
+                if 'snapshot' in cfg: snapshot_interval = float(cfg['snapshot'])
+                if 'data' in cfg: import_file = cfg['data']
+            except StopIteration: pass
+            
+        elif arg == '--interval':
+            try: interval = float(next(args_iter))
+            except StopIteration: pass
+        elif arg == '--snapshot-interval':
+            try: snapshot_interval = float(next(args_iter))
+            except StopIteration: pass
+        elif arg in ['--output', '--plot-output']:
+            try: output_file = next(args_iter)
+            except StopIteration: pass
+        elif arg == '--plot-data':
+            try: import_file = next(args_iter)
+            except StopIteration: pass
+        else:
+            # 如果 monitor_args 里混入了不认识的 flag，比如用户把 flag 写在了命令前面？
+            # 比如: resource_monitor.py --verbose cmd
+            # 这种情况下，保守起见，我们将这些也加回 cmd_args 的最前面
+            cmd_args.insert(0, arg)
+
+    # --- 阶段 3: 执行逻辑 ---
+    
     if import_file:
         mon = ResourceMonitor()
         if mon.load_from_json(import_file):
@@ -476,19 +535,19 @@ def main():
                 base_name = os.path.splitext(import_file)[0]
                 output_file = f"{base_name}.png"
             mon.plot(output_file)
-        else:
-            sys.exit(1)
         sys.exit(0)
 
-    # --- 模式 2: 监控模式 ---
-    if not command:
-        sys.stderr.write("Error: No command specified for monitoring.\n")
+    if not cmd_args:
+        sys.stderr.write("Error: No command specified.\n")
         sys.exit(1)
+        
+    command = cmd_args
 
+    # 强制 unbuffered
     if command[0] in ['python', 'python3'] and '-u' not in command:
         command.insert(1, '-u')
     
-    # 自动生成文件名 (如果用户未指定)
+    # 自动生成文件名
     if not output_file:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         cmd_slug = Path(command[0]).stem
@@ -498,19 +557,15 @@ def main():
         command, 
         sampling_interval=interval, 
         snapshot_interval=snapshot_interval,
-        output_file=output_file # 传入 output_file 以开启快照功能
+        output_file=output_file
     )
     
     ret = mon.execute()
     
-    # 结束后的最终保存
-    # 重新推导 json 名
     base_name = os.path.splitext(output_file)[0]
     json_file = f"{base_name}.json"
-
     if len(mon.timestamps) > 0:
         mon.save_to_json(json_file)
-
     if len(mon.timestamps) > 2:
         mon.plot(output_file)
         

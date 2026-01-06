@@ -2,7 +2,10 @@
 
 # 修复版PDF转PNG工具
 # 使用最新的PyMuPDF库语法
-# 安装方法: pip install PyMuPDF
+# 安装方法:
+# pip uninstall fitz
+# pip install --upgrade pymupdf
+# pip install PyMuPDF
 
 """
 功能: 将PDF文件转换为PNG图片
@@ -22,7 +25,7 @@ except ImportError:
         import pymupdf as fitz  # 部分环境可能需要这样导入
         print("使用pymupdf模块")
     except ImportError:
-        print("错误: 未安装PyMuPDF库，请运行 'pip install PyMuPDF' 安装")
+        print("错误: 未安装PyMuPDF库，请运行 'pip uninstall fitz; pip install PyMuPDF' 安装")
         sys.exit(1)
 
 def pdf_to_images(pdf_path, zoom_x=5.0, zoom_y=5.0, rotation=0):

@@ -41,7 +41,7 @@ header = """<!DOCTYPE html>
         /* --- 基础表格样式 --- */
         p { margin: 0 0 10.5px; display: block; margin-block-start: 0.3em; margin-block-end: 1em; }
         table { border-collapse: collapse; min-width: 450px; font-size: 12px; border-spacing: 0; text-align: left; border-width: 1px; border-style: double; }
-        td { padding: 5px 10px; font-family: 'Trebuchet MS', Arial, sans-serif; vertical-align: top; width: 700px; border-width: 1px; word-wrap: break-word; word-break: break-all; font-size: 14px; color: #434242; }
+        td { padding: 5px 10px; font-family: 'Trebuchet MS', Arial, sans-serif; vertical-align: top; width: 450px; border-width: 1px; word-wrap: break-word; word-break: break-all; font-size: 14px; color: #434242; }
         
         /* 表格内图片样式 */
         table img {
