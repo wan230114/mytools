@@ -2,16 +2,11 @@
 # -*- coding: utf-8 -*-
 
 """
-Resource Monitor (最终修复版 - 智能参数隔离)
+Resource Monitor (Fix: Argument Parsing Bug)
 
-修复问题：
-  彻底解决了 "Argument Hijacking" 问题。
-  现在的逻辑是：一旦检测到被监控的命令开始（即遇到第一个非 flag 参数），
-  监控器就停止解析后续参数，将它们全部交给子进程。
-  
-  这意味着：
-  resource_monitor.py cmd --output file  -> --output 属于 cmd (不再报错)
-  resource_monitor.py --output file cmd  -> --output 属于 monitor
+修复说明：
+  1. [修复] 解决了 --output 后面的文件名或 --monitor-config 后面的字符串被误认为是命令的问题。
+  2. [逻辑] 重构了参数扫描器，能够智能跳过 flag 的参数值。
 """
 
 import subprocess
@@ -22,7 +17,7 @@ import threading
 import warnings
 import textwrap
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from collections import deque
 import numpy as np
 import os
@@ -79,6 +74,9 @@ class ResourceMonitor:
         self.timestamps = deque() 
         self.cpu_percentages = deque()
         self.memory_usages = deque()
+        
+        # 进程缓存字典 {pid: psutil.Process}
+        self.procs_cache = {}
         
         self.process = None
         self.running = False
@@ -170,17 +168,21 @@ class ResourceMonitor:
         return cpu_pct, mem_mb
 
     def _monitor_loop(self, pid):
-        proc = None
+        main_proc = None
+        
         if not self.is_docker:
             try:
                 psutil.cpu_percent()
-                proc = psutil.Process(pid)
+                main_proc = psutil.Process(pid)
+                main_proc.cpu_percent() # Pre-warm
+                self.procs_cache[pid] = main_proc
             except psutil.NoSuchProcess:
                 return
 
         while self.running:
             try:
                 cpu_val, mem_val = 0.0, 0.0
+                
                 if self.is_docker:
                     container = self._get_target_container()
                     if container:
@@ -189,25 +191,44 @@ class ResourceMonitor:
                             cpu_val, mem_val = self._calculate_stats(stats)
                         except: pass
                 else:
-                    if proc:
+                    if main_proc:
+                        if not main_proc.is_running():
+                            break
+                        
                         try:
-                            if not proc.is_running():
-                                break
-                            procs = [proc] + proc.children(recursive=True)
-                            for p in procs:
+                            children = main_proc.children(recursive=True)
+                            current_pids = {p.pid for p in children}
+                            current_pids.add(main_proc.pid)
+                            
+                            for p in children:
+                                if p.pid not in self.procs_cache:
+                                    try:
+                                        p.cpu_percent() # Pre-warm new process
+                                        self.procs_cache[p.pid] = p
+                                    except psutil.NoSuchProcess: pass
+                            
+                            self.procs_cache = {pid: proc for pid, proc in self.procs_cache.items() 
+                                              if pid in current_pids and proc.is_running()}
+                            
+                            for proc in self.procs_cache.values():
                                 try:
-                                    cpu_val += p.cpu_percent(interval=None)
-                                    mem_val += p.memory_info().rss / (1024 * 1024)
+                                    c = proc.cpu_percent(interval=None)
+                                    m = proc.memory_info().rss / (1024 * 1024)
+                                    cpu_val += c
+                                    mem_val += m
                                 except (psutil.NoSuchProcess, psutil.AccessDenied):
                                     pass
+                                    
                         except psutil.NoSuchProcess:
                             break
 
                 self.timestamps.append(datetime.now())
                 self.cpu_percentages.append(cpu_val)
                 self.memory_usages.append(mem_val)
+                
             except Exception: 
                 pass
+            
             time.sleep(self.sampling_interval)
 
     def _snapshot_loop(self):
@@ -215,7 +236,7 @@ class ResourceMonitor:
         while self.running:
             time.sleep(1)
             if time.time() - last_snapshot > self.snapshot_interval:
-                if len(self.timestamps) > 2 and self.output_file:
+                if len(self.timestamps) > 0 and self.output_file:
                     try:
                         self.save_to_json(self.json_file, silent=True)
                         self.plot(self.output_file, silent=True)
@@ -337,13 +358,19 @@ class ResourceMonitor:
             return False
 
     def plot(self, output_file, silent=False):
-        if len(self.timestamps) < 2:
-            if not silent: self._log("Not enough data to plot.")
+        if not self.timestamps:
+            if not silent: self._log("No data to plot.")
             return
 
         ts = list(self.timestamps)
         cpu = list(self.cpu_percentages)
         mem = list(self.memory_usages)
+        
+        if len(ts) == 1:
+            ts.append(ts[0] + timedelta(seconds=0.1))
+            cpu.append(cpu[0])
+            mem.append(mem[0])
+
         stats = self.get_stats()
         
         max_mem = stats['max_mem']
@@ -379,17 +406,58 @@ class ResourceMonitor:
         ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
         ax.set_xlim(ts[0], ts[-1])
         
-        base_title = "Resource Usage Monitor" + (" (Docker)" if self.is_docker else "")
-        title = f"{base_title} - [{'RUNNING' if self.running else 'FINISHED'}]"
-        ax.set_title(title, fontsize=16, fontweight='bold', pad=15, color='#d62728' if self.running else '#333')
+        # --- Smart Title Generation ---
+        cmd_name = "Unknown"
+        if self.original_command:
+            base_cmd = Path(self.original_command[0]).name
+            if base_cmd in ['python', 'python3', 'bash', 'sh', 'node'] and len(self.original_command) > 1:
+                candidates = [arg for arg in self.original_command[1:] if not arg.startswith('-')]
+                if candidates: cmd_name = Path(candidates[0]).name
+                else: cmd_name = base_cmd
+            elif base_cmd == 'docker' and 'run' in self.original_command:
+                try:
+                    run_idx = self.original_command.index('run')
+                    after_run = self.original_command[run_idx+1:]
+                    image_name = None
+                    command_name = None
+                    image_idx = -1
+                    for idx, arg in enumerate(after_run):
+                        if not arg.startswith('-'):
+                            image_name = arg
+                            image_idx = idx
+                            break
+                    if image_name and image_idx != -1:
+                        if image_idx + 1 < len(after_run):
+                            command_name = after_run[image_idx + 1]
+                    
+                    if command_name: cmd_name = Path(command_name).name
+                    elif image_name: cmd_name = f"docker ({image_name})"
+                    else: cmd_name = "docker run"
+                except ValueError: cmd_name = "docker"
+            else:
+                cmd_name = base_cmd
+        if len(cmd_name) > 50: cmd_name = cmd_name[:50] + "..."
+
+        duration_sec = stats['duration']
+        if duration_sec < 60: duration_str = f"{duration_sec:.1f} seconds"
+        elif duration_sec < 3600: duration_str = f"{duration_sec/60:.1f} minutes"
+        else: duration_str = f"{duration_sec/3600:.2f} hours"
+
+        title = f"Program Resource Usage - {cmd_name} (Duration: {duration_str})"
+        if self.is_docker and "docker" not in cmd_name.lower():
+            title += " [Docker]"
+            
+        ax.set_title(title, fontsize=16, fontweight='bold', pad=15, color='#333333')
         
         ax_stat.axis('off')
         h, r = divmod(stats['duration'], 3600)
         m, s = divmod(r, 60)
         
+        status_color = 'green' if stats['status'] == 'Finished' else 'orange'
+        
         lines = [
             ("STATISTICS", 1.5, '#333', True),
-            (f"Status: {stats['status']}", 1.0, 'green' if not self.running else 'orange', True),
+            (f"Status: {stats['status']}", 1.0, status_color, True),
             (f"Duration: {int(h):02d}:{int(m):02d}:{int(s):02d}", 1.0, 'black', False),
             (f"Samples:  {stats['samples']}", 2.0, 'black', False),
             ("CPU Usage", 1.5, c_cpu, True),
@@ -440,10 +508,44 @@ def parse_monitor_config(config_str):
         config[k.strip().lower()] = v.strip()
     return config
 
+def print_help():
+    help_text = """
+    Resource Monitor - Real-time CPU/Memory Usage Tracker
+    
+    Usage:
+      python resource_monitor.py [options] -- <command>
+      python resource_monitor.py --monitor-config "..." <command>
+      
+    Options:
+      --output <file>       Path to save the plot image (e.g., plot.png).
+      --interval <sec>      Sampling interval in seconds (default: 0.5).
+      --snapshot-interval <sec>  How often to update the plot file (default: 60).
+      --plot-data <json>    Replay mode: Generate plot from existing JSON data.
+      --monitor-config <str> Configuration string (safe for complex commands).
+      
+    Examples:
+    
+    1. Basic Usage:
+       $ python resource_monitor.py sleep 5
+       
+    2. Save to File:
+       $ python resource_monitor.py --output monitor.png -- python3 script.py
+       
+    3. Docker Monitoring:
+       $ python resource_monitor.py --output docker_stats.png -- docker run --rm ubuntu sleep 10
+       
+    4. Complex Configuration (Safe Mode):
+       $ python resource_monitor.py --monitor-config "output=res.png;interval=0.1" python script.py --output data.txt
+       
+    5. Replay from JSON:
+       $ python resource_monitor.py --plot-data monitor.json --output replay.png
+    """
+    print(textwrap.dedent(help_text))
+
 def main():
-    if len(sys.argv) < 2:
-        sys.stderr.write("Usage: python monitor.py [monitor_opts] command [command_opts]\n")
-        sys.exit(1)
+    if len(sys.argv) < 2 or '-h' in sys.argv or '--help' in sys.argv:
+        print_help()
+        sys.exit(0)
     
     command = []
     interval = 0.5
@@ -451,46 +553,59 @@ def main():
     output_file = None
     import_file = None
     
-    # --- 阶段 1: 扫描并分离 Monitor 参数和 Command ---
-    # 策略：扫描参数列表，一旦遇到看起来不像是 flag 的东西（比如 /usr/bin/python），
-    # 或者遇到了明确的 '--'，就认为这里是 Command 的起点。
-    # 从起点开始往后的所有东西，都无条件属于 Command。
-    
+    # --- Argument Parsing Fix: Skip values for known flags ---
     monitor_args = []
     cmd_args = []
+    
+    # Flags that take an argument
+    FLAGS_WITH_ARGS = {
+        '--output', '--plot-output', 
+        '--interval', 
+        '--snapshot-interval', 
+        '--plot-data', 
+        '--monitor-config'
+    }
     
     raw_args = sys.argv[1:]
     split_index = -1
     
-    for i, arg in enumerate(raw_args):
-        # 显式分隔符
+    i = 0
+    while i < len(raw_args):
+        arg = raw_args[i]
+        
+        # 1. Explicit Separator
         if arg == '--':
             monitor_args = raw_args[:i]
             cmd_args = raw_args[i+1:]
             split_index = i
             break
-        
-        # 启发式：如果遇到一个不以 - 开头的参数，且前一个参数不是那种需要值的flag
-        # (简单起见，这里假设如果遇到不以-开头，且不是 config string, 就是命令)
-        # 注意：为了鲁棒性，这里我们只解析我们认识的参数。一旦遇到不认识的或非flag，就终止。
-        
-        is_flag = arg.startswith('-')
-        if not is_flag:
-            # 这是一个普通的位置参数（如 /bin/sleep 或 ./script.sh）
-            # 认为这是命令的开始
-            monitor_args = raw_args[:i]
-            cmd_args = raw_args[i:]
-            split_index = i
-            break
+            
+        # 2. Known Monitor Flags (consume flag + value)
+        if arg in FLAGS_WITH_ARGS:
+            # Check if next arg exists (value)
+            if i + 1 < len(raw_args):
+                i += 2 # Skip flag and value
+                continue
+            else:
+                i += 1 # Trailing flag (error handled later)
+                continue
+                
+        # 3. Possible Monitor Flags (unknown/typo?)
+        if arg.startswith('-'):
+            i += 1
+            continue
+            
+        # 4. Command Start (First non-flag argument)
+        monitor_args = raw_args[:i]
+        cmd_args = raw_args[i:]
+        split_index = i
+        break
     
-    # 如果没找到分割点（例如全是 flag?），那可能就是纯 replay 模式或者出错了
-    if split_index == -1:
+    # If no split found (e.g. only replay args), all are monitor args
+    if split_index == -1 and not cmd_args:
         monitor_args = raw_args
-        cmd_args = []
 
-    # --- 阶段 2: 解析 Monitor 参数 ---
-    # 我们只在 monitor_args 里找配置
-    
+    # --- Parse Monitor Args ---
     args_iter = iter(monitor_args)
     while True:
         try:
@@ -521,13 +636,11 @@ def main():
             try: import_file = next(args_iter)
             except StopIteration: pass
         else:
-            # 如果 monitor_args 里混入了不认识的 flag，比如用户把 flag 写在了命令前面？
-            # 比如: resource_monitor.py --verbose cmd
-            # 这种情况下，保守起见，我们将这些也加回 cmd_args 的最前面
-            cmd_args.insert(0, arg)
+            # Should ideally not happen if logic above is correct, 
+            # but if something slipped through, treat as cmd arg?
+            # Or just ignore/warn.
+            pass
 
-    # --- 阶段 3: 执行逻辑 ---
-    
     if import_file:
         mon = ResourceMonitor()
         if mon.load_from_json(import_file):
@@ -538,16 +651,14 @@ def main():
         sys.exit(0)
 
     if not cmd_args:
-        sys.stderr.write("Error: No command specified.\n")
+        sys.stderr.write("Error: No command specified. Use --help for usage.\n")
         sys.exit(1)
         
     command = cmd_args
 
-    # 强制 unbuffered
     if command[0] in ['python', 'python3'] and '-u' not in command:
         command.insert(1, '-u')
     
-    # 自动生成文件名
     if not output_file:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         cmd_slug = Path(command[0]).stem
@@ -564,9 +675,9 @@ def main():
     
     base_name = os.path.splitext(output_file)[0]
     json_file = f"{base_name}.json"
+    
     if len(mon.timestamps) > 0:
         mon.save_to_json(json_file)
-    if len(mon.timestamps) > 2:
         mon.plot(output_file)
         
     sys.exit(ret)

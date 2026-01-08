@@ -24,16 +24,18 @@ if [[ -n "$container_ids" ]]; then
             container_id=$(echo "$line" | awk '{print $1}')
             name=$(echo "$line" | awk '{print $2}')
 
+
             # 确保容器ID不为空
             if [[ -n "$container_id" ]]; then
                 # 使用显式的容器ID并保存退出状态
                 container_cmd=$(docker inspect --format '{{.Path}} {{.Args}}' "$container_id" 2>/dev/null)
+                container_runs_cmd=$(docker exec "$container_id" ps -eo cmd | sed 1d | grep -v "ps -eo cmd" | xargs -I {} echo -en "{};  ")
                 exit_status=$?
                 
                 # 检查docker inspect命令是否成功执行
                 if [[ $exit_status -eq 0 && -n "$container_cmd" ]]; then
                     # 将命令添加到输出行的末尾并写入日志
-                    echo -e "$timestamp\t$line\t\"$container_cmd\"" >>$logdir/docker_stats_${container_id}_${name}.log
+                    echo -e "$timestamp\t$line\t\"$container_cmd\"\t\"$container_runs_cmd\"" >>$logdir/docker_stats_${container_id}_${name}.log
                 else
                     # 如果获取命令失败，记录具体的容器ID和错误
                     echo -e "$timestamp\t$line\t[ERROR: Failed to get command for container $container_id]" >>$logdir/docker_stats_${container_id}_${name}.log
