@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 
 """
-Resource Monitor (Fix: Argument Parsing Bug)
+Resource Monitor (最终稳定版 v1.5)
 
-修复说明：
-  1. [修复] 解决了 --output 后面的文件名或 --monitor-config 后面的字符串被误认为是命令的问题。
-  2. [逻辑] 重构了参数扫描器，能够智能跳过 flag 的参数值。
+更新日志：
+  1. [修复] 文件名冲突：默认输出文件名增加 6位随机码，防止秒级并发启动时文件相互覆盖。
+     (例如: monitor_docker_20260108_221635_a1b2c3.png)
+  2. [回顾] 包含之前所有修复：参数隔离、短进程绘图、CPU 0% 修正、智能标题。
 """
 
 import subprocess
@@ -436,7 +437,6 @@ class ResourceMonitor:
                 except ValueError: cmd_name = "docker"
             else:
                 cmd_name = base_cmd
-        if len(cmd_name) > 50: cmd_name = cmd_name[:50] + "..."
 
         duration_sec = stats['duration']
         if duration_sec < 60: duration_str = f"{duration_sec:.1f} seconds"
@@ -553,10 +553,6 @@ def main():
     output_file = None
     import_file = None
     
-    # --- Argument Parsing Fix: Skip values for known flags ---
-    monitor_args = []
-    cmd_args = []
-    
     # Flags that take an argument
     FLAGS_WITH_ARGS = {
         '--output', '--plot-output', 
@@ -565,6 +561,9 @@ def main():
         '--plot-data', 
         '--monitor-config'
     }
+    
+    monitor_args = []
+    cmd_args = []
     
     raw_args = sys.argv[1:]
     split_index = -1
@@ -582,30 +581,27 @@ def main():
             
         # 2. Known Monitor Flags (consume flag + value)
         if arg in FLAGS_WITH_ARGS:
-            # Check if next arg exists (value)
             if i + 1 < len(raw_args):
-                i += 2 # Skip flag and value
+                i += 2 
                 continue
             else:
-                i += 1 # Trailing flag (error handled later)
+                i += 1
                 continue
                 
-        # 3. Possible Monitor Flags (unknown/typo?)
+        # 3. Possible Monitor Flags
         if arg.startswith('-'):
             i += 1
             continue
             
-        # 4. Command Start (First non-flag argument)
+        # 4. Command Start
         monitor_args = raw_args[:i]
         cmd_args = raw_args[i:]
         split_index = i
         break
     
-    # If no split found (e.g. only replay args), all are monitor args
     if split_index == -1 and not cmd_args:
         monitor_args = raw_args
 
-    # --- Parse Monitor Args ---
     args_iter = iter(monitor_args)
     while True:
         try:
@@ -636,9 +632,6 @@ def main():
             try: import_file = next(args_iter)
             except StopIteration: pass
         else:
-            # Should ideally not happen if logic above is correct, 
-            # but if something slipped through, treat as cmd arg?
-            # Or just ignore/warn.
             pass
 
     if import_file:
@@ -661,8 +654,9 @@ def main():
     
     if not output_file:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        uid_suffix = uuid.uuid4().hex[:6]  # Unique suffix
         cmd_slug = Path(command[0]).stem
-        output_file = f"monitor_{cmd_slug}_{timestamp}.png"
+        output_file = f"monitor_{cmd_slug}_{timestamp}_{uid_suffix}.png"
         
     mon = ResourceMonitor(
         command, 
