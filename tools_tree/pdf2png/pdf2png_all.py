@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/home/chenjun/software/linux_tools/miniconda3/bin/python3.7
 # -*- coding:utf-8 -*-
 
 #############################################
