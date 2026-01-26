@@ -1,7 +1,18 @@
 #!/home/chenjun/software/linux_tools/miniconda3/bin/python3.7
 
+# 修复版PDF转PNG工具
+# 使用最新的PyMuPDF库语法
+# 安装方法:
+# pip uninstall fitz
+# pip install --upgrade pymupdf
+# pip install PyMuPDF
 # 修复版PDF转PNG工具 (兼容旧版PyMuPDF)
 # 自动处理 'Pixmap' object has no attribute 'save' 错误
+
+"""
+功能: 将PDF文件转换为PNG图片
+用法: python pdf2png_modern.py your_pdf_file.pdf
+"""
 
 import sys
 import os
@@ -13,7 +24,7 @@ except ImportError:
     try:
         import pymupdf as fitz
     except ImportError:
-        print("错误: 未安装PyMuPDF库，请运行 'pip install PyMuPDF' (注意大小写) 安装")
+        print("错误: 未安装PyMuPDF库，请运行 'pip uninstall fitz; pip install PyMuPDF' 安装")
         sys.exit(1)
 
 def pdf_to_images(pdf_path, zoom_x=5.0, zoom_y=5.0, rotation=0):
