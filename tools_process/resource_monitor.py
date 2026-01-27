@@ -422,14 +422,31 @@ class ResourceMonitor:
                     image_name = None
                     command_name = None
                     image_idx = -1
-                    for idx, arg in enumerate(after_run):
+                    # Skip all options until we find the image name
+                    idx = 0
+                    while idx < len(after_run):
+                        arg = after_run[idx]
                         if not arg.startswith('-'):
                             image_name = arg
                             image_idx = idx
                             break
+                        # Skip this option and its value if it has one
+                        idx += 1
+                        # Check if this option takes a value
+                        if idx < len(after_run) and not after_run[idx].startswith('-'):
+                            idx += 1
+                    # Now find the actual command after the image name, skipping any options
                     if image_name and image_idx != -1:
-                        if image_idx + 1 < len(after_run):
-                            command_name = after_run[image_idx + 1]
+                        idx_after = image_idx + 1
+                        while idx_after < len(after_run):
+                            arg = after_run[idx_after]
+                            if not arg.startswith('-'):
+                                command_name = arg
+                                break
+                            # Skip this option and its value if it has one
+                            idx_after += 1
+                            if idx_after < len(after_run) and not after_run[idx_after].startswith('-'):
+                                idx_after += 1
                     
                     if command_name: cmd_name = Path(command_name).name
                     elif image_name: cmd_name = f"docker ({image_name})"
