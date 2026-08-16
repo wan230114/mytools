@@ -145,6 +145,7 @@ header = """<!DOCTYPE html>
 
 # 使用字符串替换而不是格式化，避免%字符的冲突
 header = header.replace('IMG_WIDTH', str(width))
+header = header.replace('<title>table-%s</title>', '<title>table-%s</title>' % finame.split('/')[-1])
 
 L_result = []
 if foname:
@@ -158,10 +159,11 @@ if foname:
     <a class="lb-btn lb-prev" onclick="move('left')">&#10094;</a>
     <a class="lb-btn lb-next" onclick="move('right')">&#10095;</a>
     <div id="img-wrapper">
-        <img id="lightbox-image" src="" 
-             onclick="toggleZoom(event)" 
-             onmousemove="panImage(event)" 
-             onwheel="zoomWheel(event)">
+        <img id="lightbox-image" src=""
+             onclick="toggleZoom(event)"
+             onmousemove="panImage(event)"
+             onwheel="zoomWheel(event)"
+             oncontextmenu="lbNextRow(event)">
     </div>
     <div id="lb-caption"></div>
 </div>
@@ -228,9 +230,9 @@ if foname:
         const rows = Array.from(document.querySelectorAll('table tr'));
         
         rows.forEach((tr, rIndex) => {
-            const rowImgs = []; 
+            const rowImgs = [];
             const cells = Array.from(tr.querySelectorAll('td'));
-            
+
             cells.forEach((td, cIndex) => {
                 const img = td.querySelector('img');
                 if(img) {
@@ -239,6 +241,12 @@ if foname:
                         // 阻止事件冒泡，防止意外关闭或其他干扰
                         e.stopPropagation();
                         openLightbox(rIndex, cIndex);
+                    });
+                    // 绑定右键事件：跳转到下一行预览
+                    img.addEventListener('contextmenu', function(e) {
+                        e.preventDefault(); // 阻止默认右键菜单
+                        e.stopPropagation();
+                        openNextRow(rIndex, cIndex);
                     });
                     rowImgs[cIndex] = img;
                 } else {
@@ -259,66 +267,79 @@ if foname:
             overlay.style.display = "flex";
         };
 
-        window.closeLightbox = function() {
-            resetZoom();
-            overlay.style.display = "none";
-        };
-
-        window.move = function(direction) {
-            resetZoom(); // 切换图片重置缩放
-            let nextR = currentR;
-            let nextC = currentC;
-
-            if (direction === 'up') nextR--;
-            if (direction === 'down') nextR++;
-            if (direction === 'left') nextC--;
-            if (direction === 'right') nextC++;
-
-            // 1. 检查行是否存在
-            if (nextR >= 0 && nextR < grid.length) {
-                // 2. 检查列是否存在
-                if (nextC >= 0 && nextC < grid[nextR].length) {
-                    // 3. 检查该位置是否有图片
+        // 右键触发：跳转到下一行第一个图片预览
+        window.openNextRow = function(r, c) {
+            // 从下一行开始，依次向下找第一个有图片的行
+            for (let nextR = r + 1; nextR < grid.length; nextR++) {
+                // 该行从左到右找第一个图片
+                for (let nextC = 0; nextC < grid[nextR].length; nextC++) {
                     if (grid[nextR][nextC]) {
-                        currentR = nextR;
-                        currentC = nextC;
-                        updateView();
-                    } else {
-                        // 如果当前位置没有图片，尝试在下一个有图片的位置停止
-                        findNextValidPosition(nextR, nextC, direction);
+                        openLightbox(nextR, nextC);
+                        return;
                     }
                 }
             }
         };
 
-        function findNextValidPosition(r, c, direction) {
-            let nextR = r;
-            let nextC = c;
-            let maxSearch = 100; // 防止无限循环
-            let searchCount = 0;
+        // lightbox 打开时右键预览图片：跳转到下一行
+        window.lbNextRow = function(e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            // 仅在 lightbox 已打开时响应
+            if (overlay.style.display === "flex") {
+                openNextRow(currentR, currentC);
+            }
+        };
 
-            // 继续沿相同方向搜索
-            while (searchCount < maxSearch) {
-                searchCount++;
-                
-                if (direction === 'up') nextR--;
-                if (direction === 'down') nextR++;
-                if (direction === 'left') nextC--;
-                if (direction === 'right') nextC++;
+        window.closeLightbox = function() {
+            resetZoom();
+            overlay.style.display = "none";
+        };
 
-                // 检查边界
-                if (nextR < 0 || nextR >= grid.length) break;
-                if (nextC < 0 || nextC >= grid[nextR].length) break;
+        // 展平的阅读序列（行优先：从第一行第一列到最后一行最后一列）
+        const flatList = [];
+        grid.forEach(function(rowImgs, r) {
+            rowImgs.forEach(function(im, c) {
+                if (im) flatList.push({r: r, c: c});
+            });
+        });
 
-                // 如果找到有效图片位置
-                if (grid[nextR][nextC]) {
-                    currentR = nextR;
-                    currentC = nextC;
+        function flatIndexOf(r, c) {
+            for (let i = 0; i < flatList.length; i++) {
+                if (flatList[i].r === r && flatList[i].c === c) return i;
+            }
+            return -1;
+        }
+
+        window.move = function(direction) {
+            resetZoom(); // 切换图片重置缩放
+
+            if (direction === 'left' || direction === 'right') {
+                // 阅读流导航：行末按右 → 下一行第一列；行首按左 → 上一行最后一列
+                let idx = flatIndexOf(currentR, currentC);
+                if (idx < 0) return;
+                idx += (direction === 'right') ? 1 : -1;
+                if (idx >= 0 && idx < flatList.length) {
+                    currentR = flatList[idx].r;
+                    currentC = flatList[idx].c;
                     updateView();
-                    return;
+                }
+            } else {
+                // 上下导航：沿同列找最近的有图片的行
+                const step = (direction === 'up') ? -1 : 1;
+                let nextR = currentR + step;
+                while (nextR >= 0 && nextR < grid.length) {
+                    if (grid[nextR][currentC]) {
+                        currentR = nextR;
+                        updateView();
+                        return;
+                    }
+                    nextR += step;
                 }
             }
-        }
+        };
 
         function updateView() {
             if (!grid[currentR] || !grid[currentR][currentC]) return;
