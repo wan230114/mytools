@@ -106,3 +106,18 @@ alias unrar2="while read x; do dirname=\`echo \$x|sed 's/.rar\$//'\`; mkdir \$di
 # docker
 alias docker_images='docker images --format "{{.ID}}\t{{.CreatedAt}}\t{{.Size}}\t{{.Repository}}:{{.Tag}}"'
 alias proxy='export http_proxy=http://127.0.0.1:8118; export https_proxy=$http_proxy; curl www.google.com'
+docker_download(){
+    BASE='http://wan230114.dpdns.org:5000'
+    IMAGE='nginx:latest'
+
+    URL=$(curl -fsG "$BASE/api/image/download" \
+      --data-urlencode "image=$IMAGE" \
+      --data-urlencode 'mode=prepare' \
+      --data-urlencode 'compressed=false' |
+      jq -r '.download_url')
+
+    [[ "$URL" == http* ]] || URL="$BASE$URL"
+
+    curl -fL -OJ "$URL"
+}
+
