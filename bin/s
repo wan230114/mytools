@@ -1,54 +1,101 @@
 #!/usr/bin/env bash
 
-python3 - "$@" <<'PY'
+python3 -u - "$@" <<'PY'
 import http.server
 import socket
 import sys
+import threading
 import urllib.request
 
-port = int(sys.argv[1]) if len(sys.argv) > 1 else 8100
+specified = len(sys.argv) > 1
+port = int(sys.argv[1]) if specified else 8100
 
-# 未指定端口时，从 8000 开始寻找可用端口
-if len(sys.argv) == 1:
-    while True:
-        try:
-            server = http.server.ThreadingHTTPServer(
-                ("", port),
-                http.server.SimpleHTTPRequestHandler
-            )
-            break
-        except OSError:
-            print(f"{port} 端口已被占用")
-            port += 1
-else:
-    server = http.server.ThreadingHTTPServer(
+
+def get_lan_ip():
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            s.connect(("8.8.8.8", 80))
+            return s.getsockname()[0]
+    except OSError:
+        return None
+
+
+def print_public_url(port):
+    try:
+        with urllib.request.urlopen(
+            "https://ipv4.icanhazip.com",
+            timeout=2
+        ) as r:
+            ip = r.read().decode().strip()
+        if ip:
+            print(f"公网:   http://{ip}:{port}", flush=True)
+    except Exception:
+        pass
+
+
+def print_urls(port):
+    print(f"本机:   http://127.0.0.1:{port}")
+
+    ip = get_lan_ip()
+    if ip and ip != "127.0.0.1":
+        print(f"局域网: http://{ip}:{port}")
+
+
+def create_server(port):
+    return http.server.ThreadingHTTPServer(
         ("", port),
         http.server.SimpleHTTPRequestHandler
     )
 
-print(f"http://127.0.0.1:{port}")
 
-# 局域网 IP
+server = None
+
+if specified:
+    # 指定端口：占用时不自动换端口
+    try:
+        server = create_server(port)
+    except OSError:
+        pass
+else:
+    # 未指定：从 8100 开始自动寻找可用端口
+    while True:
+        try:
+            server = create_server(port)
+            break
+        except OSError:
+            print(f"⚠️  {port} 端口已被占用")
+            port += 1
+
+
+print()
+print_urls(port)
+
+# 公网 IP 异步获取，不阻塞服务启动
+t = threading.Thread(
+    target=print_public_url,
+    args=(port,),
+    daemon=True
+)
+t.start()
+
+
+if server is None:
+    # 给公网 IP 最多 2.5 秒打印机会，但不会无限卡住
+    t.join(2.5)
+    print()
+    print(f"🚨 端口 {port} 已被占用，HTTP 服务未启动")
+    sys.exit(1)
+
+
+print()
+print(f"✓ HTTP 服务已启动，端口 {port}")
+print("  Ctrl+C 停止服务")
+print()
+
 try:
-    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
-        s.connect(("8.8.8.8", 80))
-        ip = s.getsockname()[0]
-    if ip != "127.0.0.1":
-        print(f"http://{ip}:{port}")
-except OSError:
-    pass
-
-# 公网 IP
-try:
-    with urllib.request.urlopen(
-        "https://ipv4.icanhazip.com",
-        timeout=3
-    ) as r:
-        pub = r.read().decode().strip()
-    if pub:
-        print(f"http://{pub}:{port}")
-except Exception:
-    pass
-
-server.serve_forever()
+    server.serve_forever()
+except KeyboardInterrupt:
+    print("\n服务已停止")
+finally:
+    server.server_close()
 PY
