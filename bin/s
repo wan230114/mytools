@@ -1,32 +1,54 @@
 #!/usr/bin/env bash
-# 启动 http 服务并打印局域网/公网访问地址（macOS / Linux 通用）
-port=${1:-8100}
 
-if [ -z "${1:-}" ]; then
-    # 未指定端口时从 8000 起自动避让被占用的端口（跨平台检测）
-    while python3 -c "import socket,sys; sys.exit(socket.socket().connect_ex(('127.0.0.1', $port)) == 0)"; do
-        echo "$port 端口已被占用"
-        port=$((port + 1))
-    done
-fi
+python3 - "$@" <<'PY'
+import http.server
+import socket
+import sys
+import urllib.request
 
-# 本机局域网 IP（UDP connect 不会真正发包，仅用于确定路由出口地址）
-python3 - "$port" <<'EOF'
-import socket, sys
-port = sys.argv[1]
+port = int(sys.argv[1]) if len(sys.argv) > 1 else 8100
+
+# 未指定端口时，从 8000 开始寻找可用端口
+if len(sys.argv) == 1:
+    while True:
+        try:
+            server = http.server.ThreadingHTTPServer(
+                ("", port),
+                http.server.SimpleHTTPRequestHandler
+            )
+            break
+        except OSError:
+            print(f"{port} 端口已被占用")
+            port += 1
+else:
+    server = http.server.ThreadingHTTPServer(
+        ("", port),
+        http.server.SimpleHTTPRequestHandler
+    )
+
 print(f"http://127.0.0.1:{port}")
+
+# 局域网 IP
 try:
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(("10.255.255.255", 1))
-    ip = s.getsockname()[0]
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
     if ip != "127.0.0.1":
         print(f"http://{ip}:{port}")
+except OSError:
+    pass
+
+# 公网 IP
+try:
+    with urllib.request.urlopen(
+        "https://ipv4.icanhazip.com",
+        timeout=3
+    ) as r:
+        pub = r.read().decode().strip()
+    if pub:
+        print(f"http://{pub}:{port}")
 except Exception:
     pass
-EOF
 
-# 公网 IP（3 秒超时，取不到则跳过）
-pub=$(curl -s -m 3 ipv4.icanhazip.com 2>/dev/null)
-[ -n "$pub" ] && echo "http://${pub}:${port}"
-
-python3 -u -m http.server "$port"
+server.serve_forever()
+PY
