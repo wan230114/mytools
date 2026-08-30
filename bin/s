@@ -1,19 +1,32 @@
 #!/usr/bin/env bash
-# 返回公网IP
-if [ "$(echo $@)" ]; then
-    port=$1
-else
-    port=8000
-    while true; do
-        moni=$(ss -tuln | grep $port)
-        if [ "$moni" ]; then
-            echo $port 端口已被占用
-            ((port++))
-        else
-            break
-        fi
+# 启动 http 服务并打印局域网/公网访问地址（macOS / Linux 通用）
+port=${1:-8100}
+
+if [ -z "${1:-}" ]; then
+    # 未指定端口时从 8000 起自动避让被占用的端口（跨平台检测）
+    while python3 -c "import socket,sys; sys.exit(socket.socket().connect_ex(('127.0.0.1', $port)) == 0)"; do
+        echo "$port 端口已被占用"
+        port=$((port + 1))
     done
 fi
-hostname -I | tr ' ' '\n' | grep -v ':' | sort | while read x; do echo http://$x:$port; done
-sh -c "echo http://\`curl ipv4.icanhazip.com 2>/dev/null\`:$port &"
-python3 -u -m http.server $port
+
+# 本机局域网 IP（UDP connect 不会真正发包，仅用于确定路由出口地址）
+python3 - "$port" <<'EOF'
+import socket, sys
+port = sys.argv[1]
+print(f"http://127.0.0.1:{port}")
+try:
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("10.255.255.255", 1))
+    ip = s.getsockname()[0]
+    if ip != "127.0.0.1":
+        print(f"http://{ip}:{port}")
+except Exception:
+    pass
+EOF
+
+# 公网 IP（3 秒超时，取不到则跳过）
+pub=$(curl -s -m 3 ipv4.icanhazip.com 2>/dev/null)
+[ -n "$pub" ] && echo "http://${pub}:${port}"
+
+python3 -u -m http.server "$port"
