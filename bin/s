@@ -1,32 +1,101 @@
 #!/usr/bin/env bash
-# 启动 http 服务并打印局域网/公网访问地址（macOS / Linux 通用）
-port=${1:-8100}
 
-if [ -z "${1:-}" ]; then
-    # 未指定端口时从 8000 起自动避让被占用的端口（跨平台检测）
-    while python3 -c "import socket,sys; sys.exit(socket.socket().connect_ex(('127.0.0.1', $port)) == 0)"; do
-        echo "$port 端口已被占用"
-        port=$((port + 1))
-    done
-fi
+python3 -u - "$@" <<'PY'
+import http.server
+import socket
+import sys
+import threading
+import urllib.request
 
-# 本机局域网 IP（UDP connect 不会真正发包，仅用于确定路由出口地址）
-python3 - "$port" <<'EOF'
-import socket, sys
-port = sys.argv[1]
-print(f"http://127.0.0.1:{port}")
+specified = len(sys.argv) > 1
+port = int(sys.argv[1]) if specified else 8100
+
+
+def get_lan_ip():
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            s.connect(("8.8.8.8", 80))
+            return s.getsockname()[0]
+    except OSError:
+        return None
+
+
+def print_public_url(port):
+    try:
+        with urllib.request.urlopen(
+            "https://ipv4.icanhazip.com",
+            timeout=2
+        ) as r:
+            ip = r.read().decode().strip()
+        if ip:
+            print(f"公网:   http://{ip}:{port}", flush=True)
+    except Exception:
+        pass
+
+
+def print_urls(port):
+    print(f"本机:   http://127.0.0.1:{port}")
+
+    ip = get_lan_ip()
+    if ip and ip != "127.0.0.1":
+        print(f"局域网: http://{ip}:{port}")
+
+
+def create_server(port):
+    return http.server.ThreadingHTTPServer(
+        ("", port),
+        http.server.SimpleHTTPRequestHandler
+    )
+
+
+server = None
+
+if specified:
+    # 指定端口：占用时不自动换端口
+    try:
+        server = create_server(port)
+    except OSError:
+        pass
+else:
+    # 未指定：从 8100 开始自动寻找可用端口
+    while True:
+        try:
+            server = create_server(port)
+            break
+        except OSError:
+            print(f"⚠️  {port} 端口已被占用")
+            port += 1
+
+
+print()
+print_urls(port)
+
+# 公网 IP 异步获取，不阻塞服务启动
+t = threading.Thread(
+    target=print_public_url,
+    args=(port,),
+    daemon=True
+)
+t.start()
+
+
+if server is None:
+    # 给公网 IP 最多 2.5 秒打印机会，但不会无限卡住
+    t.join(2.5)
+    print()
+    print(f"🚨 端口 {port} 已被占用，HTTP 服务未启动")
+    sys.exit(1)
+
+
+print()
+print(f"✓ HTTP 服务已启动，端口 {port}")
+print("  Ctrl+C 停止服务")
+print()
+
 try:
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(("10.255.255.255", 1))
-    ip = s.getsockname()[0]
-    if ip != "127.0.0.1":
-        print(f"http://{ip}:{port}")
-except Exception:
-    pass
-EOF
-
-# 公网 IP（3 秒超时，取不到则跳过）
-pub=$(curl -s -m 3 ipv4.icanhazip.com 2>/dev/null)
-[ -n "$pub" ] && echo "http://${pub}:${port}"
-
-python3 -u -m http.server "$port"
+    server.serve_forever()
+except KeyboardInterrupt:
+    print("\n服务已停止")
+finally:
+    server.server_close()
+PY
