@@ -105,7 +105,7 @@ alias unrar2="while read x; do dirname=\`echo \$x|sed 's/.rar\$//'\`; mkdir \$di
 
 # docker
 alias docker_images='docker images --format "{{.ID}}\t{{.CreatedAt}}\t{{.Size}}\t{{.Repository}}:{{.Tag}}"'
-alias proxy='export http_proxy=http://127.0.0.1:8118; export https_proxy=$http_proxy; curl www.google.com'
+alias proxy='curl -s -m 3 ipv4.icanhazip.com 2>/dev/null; export http_proxy=http://127.0.0.1:8118; export https_proxy=$http_proxy; curl -s -m 3 ipv4.icanhazip.com 2>/dev/null'
 docker_download(){
     BASE='http://wan230114.dpdns.org:5000'
     IMAGE="$1"
