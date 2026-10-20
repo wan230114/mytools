@@ -9,6 +9,7 @@
 可用 ![说明](图片路径 ":size=320x240") 进一步限制预览尺寸；只写宽度、
 只写高度（:size=x240）和百分比也支持，百分比高度按屏幕高度计算。
 点击未设置链接的图片可查看原图。
+支持列表内缩进的代码围栏，保留代码内容和原有列表层级。
 """
 
 import argparse
@@ -20,6 +21,9 @@ import sys
 
 import markdown
 from bs4 import BeautifulSoup, Comment
+from markdown.extensions import Extension
+from markdown.preprocessors import Preprocessor
+from markdown.util import HTML_PLACEHOLDER_RE
 
 
 STYLES = """
@@ -134,6 +138,68 @@ tbody tr:nth-child(even) { background: #f6f8fa; }
 
 IMAGE_SIZE = re.compile(r":size=(\d+%?)?(?:x(\d+%?)?)?")
 DIMENSION = re.compile(r"\d+%?")
+FENCE = re.compile(r"^( *)(`{3,}|~{3,})(.*)$")
+
+
+class ListFencedCodePreprocessor(Preprocessor):
+    """复用内置围栏渲染器，保留列表层级和代码原始缩进。"""
+
+    LIST_ITEM = re.compile(r"^( *)(?:[-+*]|\d+\.)[ \t]+")
+
+    @staticmethod
+    def find_closing(lines, start, opening):
+        closing = re.compile(r"^" + re.escape(opening.group(1) + opening.group(2)) + r" *$")
+        for index in range(start + 1, len(lines)):
+            if closing.fullmatch(lines[index]):
+                return index
+        return None
+
+    def run(self, lines):
+        result = []
+        list_indents = []
+        index = 0
+        tab_length = self.md.tab_length
+        renderer = self.md.preprocessors["fenced_code_block"]
+        while index < len(lines):
+            line = lines[index]
+            if not line.strip():
+                result.append(line)
+                index += 1
+                continue
+
+            indent = len(line) - len(line.lstrip(" "))
+            while list_indents and indent < list_indents[-1]:
+                list_indents.pop()
+            opening = FENCE.match(line)
+            if (opening and list_indents
+                    and list_indents[-1] <= indent < list_indents[-1] + tab_length):
+                end = self.find_closing(lines, index, opening)
+                if end is not None:
+                    source = lines[index:end + 1]
+                    prefix = " " * indent
+                    # 不接受跨出列表的代码行，避免吞入后续普通正文。
+                    if all(not entry.strip() or entry.startswith(prefix) for entry in source):
+                        source = [entry[indent:] if entry.strip() else "" for entry in source]
+                        placeholder = "\n".join(renderer.run(source)).strip("\n")
+                        if HTML_PLACEHOLDER_RE.fullmatch(placeholder):
+                            result.extend(["", prefix + placeholder, ""])
+                            index = end + 1
+                            continue
+
+            marker = self.LIST_ITEM.match(line)
+            if marker and (indent < tab_length or
+                           (list_indents and indent < list_indents[-1] + tab_length)):
+                list_indents.append((indent // tab_length + 1) * tab_length)
+
+            result.append(line)
+            index += 1
+        return result
+
+
+class ListFencedCodeExtension(Extension):
+    def extendMarkdown(self, md):
+        # 正常围栏与原始 HTML 已被保护，再处理列表内的缩进围栏。
+        md.preprocessors.register(ListFencedCodePreprocessor(md), "list_fenced_code", 19)
 
 
 def prepare_image(soup, image):
@@ -177,6 +243,7 @@ def render_document(text, title):
         "markdown.extensions.fenced_code",
         "markdown.extensions.md_in_html",
         "markdown.extensions.sane_lists",
+        ListFencedCodeExtension(),
     ], extension_configs={
         # 高亮样式随 HTML 一起保存，离线打开不需要额外 CSS 文件。
         "markdown.extensions.codehilite": {"noclasses": True},
