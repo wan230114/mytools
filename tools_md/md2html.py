@@ -1,203 +1,254 @@
 #!/usr/bin/env python3
-# -*- coding:utf-8 -*-
+# -*- coding: utf-8 -*-
+"""将 Markdown 转成同目录下可离线浏览的 HTML。
 
-#############################################
-# @ Author: Chen Jun
-# @ Author Email: 1170101471@qq.com
-# @ Created Date: 2021-04-20, 23:08:09
-# @ Modified By: Chen Jun
-# @ Last Modified: 2021-12-08, 17:59:12
-#############################################
+依赖：python3 -m pip install markdown beautifulsoup4
+用法：python3 bin/md2html.py 文档.md [其他文档.md ...]
 
-# ref: [[python]自动化将markdown文件转成html文件 - Ron Ngai - 博客园](https: // www.cnblogs.com/rond/p/5897625.html)
-# pip install markdown
-# pip install importlib
+图片按原始比例缩小，默认不超过正文宽度、屏幕高度的 70% 和 640px。
+可用 ![说明](图片路径 ":size=320x240") 进一步限制预览尺寸；只写宽度、
+只写高度（:size=x240）和百分比也支持，百分比高度按屏幕高度计算。
+点击未设置链接的图片可查看原图。
+"""
 
-# 使用方法 python markdown_convert.py filename
-
-# %%
-import sys
-import os
+import argparse
 import datetime
+from html import escape
+from pathlib import Path
 import re
-import markdown
-import codecs
-from bs4 import BeautifulSoup
+import sys
 
-css = '''
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<style type="text/css">
-ul.md_ul li{
-    list-style: disc !important;
-}
-ol.md_ol li{
-    list-style: decimal !important;
-}
-.rightmain {
-    background: #ffffff;
-}
-# md_a {
-    text-decoration: underline;
-    color: #6090cf;
-}
-hr {
-    display: block;
-    unicode-bidi: isolate;
-    margin-block-start: 0.5em;
-    margin-block-end: 0.5em;
-    margin-inline-start: auto;
-    margin-inline-end: auto;
-    overflow: hidden;
-    border-style: inset;
-    border-width: 1px;
-}
-strong {
-    font-weight: bold;
+import markdown
+from bs4 import BeautifulSoup, Comment
+
+
+STYLES = """
+* {
+    box-sizing: border-box;
 }
 body {
-    display: block;
-    margin: 8px;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 24px;
+    color: #24292f;
+    background: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                 "Microsoft YaHei", sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
 }
-
-h1 {
-    font-size: 2em;
-    margin-block-start: 0.67em;
-    margin-block-end: 0.67em;
+a {
+    color: #0969da;
+    text-underline-offset: 0.15em;
 }
-
-h2 {
-    font-size: 1.5em;
-    margin-block-start: 0.83em;
-    margin-block-end: 0.83em;
+a:hover {
+    color: #0550ae;
 }
-
-h3 {
-    font-size: 1.17em;
-    margin-block-start: 1em;
-    margin-block-end: 1em;
+h1, h2, h3, h4, h5, h6 {
+    margin: 1.5em 0 0.6em;
+    font-weight: 600;
+    line-height: 1.3;
 }
-
-
-h4 {
-    margin-block-start: 1.33em;
-    margin-block-end: 1.33em;
+h1 { font-size: 2em; }
+h2 { font-size: 1.5em; }
+h3 { font-size: 1.25em; }
+h4 { font-size: 1em; }
+h5 { font-size: 0.875em; }
+h6 { font-size: 0.85em; color: #57606a; }
+body > :first-child { margin-top: 0; }
+p, ul, ol, blockquote, pre, .table-scroll {
+    margin: 0 0 1em;
 }
-
-
-h5 {
-    font-size: 0.83em;
-    margin-block-start: 1.67em;
-    margin-block-end: 1.67em;
+li > p { margin: 0.5em 0; }
+li > ul, li > ol { margin-bottom: 0; }
+blockquote {
+    margin-left: 0;
+    padding: 0 1em;
+    color: #57606a;
+    border-left: 4px solid #d0d7de;
 }
-
-h1 h2 h3 h4 h5 {
-    display: block;
-    margin-inline-start: 0px;
-    margin-inline-end: 0px;
-    font-weight: bold;
+hr {
+    margin: 1.5em 0;
+    border: 0;
+    border-top: 1px solid #d0d7de;
 }
-</style>
-<style type="text/css">
-    table {
-        border-collapse: collapse;
-        border-spacing: 0;
-        empty-cells: show;
-        border: 1px solid #cbcbcb;
-    }
+img {
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-width: min(100%, var(--md-image-width, 100%));
+    max-height: 640px;
+    max-height: min(70vh, 640px, var(--md-image-height, 640px));
+    object-fit: contain;
+    vertical-align: middle;
+}
+.md-image-link img { cursor: zoom-in; }
+code, pre {
+    font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace;
+    font-size: 0.9em;
+}
+code {
+    padding: 0.15em 0.35em;
+    background: #f6f8fa;
+    border-radius: 4px;
+}
+pre {
+    max-width: 100%;
+    padding: 16px;
+    overflow-x: auto;
+    background: #f6f8fa;
+    border-radius: 6px;
+    overflow-wrap: normal;
+}
+pre code {
+    padding: 0;
+    background: transparent;
+    font-size: inherit;
+}
+.table-scroll {
+    max-width: 100%;
+    overflow-x: auto;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95em;
+}
+th, td {
+    padding: 8px 12px;
+    border: 1px solid #d0d7de;
+}
+th { background: #f6f8fa; text-align: left; }
+tbody tr:nth-child(even) { background: #f6f8fa; }
+@media (max-width: 600px) {
+    body { padding: 16px; }
+}
+@media print {
+    body { max-width: none; padding: 0; }
+    img { max-height: 18cm; }
+    pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+    .table-scroll { overflow: visible; }
+}
+"""
 
-    td, th {
-        padding: 0;
-        border-left: 1px solid #cbcbcb;
-        border-width: 0 0 0 1px;
-        font-size: inherit;
-        margin: 0;
-        overflow: visible;
-        padding: .5em 1em;
-        background-color: transparent;
-        border-bottom: 1px solid #cbcbcb;
-    }
+IMAGE_SIZE = re.compile(r":size=(\d+%?)?(?:x(\d+%?)?)?")
+DIMENSION = re.compile(r"\d+%?")
 
-    thead {
-        background-color: #e0e0e0;
-        color: #000;
-        text-align: left;
-        vertical-align: bottom;
-    }
 
-    tbody>tr:last-child>td {
-        border-bottom-width: 0;
-    }
+def prepare_image(soup, image):
+    """把尺寸作为缩略图上限，避免固定宽高导致长图变形。"""
+    size = IMAGE_SIZE.fullmatch(image.get("title", ""))
+    if size and any(size.groups()):
+        del image["title"]
+        for attribute, value in zip(("width", "height"), size.groups()):
+            if value:
+                image[attribute] = value
 
+    limits = []
+    for attribute in ("width", "height"):
+        value = str(image.get(attribute, ""))
+        if not DIMENSION.fullmatch(value):
+            continue
+        if value.endswith("%"):
+            # 高度百分比不依赖未定义的父元素高度。
+            unit_value = value if attribute == "width" else value[:-1] + "vh"
+        else:
+            unit_value = value + "px"
+        limits.append("--md-image-{}: {}".format(attribute, unit_value))
+    if limits:
+        styles = image.get("style", "").rstrip().rstrip(";")
+        image["style"] = "; ".join(filter(None, [styles] + limits)) + ";"
+
+    # 保留已有交互行为，以及 picture 中 source/img 的直接子元素关系。
+    if (image.get("src") and not image.has_attr("usemap")
+            and image.find_parent(["a", "picture", "button", "label", "summary"]) is None):
+        link = soup.new_tag("a", href=image["src"], title="查看原图")
+        link["class"] = "md-image-link"
+        link["target"] = "_blank"
+        link["rel"] = "noopener"
+        image.wrap(link)
+
+
+def render_document(text, title):
+    html = markdown.markdown(text, extensions=[
+        "markdown.extensions.tables",
+        "markdown.extensions.codehilite",
+        "markdown.extensions.fenced_code",
+        "markdown.extensions.md_in_html",
+        "markdown.extensions.sane_lists",
+    ], extension_configs={
+        # 高亮样式随 HTML 一起保存，离线打开不需要额外 CSS 文件。
+        "markdown.extensions.codehilite": {"noclasses": True},
+    })
+    soup = BeautifulSoup(html, "html.parser")
+    # 兼容旧文档直接写在 center/div 内的图片；只解析这些容器的文本节点，
+    # 不再对整个 HTML 做正则替换，以免修改代码示例和属性中的字面文本。
+    for node in list(soup.find_all(string=True)):
+        if (isinstance(node, Comment) or node.parent.name not in ("center", "div")
+                or node.find_parent(["pre", "code", "script", "style", "textarea"])
+                or "![" not in node):
+            continue
+        # 文本节点里的实体已被解码，重新转义后才交给 Markdown，保留字面标签。
+        fragment = BeautifulSoup(markdown.markdown(escape(str(node), quote=False)), "html.parser")
+        if fragment.find("img") is not None:
+            for paragraph in fragment.find_all("p"):
+                paragraph.unwrap()
+            node.replace_with(*list(fragment.contents))
+
+    for image in soup.find_all("img"):
+        prepare_image(soup, image)
+
+    for table in soup.find_all("table"):
+        wrapper = soup.new_tag("div", tabindex="0")
+        wrapper["class"] = "table-scroll"
+        wrapper["role"] = "region"
+        wrapper["aria-label"] = "表格（可横向滚动）"
+        table.wrap(wrapper)
+
+    return """<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{title}</title>
+<style>
+{styles}
 </style>
 </head>
-'''
-# %%
+<body>
+{body}
+</body>
+</html>
+""".format(title=escape(title), styles=STYLES, body=soup)
 
 
 def main(in_file):
-    name = os.path.splitext(in_file)[0]
-    out_file = '%s.html' % name
-    input_file = codecs.open(in_file, mode="r", encoding="utf-8")
-    text = input_file.read()
-    # html = markdown.markdown(text)
-    html = text.replace('<div ', '<div markdown="1" ')
-    # html = text.replace('<center', '<center markdown="block" ')
-    # html = text.replace('<table', '<table markdown="block" ')
-    # html = text.replace('<tr', '<tr markdown="block" ')
-    # html = text.replace('<td', '<td markdown="block" ')
-    html = markdown.markdown(text, extensions=[
-        'markdown.extensions.tables',
-        'markdown.extensions.codehilite',
-        'markdown.extensions.fenced_code',
-        'markdown.extensions.md_in_html',
-        'markdown.extensions.sane_lists'
-    ])
+    input_path = Path(in_file)
+    output_path = input_path.with_suffix(".html")
+    if (input_path.resolve() == output_path.resolve()
+            or (output_path.exists() and input_path.samefile(output_path))):
+        raise ValueError("输入文件和输出文件相同，无法转换: {}".format(input_path))
+    text = input_path.read_text(encoding="utf-8-sig")
+    html = render_document(text, input_path.stem)
+    output_path.write_text(html, encoding="utf-8", errors="xmlcharrefreplace")
+    print(datetime.datetime.now(), "{}  -->  {}".format(input_path, output_path))
+    return output_path
 
-    pattern = r'(<img.*?) title=":size=([\d%]*)x*([\d%]*)" />'
-    tihuan = r'\1 width="\2" height="\3" />'
-    html = re.sub(pattern, tihuan, html)
 
-    pattern = r'''!\[.*?\]\((.*?)(?: +["']:size=([\d%]*)x*([\d%]*)["'])* *\)'''
-    tihuan = r'''<img src="\1" width="\2" height="\3" />'''
-    html = re.sub(pattern, tihuan, html)
-
-    # pattern, tihuan = r'!\[.*?\]\((.*?)\)', r'<img src="\1" width="320" />'
-    html = re.sub(pattern, tihuan, html)
-    html = html.replace('<p><center></p>', '<center>')
-    html = html.replace('<p></center></p>', '</center>')
-
-    soup = BeautifulSoup(html, 'html.parser')
-
-    # html = html.replace('<a', '<a id="md_a" ')
-    for tag in soup.find_all("a"):
-        # print(tag, tag.attrs)
+def cli():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("files", nargs="+", metavar="文件.md", help="要转换的 Markdown 文件")
+    args = parser.parse_args()
+    failed = False
+    for in_file in args.files:
         try:
-            tag.attrs.setdefault("id", []).append("md_a")
-        except AttributeError:
-            tag.attrs["id"] = [tag.attrs["id"], "md_a"]
-
-    for tag in soup.find_all("ol"):
-        tag.attrs.setdefault("class", []).append("md_ol")
-
-    for tag in soup.find_all("ul"):
-        tag.attrs.setdefault("class", []).append("md_ul")
-
-    html = str(soup)
-
-    output_file = codecs.open(
-        out_file, "w", encoding="utf-8", errors="xmlcharrefreplace")
-    output_file.write(css+html)
-
-    print(datetime.datetime.now(), name + ".md  -->  " + name + ".html")
-
-# %%
+            main(in_file)
+        except (OSError, UnicodeError, ValueError) as error:
+            print("转换失败: {}: {}".format(in_file, error), file=sys.stderr)
+            failed = True
+    return 1 if failed else 0
 
 
 if __name__ == "__main__":
-    # in_file = "/Users/chenjun/GitHub/Product-Lines/README-guanwang"
-    for in_file in sys.argv[1:]:
-        if os.path.exists(in_file):
-            main(in_file)
-        else:
-            print(datetime.datetime.now(), "Warning, 文件不存在:", in_file)
+    sys.exit(cli())
